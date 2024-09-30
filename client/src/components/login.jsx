@@ -9,18 +9,18 @@ function Login() {
     const [user, loading, error] = useAuthState(auth)
     async function handleLogin() {
         await signInWithPopup(auth, provider).then((result) => {
-        // Google Access Token for API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        const user = result.user;
-        // IdP data = getAdditionalUserInfo(result)
-    }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        const email = error.customData.email;
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        console.log(errorCode);
-    });
+            // Google Access Token for API.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            const user = result.user;
+            // IdP data = getAdditionalUserInfo(result)
+        }).catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            const email = error.customData.email;
+            const credential = GoogleAuthProvider.credentialFromError(error);
+            console.log(errorCode);
+        });
     }
     return (
         <>

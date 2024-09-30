@@ -1,12 +1,17 @@
-import logo from './logo.svg';
+// import logo from './logo.svg';
 import Login from "./components/login"
+import ChatDead from "./components/chat_is_dead"
 import './App.css';
 
+import { auth } from "./config/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+
 function App() {
+  const [user] = useAuthState(auth);
   return (
     <div className="App">
+
       {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
@@ -20,7 +25,7 @@ function App() {
         </a>
       </header> */}
       <h1>Firebase test</h1>
-      <Login/>
+      {!user ? <Login/> : <ChatDead/>}
     </div>
   );
 }
