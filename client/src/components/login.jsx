@@ -1,7 +1,7 @@
 import { auth, provider } from "../config/firebase"
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-
+import "./login.css";
 import logo from '../img/btn_google_signin_dark_pressed_web.png'; // Tell webpack this JS file uses this image
 
 
@@ -24,9 +24,7 @@ function Login() {
     }
     return (
         <>
-            <h1> Login Form </h1>
-            <img src={logo} onClick={handleLogin} alt="google_button" />
-            <button onClick={handleLogin}> Login GOOGLE</button>
+            <img class="darken" src={logo} onClick={handleLogin} alt="google_button"/>
             {loading && <p>Loading!</p>}
             {user && <><h2>{user?.displayName}</h2>
                 <img src={user?.photoURL} alt="profile_image" /> </>}
