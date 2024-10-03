@@ -1,31 +1,20 @@
-// import logo from './logo.svg';
-import Login from "./components/login"
-import ChatDead from "./components/chat_is_dead"
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css';
-
-import { auth } from "./config/firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
+import Login from './Login';
+import Home from './Home';
 
 function App() {
-  const [user] = useAuthState(auth);
   return (
     <div className="App">
-
-      {/* <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
-      <h1>Firebase test</h1>
-      {!user ? <Login/> : <ChatDead/>}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/home" element={<Home />} />
+        </Routes>
+      </BrowserRouter>
+        {/* <Login /> */}
     </div>
   );
 }
