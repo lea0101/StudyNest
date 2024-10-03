@@ -1,8 +1,179 @@
-.App {
+#root, .App {
   text-align: center;
 }
 
-.App-logo {
+body, html {
+  height: 100%;
+  margin: 0;
+  background-color: white;
+}
+
+.Login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-image: linear-gradient(80deg, #b9f2fa 10%, #fffdf5 50%, #b9f2fa 90%);
+}
+
+.login-form {
+  width: 420px;
+  background: rgba(153, 202, 213, 0.8);
+  /* background: transparent; */
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.Home {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: rgb(255, 253, 248);
+}
+
+.navbar {
+  background-color: #6fb2c5;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 20px;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-container {
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.navbar-logo a {
+  color: black;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navbar-hamburger {
+  display: none;
+  font-size: 1.8rem;
+  color: black;
+  cursor: pointer;
+}
+
+.navbar-profile {
+  font-size: 1.8rem;
+  color: black;
+  padding: 10px;
+}
+
+.navbar-menu {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+
+.navbar-menu li a {
+  color: black;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.navbar-menu li a:hover {
+  text-decoration: solid;
+}
+
+.navbar-menu.active {
+  display: block;
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 100%;
+  background-color: #6fb2c5;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.navbar-menu.active li {
+  margin: 15px 0;
+}
+
+/* Responsive Navbar */
+@media (max-width: 768px) {
+  .navbar-menu {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .navbar-hamburger {
+    display: block;
+  }
+}
+
+label {
+  text-align: left;
+  padding: 0.25rem 0;
+  width: 100%;
+}
+
+input {
+  width: 100%;
+  max-width: 400px;
+  margin: 0.5rem 0;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-sizing: border-box;
+  flex: 2;
+  padding: 10px;
+
+}
+
+.login-button {
+  background-color: #6fb2c5;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 200px;
+  box-sizing: border-box;
+  margin-top: 10px;
+}
+
+.google-signin-button, .guest-signin-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 200px;
+  box-sizing: border-box;
+  margin-top: 10px;
+}
+
+
+
+
+
+
+/* .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
@@ -35,4 +206,4 @@
   to {
     transform: rotate(360deg);
   }
-}
+} */
