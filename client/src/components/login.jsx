@@ -25,10 +25,11 @@ function Login() {
     return (
         <>
             <img class="darken" src={logo} onClick={handleLogin} alt="google_button"/>
-            {loading && <p>Loading!</p>}
-            {user && <><h2>{user?.displayName}</h2>
-                <img src={user?.photoURL} alt="profile_image" /> </>}
         </>
     )
 }
+
+            //{loading && <p>Loading!</p>}
+            //{user && <><h2>{user?.displayName}</h2>
+            //    <img src={user?.photoURL} alt="profile_image" /> </>}
 export default Login
