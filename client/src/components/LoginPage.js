@@ -1,7 +1,8 @@
 import React, { useState } from "react"
 import '../App.css';
+import Login from "./login.jsx";
 
-function Login() {
+function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -36,11 +37,12 @@ function Login() {
             required
         />
         <button className="login-button" type="submit">Login</button>
-        <button className="google-signin-button" type="submit">Sign in with Google</button>
+        {/* <button className="google-signin-button" type="submit">Sign in with Google</button> */}
+        <Login />
         <button className="guest-signin-button" type="submit">Sign in as Guest</button>
       </form>
     </div>
   );
 }
 
-export default Login;
+export default LoginPage;

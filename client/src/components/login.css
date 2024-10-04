@@ -1,5 +1,6 @@
 .darken {
     -webkit-filter: brightness(100%);
+    margin-top: 10px;
 }
 
 .darken:hover {
