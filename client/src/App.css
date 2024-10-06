@@ -39,6 +39,15 @@ body, html {
   background-color: rgb(255, 253, 248);
 }
 
+.RoomPage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: rgb(255, 253, 248);
+}
+
 .navbar {
   background-color: #6fb2c5;
   width: 100%;
@@ -144,7 +153,7 @@ input {
 
 }
 
-.login-button {
+.login-button, .room-input {
   background-color: #6fb2c5;
   border: none;
   padding: 10px;
