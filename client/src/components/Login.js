@@ -1,10 +1,13 @@
 import React, { useState } from "react"
 import '../App.css';
-import Login from "./login.jsx"
+import GLogin from "./GLogin.jsx"
+import { auth } from "../config/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [user] = useAuthState(auth);
 
 
     const handleLogin = (e) => {
@@ -37,7 +40,7 @@ function LoginPage() {
             required
         />
         <button className="login-button" type="submit">Login</button>
-        <Login/>
+        <GLogin/>
         <button className="guest-signin-button" type="submit">Sign in as Guest</button>
       </form>
     </div>

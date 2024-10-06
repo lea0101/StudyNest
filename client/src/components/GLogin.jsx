@@ -1,11 +1,11 @@
 import { auth, provider } from "../config/firebase"
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import "./login.css";
+import "./glogin.css";
 import logo from '../img/btn_google_signin_dark_pressed_web.png'; // Tell webpack this JS file uses this image
 
 
-function Login() {
+function GLogin() {
     const [user, loading, error] = useAuthState(auth)
     async function handleLogin() {
         await signInWithPopup(auth, provider).then((result) => {
@@ -20,6 +20,7 @@ function Login() {
             const email = error.customData.email;
             const credential = GoogleAuthProvider.credentialFromError(error);
             console.log(errorCode);
+            alert("login failed :(")
         });
     }
     return (
@@ -32,4 +33,4 @@ function Login() {
             //{loading && <p>Loading!</p>}
             //{user && <><h2>{user?.displayName}</h2>
             //    <img src={user?.photoURL} alt="profile_image" /> </>}
-export default Login
+export default GLogin

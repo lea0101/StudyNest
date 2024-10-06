@@ -20,7 +20,7 @@ const ChatDead = ({ scroll }) => {
       uid,
     });
     setMessage("");
-    scroll.current.scrollIntoView({ behavior: "smooth" });
+    //scroll.current.scrollIntoView({ behavior: "smooth" });
   };
   return (
     <form onSubmit={(event) => chatDead(event)} >
