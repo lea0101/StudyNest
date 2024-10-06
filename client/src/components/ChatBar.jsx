@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { auth, db } from "../config/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
-const ChatDead = ({ scroll }) => {
+const ChatBar = ({ scroll }) => {
   const [message, setMessage] = useState("");
 
-  const chatDead = async (event) => {
+  const sendChat = async (event) => {
     event.preventDefault();
     if (message.trim() === "") {
       alert("Enter a real message");
@@ -20,10 +20,11 @@ const ChatDead = ({ scroll }) => {
       uid,
     });
     setMessage("");
-    //scroll.current.scrollIntoView({ behavior: "smooth" });
+    scroll.current.scrollIntoView({ behavior: "smooth" });
   };
+
   return (
-    <form onSubmit={(event) => chatDead(event)} >
+    <form onSubmit={(event) => sendChat(event)} >
       <label htmlFor="messageInput" hidden>
         Enter Message
       </label>
@@ -41,4 +42,4 @@ const ChatDead = ({ scroll }) => {
   );
 };
 
-export default ChatDead;
+export default ChatBar;
