@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css';
 import Login from './components/Login';
 import Home from './components/Home';
+import Chat from './components/Chat';
 
 function App() {
   return (
@@ -14,8 +15,8 @@ function App() {
           <Route path="/home" element={<Home />} />
         </Routes>
       </BrowserRouter>
-        { <Login />}
-        {/* <Login /> */}
+        {/* { <Login />} */}
+        <Chat />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 // import { useAuth0 } from '@auth0/auth0-react';
 
-// import { socket } from './Socket';
+import { socket } from './Socket';
 
 import './Chat.css';
 
@@ -11,7 +11,7 @@ const Chat = () => {
     const [user, setUser] = useState({ nickname: `Test User ${Math.floor(Math.random() * 1000)}` });
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
-    const socket = null;
+    // const socket = null;
     
     useEffect(() => {
         if (socket) {
@@ -23,7 +23,7 @@ const Chat = () => {
     
     const sendMessage = (e) => {
         e.preventDefault();
-        // socket.emit('chat message', { user: user.nickname, message });
+        socket.emit('chat message', { user: user.nickname, message });
         console.log(`Message sent from ${user.nickname}:`, message);
         setMessage('');
     };
