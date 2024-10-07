@@ -12,7 +12,7 @@ function LoginPage() {
     }
 
   return (
-    <div className="Login">
+    <div className="LoginPage">
       <h1>StudyNest Login Page</h1>
       <form className = "login-form" onSubmit={handleLogin}>
         <h3>Login to Your Account</h3>

@@ -1,13 +1,25 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import '../App.css';
 import NavBar from './NavBar';
 import Room from "./Room";
 
-function Home() {
-  const [rooms, setRooms] = useState([]); // holds list of rooms
+function HomePage() {
+  // const [rooms, setRooms] = useState([]);
+  // set initial rooms from LocalStorage, holds list of rooms
+  const [rooms, setRooms] = useState(() => {
+    const saved = localStorage.getItem('rooms');
+    const initivalValue = JSON.parse(saved);
+    return initivalValue || [];
+  });
   const [showInput, setShowInput] = useState(false);
   const [roomName, setRoomName] = useState('') // name of new room
 
+  // save rooms to LocalStorage whenever room state changes
+  useEffect(() => {
+    localStorage.setItem('rooms', JSON.stringify(rooms));
+  }, [rooms]);
+
+  // handle the creation of a new room
   const handleCreateRooms = () => {
       if (roomName.trim() !== '') {
           setRooms([...rooms, roomName]); // add new room to the list
@@ -16,11 +28,16 @@ function Home() {
       }
   }
 
+  // handle deleting rooms
+  const handleDeleteRoom = (roomToDelete) => {
+    setRooms(rooms.filter(room => room !== roomToDelete));
+  }
+
   return (
-    <div className="Home">
+    <div className="HomePage">
         <NavBar />
         <h1>StudyNest Home Page</h1>
-        <div className="Rooms">
+        <div className="room-grid">
 
           {/* input for creating a new room */}
           {showInput && (
@@ -31,7 +48,7 @@ function Home() {
                   value={roomName}
                   onChange={(e) => setRoomName(e.target.value)}
                 />
-                <button className="room-input" onClick={handleCreateRooms}>Add Room</button>
+                <button className="room-input-button" onClick={handleCreateRooms}>Add Room</button>
             </div>
           )}
           
@@ -43,24 +60,12 @@ function Home() {
           )}
 
           {/* list of rooms */}
-          <div className="room-list">
-            {rooms.map((room, index) => (
-              <Room key={index} name={room} /> // render room component for each room
-            ))}
-          </div>
-
-          {/* display list of rooms */}
-          {/* <div className="room-list">
-            <h3>Room List:</h3>
-            <ul>
-              {rooms.map((room, index) => (
-                <li key={index}>{room}</li> // Print each room
-              ))}
-            </ul>
-          </div> */}
+          {rooms.map((room, index) => (
+            <Room key={index} name={room} onDelete={handleDeleteRoom} />
+          ))}
 
         </div>
     </div>
   );
 }
-export default Home;
+export default HomePage;
