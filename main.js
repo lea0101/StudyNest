@@ -1,4 +1,3 @@
-let strokes = [];
 let selection = [];
 
 let currentShape = null;
@@ -37,7 +36,8 @@ function draw() {
         if (getCurrentTool() === 'erase') {
             for (let i = strokes.length - 1; i >= 0; i--) { // very slow, but works
                 if (strokes[i].isNear(mouseX, mouseY)) {
-                    strokes.splice(i, 1);
+                    // strokes.splice(i, 1);
+                    actionManager.append(new ActionErase(i, strokes[i]));
                 }
             }
         }
@@ -109,7 +109,8 @@ function mouseReleased() {
         currentShape.height = bottom - top;
         currentSelection = currentShape;
     } else {
-        strokes.push(currentShape);
+        // strokes.push(currentShape);
+        actionManager.append(new ActionDraw(currentShape));
     }
     currentShape = null;
 }

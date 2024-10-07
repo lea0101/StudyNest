@@ -51,3 +51,11 @@ function getCurrentShader() {
         null : (isFilled() ? currentColor : null);
     return new Shader(currentColor, fill, 2, getCurrentTool() === 'select');
 }
+
+function popAction() {
+    actionManager.undo();
+}
+
+function pushAction() {
+    actionManager.redo();
+}
