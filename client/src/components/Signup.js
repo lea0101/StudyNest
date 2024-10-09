@@ -8,26 +8,33 @@ function Signup() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    const handleGoLogin = () => {
+        navigate('/login');
+      }
 
     const onSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
+        setError('');
 
         await createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             // signed in
             const user = userCredential.user;
             console.log(user);
-            navigate("/login")
+            navigate("/login");
         })
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
             console.log(errorCode, errorMessage);
+            setError(errorMessage);
         });
     }
 
     return (
-        <div className="sign-up">
+        <form className="sign-up-form" onSubmit={onSubmit}>
             <div>
                 <label htmlFor="email">Email</label>
                 <input 
@@ -54,8 +61,12 @@ function Signup() {
                 />
             </div>
             
-            <button className="sign-up-button" type="submit">Don't have an account? Sign Up</button>
-        </div>
+            <button className="sign-up-button" type="submit">Create</button>
+
+            <button className="go-to-login-button" onClick={handleGoLogin} type="submit">I have an account</button>
+
+            {error && <p className="error">{error}</p>}
+        </form>
     )
 }
 

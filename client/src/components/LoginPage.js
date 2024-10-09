@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import '../App.css';
+import { useNavigate } from 'react-router-dom';
 import Login from "./login.jsx";
 import Signup from "./Signup.js";
 
@@ -7,9 +8,15 @@ function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const navigate = useNavigate();
+
 
     const handleLogin = (e) => {
         e.preventDefault();
+    }
+
+    const handleSignup = () => {
+      navigate('/signup');
     }
 
   return (
@@ -40,11 +47,9 @@ function LoginPage() {
         />
 
         <button className="login-button" type="submit">Login</button> {/* want to replace with Signin component */}
-        {/* <button className="google-signin-button" type="submit">Sign in with Google</button> */} {/* replaced with google sign in Login component */}
         <Login />
         {/* <button className="guest-signin-button" type="submit">Sign in as Guest</button> */} {/* guest sign in button, add later */}
-        <button className="sign-up-button" type="submit">Don't have an account? Sign Up</button> {/* want to replace with Signup component */}
-        {/* <Signup /> */}
+        <button className="go-to-signup-button" onClick={handleSignup}>Don't have an account? Sign Up</button>
       </form>
     </div>
   );

@@ -8,7 +8,7 @@ body, html {
   background-color: white;
 }
 
-.LoginPage {
+.LoginPage, .SignupPage {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -17,7 +17,7 @@ body, html {
   background-image: linear-gradient(80deg, #b9f2fa 10%, #fffdf5 50%, #b9f2fa 90%);
 }
 
-.login-form {
+.login-form, .sign-up-form {
   width: 420px;
   background: rgba(153, 202, 213, 0.8);
   /* background: transparent; */
@@ -30,7 +30,7 @@ body, html {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.login-button, .logout-button {
+.login-button, .logout-button, .sign-up-button {
   background-color: #6fb2c5;
   border: none;
   padding: 10px;
@@ -42,7 +42,7 @@ body, html {
   margin-top: 10px;
 }
 
-.google-signin-button, .guest-signin-button, .sign-up-button {
+.google-signin-button, .guest-signin-button, .go-to-login-button, .go-to-signup-button {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   padding: 10px;
@@ -54,7 +54,7 @@ body, html {
   margin-top: 10px;
 }
 
-.sign-up-button {
+.go-to-login-button, .go-to-signup-button {
   font-size: 12px;
 }
 
@@ -318,6 +318,17 @@ input {
   flex: 2;
   padding: 10px;
 
+}
+
+.error {
+  background-color: white;
+  color: red;
+  border: 1px solid red;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 0.9 rem;
+  margin-top: 10px;
+  width: fit-content;
 }
 
 
