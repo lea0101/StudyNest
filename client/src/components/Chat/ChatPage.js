@@ -49,13 +49,15 @@ for (const [index, message] of messages.entries()) {
         {
           messages?.map((message, i) => {
             // if the message sender changes
-          const endTags = ((i == messages.length - 1) || message.uid != messages[i + 1].uid) ? "end-msg" : "default-msg";
+          const endTags = ((i == messages.length - 1) || message.uid != messages[i + 1].uid) ? "end-msg" : "default-msg no-tail";
           const messageOwner = (message.uid === user.uid) ? "from-me" : "from-them";
+          const messageOwner2 = (message.uid === user.uid) ? "me" : "them";
 
+            // change msg sender
           if ((i == 0) || (messages[i - 1].uid != message.uid)) {
             return (
               <>
-                <div class="namebar">
+                <div class={`namebar ${messageOwner2}`}>
                   <img class={`avatar ${message.uid === user.uid ? "avatar-me" : ""}`} src={message.avatar} alt="user avatar" />
                   <p class={`user-name ${message.uid === user.uid ? "user-name-right" : "user-name-left"}`}>{message.name}</p>
                 </div>
