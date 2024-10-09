@@ -3,10 +3,13 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import "./login.css";
 import logo from '../img/btn_google_signin_dark_pressed_web.png'; // Tell webpack this JS file uses this image
+import { useNavigate } from "react-router-dom"; // import navigate for routing -cc
 
 
 function Login() {
     const [user, loading, error] = useAuthState(auth)
+    const navigate = useNavigate(); // initialize navigate -cc
+
     async function handleLogin() {
         await signInWithPopup(auth, provider).then((result) => {
             // Google Access Token for API.
@@ -14,6 +17,9 @@ function Login() {
             const token = credential.accessToken;
             const user = result.user;
             // IdP data = getAdditionalUserInfo(result)
+
+            // navigate to home page after successful login -cc
+            navigate('/');
         }).catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -22,6 +28,7 @@ function Login() {
             console.log(errorCode);
         });
     }
+
     return (
         <>
             <img class="darken" src={logo} onClick={handleLogin} alt="google_button"/>

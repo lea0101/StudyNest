@@ -1,12 +1,29 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
+import { auth } from '../config/firebase';
 
 function NavBar() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const navigate = useNavigate(); // to navigate after logging out
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
+    }
+
+    const toggleProfileMenu = () => {
+        setIsProfileMenuOpen(!isProfileMenuOpen);
+    }
+
+    // function to handle logout
+    const handleLogout = async () => {
+        try {
+            await auth.signOut();
+            navigate('/login');
+        } catch (error) {
+            console.error("Logout Error:", error);
+        }
     }
     
     return (
@@ -28,7 +45,14 @@ function NavBar() {
             </ul>
 
             <div className="navbar-profile">
-                <FaUserCircle />
+                <FaUserCircle onClick={toggleProfileMenu}/>
+                {isProfileMenuOpen && (
+                    <div className='profile-menu'>
+                        <button className="logout-button" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    </div>
+                )}
             </div>
         </nav>
     )
