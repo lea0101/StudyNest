@@ -42,7 +42,7 @@ body, html {
   margin-top: 10px;
 }
 
-.google-signin-button, .guest-signin-button {
+.google-signin-button, .guest-signin-button, .sign-up-button {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   padding: 10px;
@@ -52,6 +52,10 @@ body, html {
   max-width: 200px;
   box-sizing: border-box;
   margin-top: 10px;
+}
+
+.sign-up-button {
+  font-size: 12px;
 }
 
 .HomePage {

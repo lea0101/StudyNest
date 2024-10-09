@@ -3,12 +3,12 @@ import { useAuthState } from 'react-firebase-hooks/auth'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import "./login.css";
 import logo from '../img/btn_google_signin_dark_pressed_web.png'; // Tell webpack this JS file uses this image
-import { useNavigate } from "react-router-dom"; // import navigate for routing -cc
+import { useNavigate } from "react-router-dom"; // import navigate for routing -CC
 
 
 function Login() {
     const [user, loading, error] = useAuthState(auth)
-    const navigate = useNavigate(); // initialize navigate -cc
+    const navigate = useNavigate(); // initialize navigate -CC
 
     async function handleLogin() {
         await signInWithPopup(auth, provider).then((result) => {
@@ -18,7 +18,7 @@ function Login() {
             const user = result.user;
             // IdP data = getAdditionalUserInfo(result)
 
-            // navigate to home page after successful login -cc
+            // navigate to home page after successful login -CC
             navigate('/');
         }).catch((error) => {
             const errorCode = error.code;
