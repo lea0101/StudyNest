@@ -26,7 +26,6 @@ function App() {
           {/* <Route path="/rooms/:roomName/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} /> */}
         </Routes>
       </BrowserRouter>
-        {/* { <LoginPage />} */}
     </div>
   );
 }
