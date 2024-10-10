@@ -7,14 +7,16 @@ import Home from './components/HomePage';
 import RoomPage from './components/RoomPage';
 import ProtectedRoute from './components/ProtectedRoute';
 // import ChatPage from './components/chat/ChatPage';
+import ChatPage from "./components/ChatPage";
+import { auth } from "./config/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 function App() {
+  const [user] = useAuthState(auth);
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
-          {/* <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
           <Route path="/home" element={<Home />} />
           <Route path="/rooms/:roomName" element={<RoomPage />} /> */}
           {/* Protect the home and room routes */}
@@ -29,5 +31,7 @@ function App() {
     </div>
   );
 }
+          //<Route path="/" element={<Home />} />
+      //{!user ? <ChatDead/> : <LoginPage />}
 
 export default App;

@@ -24,4 +24,4 @@ export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
 export const db = getFirestore(app);
 // provider.adjdScope('https://www.googleapis.com/auth/contacts.readonly');
-// const analytics = getAnalytics(app);
+const analytics = getAnalytics(app);

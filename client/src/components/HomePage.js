@@ -4,6 +4,10 @@ import NavBar from './NavBar';
 import Room from "./Room";
 import JoinRoom from "./JoinRoom";
 import { useNavigate } from "react-router-dom";
+import { getAuth } from "firebase/auth";
+
+const auth = getAuth();
+const user = auth.currentUser;
 
 function HomePage() {
   const navigate = useNavigate(); // used for routes
@@ -60,10 +64,12 @@ function HomePage() {
     }
   }
 
+
   return (
     <div className="HomePage">
         <NavBar />
-        <h1>Your Rooms</h1>
+         <h1>Welcome {user?.displayName}</h1>
+        <h2>Your Rooms</h2>
 
         <div>
           <JoinRoom onJoinRoom={handleJoinRoom}/>
