@@ -17,7 +17,8 @@ function Room( { name, code, onDelete } ) {
     }
 
     const handleConfirmDelete = () => {
-        onDelete(name); // call the delete function passed
+        const roomToDelete = { name, code };
+        onDelete(roomToDelete); // call the delete function passed
         setShowDeleteConfirm(false); // hide confirmation after deleting
     };
 

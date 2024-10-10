@@ -46,7 +46,7 @@ function HomePage() {
 
   // handle deleting rooms
   const handleDeleteRoom = (roomToDelete) => {
-    setRooms(rooms.filter(room => room !== roomToDelete));
+    setRooms(rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code));
   }
 
   // handle joining an existing room
@@ -63,7 +63,7 @@ function HomePage() {
   return (
     <div className="HomePage">
         <NavBar />
-        <h1>StudyNest Home Page</h1>
+        <h1>Your Rooms</h1>
 
         <div>
           <JoinRoom onJoinRoom={handleJoinRoom}/>

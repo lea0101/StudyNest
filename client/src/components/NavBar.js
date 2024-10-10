@@ -49,7 +49,7 @@ function NavBar() {
                 <FaUserCircle onClick={toggleProfileMenu}/>
                 {isProfileMenuOpen && (
                     <div className='profile-menu'>
-                        <button className="user-settings-button" onClick={handleLogout}>
+                        <button className="user-settings-button">
                             User Settings
                         </button> {/* add user settings */}
                         <button className="logout-button" onClick={handleLogout}>
