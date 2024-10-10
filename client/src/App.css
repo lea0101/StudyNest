@@ -30,7 +30,7 @@ body, html {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.login-button, .logout-button, .sign-up-button, .join-room-button, .user-settings-button, .leave-room-button {
+.login-button, .logout-button, .sign-up-button, .join-room-button, .user-settings-button, .leave-room-button, .submit-code-button {
   background-color: #6fb2c5;
   border: none;
   padding: 10px;
@@ -48,14 +48,70 @@ body, html {
 
 .join-room-button {
   font-size: 16px;
+  font-weight: bold;
   width: 150px;
 }
 
-.logout-button, .leave-room-button {
+.logout-button {
   background-color: rgb(238, 84, 84);
 }
 
-.google-signin-button, .guest-signin-button, .go-to-login-button, .go-to-signup-button {
+.leave-room-button {
+  position: absolute;
+  top: 60px;
+  right: 5px;
+  width: 140px;
+  background-color: #6fb2c5;
+}
+
+.confirm-leave-button {
+  background-color: #ee5454;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 100px;
+  box-sizing: border-box;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+.cancel-leave-button {
+  background-color: #dddddd;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 100px;
+  box-sizing: border-box;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.confirmation-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Dim background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.confirmation-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.google-signin-button, .guest-signin-button, .go-to-login-button, .go-to-signup-button, .cancel-button {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   padding: 10px;
@@ -92,6 +148,7 @@ body, html {
   box-sizing: border-box;
   margin-top: 10px;
   font-size: 16px;
+  font-weight: bold;
 }
 
 .add-room-button:hover, .join-room-button:hover {
@@ -131,6 +188,7 @@ body, html {
   box-sizing: border-box;
   margin-top: 10px;
   font-size: 16px;
+  font-weight: bold;
 }
 
 .room-button:hover {
@@ -192,6 +250,23 @@ body, html {
   align-items: center;
   height: 100vh;
   background-color: rgb(255, 253, 248);
+}
+
+.room-header {
+  position: absolute;
+  top: 50px;
+  left: 20px;
+  text-align: left;
+  /* width: 100%; */
+  /* box-sizing: border-box; */
+}
+
+.room-code {
+  position: absolute;
+  bottom: 5px;
+  left: 20px;
+  font-size: 14px;
+  color: gray
 }
 
 .button-link {
@@ -287,7 +362,7 @@ body, html {
 
 .profile-menu {
   position: absolute;
-  left: 0;
+  left: -20px;
   top: 45px;
   transform: translateX(-50%);
   background: white;

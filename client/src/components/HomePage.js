@@ -6,6 +6,8 @@ import JoinRoom from "./JoinRoom";
 import { useNavigate } from "react-router-dom";
 
 function HomePage() {
+  const navigate = useNavigate(); // used for routes
+
   // set initial rooms from LocalStorage, holds list of rooms
   const [rooms, setRooms] = useState(() => {
     const saved = localStorage.getItem('rooms');
@@ -15,23 +17,31 @@ function HomePage() {
 
   const [showInput, setShowInput] = useState(false); // show input to create a room
   const [roomName, setRoomName] = useState('') // name of new room
-  const [joinRoomInput, setJoinRoomInput] = useState(false); // to join an existing room
-  const [showJoinInput, setShowJoinInput] = useState(false); // toggles input field for joining a room
-
-  const navigate = useNavigate(); // used for routes
 
   // save rooms to LocalStorage whenever room state changes
   useEffect(() => {
     localStorage.setItem('rooms', JSON.stringify(rooms));
   }, [rooms]);
 
+  // generate a random room code
+  const generateRoomCode = () => {
+    return Math.random().toString(36).substring(2, 8);
+  }
+
   // handle the creation of a new room
   const handleCreateRooms = () => {
       if (roomName.trim() !== '') {
-          setRooms([...rooms, roomName]); // add new room to the list
-          setRoomName(''); // clear input after adding
-          setShowInput(!showInput);
+        const newRoom = { name: roomName, code: generateRoomCode() };
+        setRooms([...rooms, newRoom]); // add new room to the list
+        setRoomName(''); // clear input after adding
+        setShowInput(!showInput);
       }
+  }
+
+  // handle canceling room creation
+  const handleCancel = () => {
+    setRoomName('');
+    setShowInput(false);
   }
 
   // handle deleting rooms
@@ -40,10 +50,13 @@ function HomePage() {
   }
 
   // handle joining an existing room
-  const handleJoinRoom = () => {
+  const handleJoinRoom = (roomCode) => {
     // check if entered room code exists
-    if (rooms.include()) {
-
+    const room = rooms.find(r => r.code === roomCode);
+    if (room) {
+      navigate(`/rooms/${room.name}`);
+    } else {
+      alert('Room code not found!');
     }
   }
 
@@ -53,7 +66,7 @@ function HomePage() {
         <h1>StudyNest Home Page</h1>
 
         <div>
-          <JoinRoom />
+          <JoinRoom onJoinRoom={handleJoinRoom}/>
         </div>
 
         <div className="room-grid">
@@ -67,6 +80,7 @@ function HomePage() {
                   onChange={(e) => setRoomName(e.target.value)}
                 />
                 <button className="room-input-button" onClick={handleCreateRooms}>Add Room</button>
+                <button className="cancel-button" onClick={handleCancel}>Cancel</button>
             </div>
           )}
           
@@ -79,7 +93,7 @@ function HomePage() {
 
           {/* list of rooms */}
           {rooms.map((room, index) => (
-            <Room key={index} name={room} onDelete={handleDeleteRoom} />
+            <Room key={index} name={room.name} code={room.code} onDelete={handleDeleteRoom} />
           ))}
 
         </div>
