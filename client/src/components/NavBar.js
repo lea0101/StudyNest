@@ -4,9 +4,10 @@ import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { auth } from '../config/firebase';
 
 function NavBar() {
+    const navigate = useNavigate(); // to navigate after logging out
+
     const [isOpen, setIsOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const navigate = useNavigate(); // to navigate after logging out
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -48,6 +49,9 @@ function NavBar() {
                 <FaUserCircle onClick={toggleProfileMenu}/>
                 {isProfileMenuOpen && (
                     <div className='profile-menu'>
+                        <button className="user-settings-button" onClick={handleLogout}>
+                            User Settings
+                        </button> {/* add user settings */}
                         <button className="logout-button" onClick={handleLogout}>
                             Logout
                         </button>

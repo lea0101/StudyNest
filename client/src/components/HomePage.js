@@ -2,17 +2,23 @@ import React, { useEffect, useState } from "react"
 import '../App.css';
 import NavBar from './NavBar';
 import Room from "./Room";
+import JoinRoom from "./JoinRoom";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
-  // const [rooms, setRooms] = useState([]);
   // set initial rooms from LocalStorage, holds list of rooms
   const [rooms, setRooms] = useState(() => {
     const saved = localStorage.getItem('rooms');
     const initivalValue = JSON.parse(saved);
     return initivalValue || [];
   });
-  const [showInput, setShowInput] = useState(false);
+
+  const [showInput, setShowInput] = useState(false); // show input to create a room
   const [roomName, setRoomName] = useState('') // name of new room
+  const [joinRoomInput, setJoinRoomInput] = useState(false); // to join an existing room
+  const [showJoinInput, setShowJoinInput] = useState(false); // toggles input field for joining a room
+
+  const navigate = useNavigate(); // used for routes
 
   // save rooms to LocalStorage whenever room state changes
   useEffect(() => {
@@ -24,7 +30,7 @@ function HomePage() {
       if (roomName.trim() !== '') {
           setRooms([...rooms, roomName]); // add new room to the list
           setRoomName(''); // clear input after adding
-          setShowInput(false);
+          setShowInput(!showInput);
       }
   }
 
@@ -33,12 +39,24 @@ function HomePage() {
     setRooms(rooms.filter(room => room !== roomToDelete));
   }
 
+  // handle joining an existing room
+  const handleJoinRoom = () => {
+    // check if entered room code exists
+    if (rooms.include()) {
+
+    }
+  }
+
   return (
     <div className="HomePage">
         <NavBar />
         <h1>StudyNest Home Page</h1>
-        <div className="room-grid">
 
+        <div>
+          <JoinRoom />
+        </div>
+
+        <div className="room-grid">
           {/* input for creating a new room */}
           {showInput && (
             <div className="new-room-input">

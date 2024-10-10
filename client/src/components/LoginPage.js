@@ -3,13 +3,13 @@ import '../App.css';
 import { useNavigate } from 'react-router-dom';
 import Login from "./login.jsx";
 import Signup from "./Signup.js";
+import Signin from "./Signin.js";
 
 function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-
     const navigate = useNavigate();
 
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -25,7 +25,7 @@ function LoginPage() {
       <form className = "login-form" onSubmit={handleLogin}>
         <h3>Login to Your Account</h3>
 
-        <label htmlFor="email">Email</label>
+        {/* <label htmlFor="email">Email</label>
         <input 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -46,7 +46,8 @@ function LoginPage() {
             required
         />
 
-        <button className="login-button" type="submit">Login</button> {/* want to replace with Signin component */}
+        <button className="login-button" type="submit">Login</button> */}
+        <Signin /> {/* want to replace with Signin component */}
         <Login />
         {/* <button className="guest-signin-button" type="submit">Sign in as Guest</button> */} {/* guest sign in button, add later */}
         <button className="go-to-signup-button" onClick={handleSignup}>Don't have an account? Sign Up</button>

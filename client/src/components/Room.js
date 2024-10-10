@@ -1,8 +1,9 @@
 import React, { useState } from "react"
 import { useNavigate, Link } from 'react-router-dom';
 
-function Room( { name, onDelete } ) {
+function Room( { name, code, onDelete } ) {
     const navigate = useNavigate(); // for programmatic navigation
+    
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); // store if delete button should show up
 
     // handle if room button is clicked (to enter room)

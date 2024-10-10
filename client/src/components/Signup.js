@@ -30,12 +30,22 @@ function Signup() {
             const errorMessage = error.message;
             console.log(errorCode, errorMessage);
             setError(errorMessage);
+
+            if (errorCode === "auth/invalid-password") {
+                setError("Password must have at least six characters.")
+            } else if (errorCode === "auth/email-already-exists") {
+                setError("An account with this email already exists.")
+            } else if (errorCode === "auth/invalid-email") {
+                setError("Email must be a string email address.")
+            }
         });
     }
 
     return (
-        <form className="sign-up-form" onSubmit={onSubmit}>
+        <form className="login-form" onSubmit={onSubmit}>
             <div>
+                <h3>Sign Up for an Account</h3>
+
                 <label htmlFor="email">Email</label>
                 <input 
                     value={email}
@@ -61,7 +71,7 @@ function Signup() {
                 />
             </div>
             
-            <button className="sign-up-button" type="submit">Create</button>
+            <button className="sign-up-button" type="submit">Create Account</button>
 
             <button className="go-to-login-button" onClick={handleGoLogin} type="submit">I have an account</button>
 

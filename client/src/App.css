@@ -30,7 +30,7 @@ body, html {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.login-button, .logout-button, .sign-up-button {
+.login-button, .logout-button, .sign-up-button, .join-room-button, .user-settings-button, .leave-room-button {
   background-color: #6fb2c5;
   border: none;
   padding: 10px;
@@ -40,6 +40,19 @@ body, html {
   max-width: 200px;
   box-sizing: border-box;
   margin-top: 10px;
+}
+
+.login-button, .logout-button {
+  transform: background-color 0.3s;
+}
+
+.join-room-button {
+  font-size: 16px;
+  width: 150px;
+}
+
+.logout-button, .leave-room-button {
+  background-color: rgb(238, 84, 84);
 }
 
 .google-signin-button, .guest-signin-button, .go-to-login-button, .go-to-signup-button {
@@ -81,7 +94,7 @@ body, html {
   font-size: 16px;
 }
 
-.add-room-button:hover {
+.add-room-button:hover, .join-room-button:hover {
   background-color: #87c8d9;
 }
 
@@ -304,8 +317,10 @@ body, html {
 
 label {
   text-align: left;
+  display: block;
   padding: 0.25rem 0;
-  width: 100%;
+  font-weight: bold;
+  width: 300px;
 }
 
 input {
