@@ -25,28 +25,6 @@ function LoginPage() {
       <form className = "login-form" onSubmit={handleLogin}>
         <h3>Login to Your Account</h3>
 
-        {/* <label htmlFor="email">Email</label>
-        <input 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            placeholder="email@example.com"
-            id="email"
-            name="email"
-            required
-        />
-        <label htmlFor="password">Password</label>
-        <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            placeholder="********"
-            id="password"
-            name="password"
-            required
-        />
-
-        <button className="login-button" type="submit">Login</button> */}
         <Signin /> {/* want to replace with Signin component */}
         <Login />
         {/* <button className="guest-signin-button" type="submit">Sign in as Guest</button> */} {/* guest sign in button, add later */}

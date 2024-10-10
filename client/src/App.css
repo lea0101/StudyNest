@@ -30,7 +30,7 @@ body, html {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.login-button, .logout-button, .sign-up-button, .join-room-button, .user-settings-button, .leave-room-button, .submit-code-button {
+.login-button, .logout-button, .sign-up-button, .join-room-button, .user-settings-button, .leave-room-button, .submit-code-button, .chat-button {
   background-color: #6fb2c5;
   border: none;
   padding: 10px;

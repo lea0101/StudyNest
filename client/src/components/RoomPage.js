@@ -1,8 +1,8 @@
 import React from 'react';
 import { useState } from 'react';
-import { useParams, useNavigate
-    , useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NavBar from './NavBar';
+// import ChatPage from './chat/ChatPage';
 
 function RoomPage() {
     const navigate = useNavigate();
@@ -29,6 +29,10 @@ function RoomPage() {
         setShowConfirmation(false);
     }
 
+    const handleEnterChat = () => {
+        navigate('/rooms/3/chat'); // hard coded  ...
+    }
+
     return (
         <div className="RoomPage">
             <button className="leave-room-button" onClick={handleLeave}>Leave Study Group</button>
@@ -38,6 +42,9 @@ function RoomPage() {
             </div>
 
             <p>Explore your virtual study room</p>
+            <button className="chat-button" onClick={handleEnterChat}>Enter Chat</button>
+            {/* <ChatPage /> */}
+            
 
             <div className="room-code">
                 <p>Room Code: {room.code}</p>
