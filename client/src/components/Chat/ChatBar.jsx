@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { auth, db } from "../../config/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import "./ChatBar.css";
 
 const ChatBar = ({ scroll }) => {
   const [message, setMessage] = useState("");
@@ -37,7 +38,7 @@ const ChatBar = ({ scroll }) => {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
       />
-      <button type="submit">Send</button>
+      <button class="button" type="submit">Send</button>
     </form>
   );
 };

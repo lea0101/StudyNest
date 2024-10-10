@@ -38,42 +38,28 @@ const ChatPage = () => {
     return () => unsubscribe;
   }, []);
 
-
-for (const [index, message] of messages.entries()) {
-            // if there is a change in message sender, add in profile and header
-          }
-
   return (
     <main className="chat-box">
       <div className="imessage">
         {
           messages?.map((message, i) => {
-            // if the message sender changes
-          const endTags = ((i == messages.length - 1) || message.uid != messages[i + 1].uid) ? "end-msg" : "default-msg no-tail";
-          const messageOwner = (message.uid === user.uid) ? "from-me" : "from-them";
-          const messageOwner2 = (message.uid === user.uid) ? "me" : "them";
+          // if the message sender changes
+          const endTags = ((i == messages.length - 1) || message.uid != messages[i + 1].uid) ? "": "no-tail";
+          const messageOwner = (message.uid === user.uid) ? "me" : "them";
 
-            // change msg sender
+          // if there is a change in message sender, add in profile and header
           if ((i == 0) || (messages[i - 1].uid != message.uid)) {
             return (
               <>
-                <div class={`namebar ${messageOwner2}`}>
-                  <img class={`avatar ${message.uid === user.uid ? "avatar-me" : ""}`} src={message.avatar} alt="user avatar" />
-                  <p class={`user-name ${message.uid === user.uid ? "user-name-right" : "user-name-left"}`}>{message.name}</p>
+                <div class={`namebar ${messageOwner}`}>
+                  <img class={`avatar ${messageOwner}`} src={message.avatar} alt="user avatar" />
+                  <p class={`user-name ${messageOwner}`}>{message.name}</p>
                 </div>
-            <p class={`${messageOwner} ${endTags}`}> {message.text}</p>
+              <p class={`from-${messageOwner} ${endTags}`}> {message.text}</p>
               </>
             )
           }
-          return <p class={`${messageOwner} ${endTags}`}> {message.text}</p>
-          // if the end of the messages from the user
-          //if ((i == messages.length - 1) || message.uid != messages[i + 1].uid) {
-          //  return <p className={`from-me ${message.uid === user.uid ? "from-me-end" : "from-them-end"}`}>{message.text}</p>
-          //}
-          //return <p className={`from-me ${message.uid === user.uid ? "from-me-default" : "from-them-default"}`}>{message.text}</p>
-          //messages?.map((message) => (
-          //<MessageBox key={message.id} message={message} />
-          //))
+          return <p class={`from-${messageOwner} ${endTags}`}> {message.text}</p>
         })}
       </div>
       {/* when a new message enters the chat, the screen scrolls down to the scroll div */}
