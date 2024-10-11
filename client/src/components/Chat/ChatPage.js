@@ -6,13 +6,11 @@ import {
   onSnapshot,
   limit,
 } from "firebase/firestore";
-import { db } from "../../config/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { db, auth } from "../../config/firebase";
 import ChatBar from "./ChatBar";
 import MessageBox from "./MessageBox"
 import "./Chat.css";
-
-import { auth } from "../../config/firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
 
 const ChatPage = () => {
   const [user] = useAuthState(auth);
