@@ -37,7 +37,7 @@ function RoomPage() {
 
     // handle when user wants to go to chat
     const handleEnterChat = () => {
-        navigate(`/rooms/${roomName}/chat`);
+        navigate(`/rooms/${roomName}/chat`, { state: {roomCode : roomCode}});
     }
 
     // handle when user wants to go to whiteboard
