@@ -29,14 +29,15 @@ function Signup() {
             const errorCode = error.code;
             const errorMessage = error.message;
             console.log(errorCode, errorMessage);
-            setError(errorMessage);
 
-            if (errorCode === "auth/invalid-password") {
+            if (errorCode === "auth/invalid-password" || errorCode === "auth/weak-password") {
                 setError("Password must have at least six characters.")
-            } else if (errorCode === "auth/email-already-exists") {
+            } else if (errorCode === "auth/email-already-in-use") {
                 setError("An account with this email already exists.")
             } else if (errorCode === "auth/invalid-email") {
                 setError("Email must be a string email address.")
+            } else {
+                setError(errorMessage)
             }
         });
     }

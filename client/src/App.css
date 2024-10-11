@@ -8,13 +8,18 @@ body, html {
   background-color: white;
 }
 
-.LoginPage, .SignupPage {
+.LoginPage, .SignupPage, .A-Page {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
   background-image: linear-gradient(80deg, #b9f2fa 10%, #fffdf5 50%, #b9f2fa 90%);
+}
+
+.A-Page {
+  text-align: center;
+  font-weight: bold;
 }
 
 .login-form, .sign-up-form {
@@ -30,7 +35,7 @@ body, html {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.login-button, .logout-button, .sign-up-button, .join-room-button, .user-settings-button, .leave-room-button, .submit-code-button, .chat-button, .save-button {
+.login-button, .logout-button, .sign-up-button, .join-room-button, .user-settings-button, .leave-room-button, .submit-code-button, .save-button, .a-button {
   background-color: #6fb2c5;
   border: none;
   padding: 10px;
@@ -111,7 +116,7 @@ body, html {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-.google-signin-button, .guest-signin-button, .go-to-login-button, .go-to-signup-button, .cancel-button {
+.google-signin-button, .guest-signin-button, .go-to-login-button, .go-to-signup-button, .cancel-button, .b-button {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   padding: 10px;
@@ -424,6 +429,14 @@ input {
   font-size: 0.9 rem;
   margin-top: 10px;
   width: fit-content;
+}
+
+.profile-picture {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgb(0, 0, 0);
+  cursor: pointer;
 }
 
 

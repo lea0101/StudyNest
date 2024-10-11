@@ -39,12 +39,17 @@ function RoomPage() {
 
     const [showConfirmation, setShowConfirmation] = useState(false);
 
-    // for this user, remove the room from their user data and then navigate to home
+    // toggle for leave
     const handleLeave = () => {
         setShowConfirmation(true);
     }
 
+    // for this user, remove the room from their user data and then navigate to home
     const handleConfirmLeave = () => {
+        // remove the room from the rooms list and update local storage
+        const updatedRooms = rooms.filter(r => r.name !== roomName || r.code !== roomCode);
+        localStorage.setItem('rooms', JSON.stringify(updatedRooms));
+
         setShowConfirmation(false);
         const userDocRef = doc(db, 'users', user.uid);
         getDoc(userDocRef).then(snapshot => {
@@ -58,15 +63,18 @@ function RoomPage() {
 
     }
 
+    // toggle for cancel leave
     const handleCancelLeave = () => {
         setShowConfirmation(false);
     }
 
+    // handle when user wants to go to chat
     const handleEnterChat = () => {
         navigate(`/rooms/${roomName}/chat`, { state: {roomCode : roomCode}});
     }
 
-    const handleEnterWhiteBoard = () => {
+    // handle when user wants to go to whiteboard
+    const handleEnterWhiteboard = () => {
         navigate(`/rooms/${roomName}/whiteboard`);
     }
 
@@ -81,16 +89,29 @@ function RoomPage() {
                 <h1>Welcome to Room {roomName}</h1>
             </div>
 
+            {/* content in the middle */}
             <p>Explore your virtual study room</p>
-            <button className="chat-button" onClick={handleEnterChat}>Enter Chat</button>
-            <button className="chat-button" onClick={handleEnterWhiteBoard}>Enter WhiteBoard</button>
-            {/* <ChatPage /> */}
-
+            <button className="a-button" onClick={handleEnterChat}>Chat</button>
+            <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+            
+            {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
-                <p onClick={() => navigator.clipboard.writeText(roomCode)}>Room Code: {roomCode}</p>
+                <button
+                className="b-button"
+                onClick={() => {
+                    navigator.clipboard.writeText(room.code)
+                    .then(() => {
+                        alert('Room code copied to clipboard!')
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy room code: ', err);
+                    });
+                }}
+                >
+                    Room Code: {room.code}
+                </button>
             </div>
 
-            {/* more content */}
 
             {showConfirmation && (
                 <div className="confirmation-modal">
