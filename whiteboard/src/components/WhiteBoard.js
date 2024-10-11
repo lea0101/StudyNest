@@ -5,6 +5,7 @@ import './WhiteBoard.css'
 const WhiteBoard = () => {
     let [tool, setTool] = useState('ellipse');
     let [color, setColor] = useState('black');
+    let [fill, setFill] = useState(false);
     return (
         <div className="module">
             <div className="toolbar">
@@ -22,7 +23,7 @@ const WhiteBoard = () => {
                 <div id="color-select" className="single-select no-null-select">
                     <div>
                         {/* <!-- enable fill --> */}
-                        <input type="checkbox" id="fill-enable" />
+                        <input type="checkbox" id="fill-enable" onChange={(event) => setFill(event.target.checked)} />
                             <label htmlFor="fill">Fill</label>
                     </div>
                     <button id="black" className="default-select" onClick={() => setColor('black')}></button>
@@ -31,7 +32,7 @@ const WhiteBoard = () => {
                     <button id="blue" onClick={() => setColor('blue')}></button>
                 </div>
             </div>
-            <P5Wrapper tool={tool} color={color} />
+            <P5Wrapper tool={tool} color={color} fill={fill} />
         </div>
     );
 }

@@ -2,21 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Rectangle, Ellipse, Curve, Shader, getShapeType } from './shape';
 import p5 from 'p5';
 
-const P5Wrapper = ({ tool, color }) => {
+const P5Wrapper = ({ tool, color, fill }) => {
     const sketchRef = useRef(null);
     let [strokes, setStrokes] = useState([]);
-    // let [tool, setTool] = useState(activeTool);
-    // let [color, setColor] = useState(activeColor);
-
-    // useEffect(() => {
-    //     setTool(activeTool);
-    //     setColor(activeColor);
-    // }, [activeTool, activeColor]);
 
     function updateStrokes(new_strokes) {
         setStrokes(new_strokes);
         // do other db stuff
     }
+
     useEffect(() => {
         const sketch = (p) => {
             let currentShape = null;
@@ -68,7 +62,7 @@ const P5Wrapper = ({ tool, color }) => {
                     return;
                 }
                 console.log(p.mouseX, p.mouseY, tool, currentShape);
-                let shader = new Shader(color, null, 10, false);
+                let shader = new Shader(color, fill ? color : null, 10, false);
                 switch (tool) {
                     case 'rectangle':
                         currentShape = new Rectangle(p.mouseX, p.mouseY, 0, 0, shader);
@@ -86,7 +80,7 @@ const P5Wrapper = ({ tool, color }) => {
                     //     currentShape = new Rectangle(p.mouseX, p.mouseY, 0, 0, shader);
                     //     break;
                 }
-            }
+            };
 
             p.mouseReleased = function () {
                 if (currentShape === null) return;
@@ -109,7 +103,8 @@ const P5Wrapper = ({ tool, color }) => {
         return () => {
             p5Instance.remove();
         };
-    }, [tool, color]);
+
+    }, [tool, color, fill]);
 
     return <div className="p5wrapper" ref={sketchRef}></div>;
 };
