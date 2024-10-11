@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import Select from "react-select";
 import '../App.css';
 import { storage, auth } from '../config/firebase';
@@ -14,6 +14,9 @@ import defaultIcon4 from '../img/default_icon_4.png'
 import defaultIcon5 from '../img/default_icon_5.png'
 import defaultIcon6 from '../img/default_icon_6.png'
 import iconPlaceholder from '../img/icon_placeholder.png'
+
+import { db } from "../config/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 const defaultIcons = [
     { value: 'icon1', label: 'Icon 1', image: defaultIcon1},
@@ -34,6 +37,18 @@ function UserSettings() {
   const [displayName, setDisplayName] = useState(userDisplayName);
   const [profileIcon, setProfileIcon] = useState(icon);
   const [imgURL, setImgURL] = useState(icon); 
+
+  useEffect(() => {
+    // update the user's document in firestore
+    // collection: users
+    // document is indexed by user's uid
+    // fields: username, displayname, icon
+    if (user) {
+      const userDocRef = doc(db, 'users', user.uid);
+      // set the document with the user's data
+      setDoc(userDocRef, {username: user.email, displayname: user.displayName, icon: user.photoURL}, {merge: true});
+    }
+  }, [user]);
 
   const submitPrefs = (e) => {
 	  e.preventDefault();
