@@ -539,3 +539,38 @@ input {
     transform: rotate(360deg);
   }
 } */
+
+.share-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* The modal box */
+.share-modal {
+  background-color: rgb(238, 233, 221);
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 1001;
+}
+
+.share-content {
+  margin-bottom: 10px;
+}
+
+.hyperlink {
+  color: rgb(63, 44, 0);
+  font-size: 15px;
+}
+
+.hyperlink:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}

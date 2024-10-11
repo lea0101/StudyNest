@@ -14,7 +14,6 @@ function RoomPage() {
     const auth = getAuth();
     const [user, loading] = useAuthState(auth);
     const [isAuthorized, setAuthorized] = useState(false);
-    const [room, setRoom] = useState(null);
     const [rooms, setRooms] = useState([]);
     const navigate = useNavigate();
 
@@ -29,25 +28,18 @@ function RoomPage() {
         if (user) {
             const userDocRef = doc(db, 'users', user.uid);
             getDoc(userDocRef).then(snapshot => {
-                const userData = snapshot.data();
-                if (userData && userData.rooms) {
-                    const currRoom = userData.rooms.find(e => e.code === roomCode);
-                    if (currRoom) {
-                        setAuthorized(true);
-                        setRoom(currRoom);
-                    }
-                }
-                // if (typeof snapshot.data() !== 'undefined') {
-                //     if (snapshot.data().rooms.some(e => e.code === roomCode)) {
-                //         setAuthorized(true);
-                //     }
-                // }
+                 if (typeof snapshot.data() !== 'undefined') {
+                     if (snapshot.data().rooms.some(e => e.code === roomCode)) {
+                         setAuthorized(true);
+                     }
+                 }
             });
         }
-    }, [loading, user, roomCode]);
+    }, [loading]);
 
 
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [showShare, setShowShare] = useState(false);
 
     // toggle for leave
     const handleLeave = () => {
@@ -103,13 +95,13 @@ function RoomPage() {
             <p>Explore your virtual study room</p>
             <button className="a-button" onClick={handleEnterChat}>Chat</button>
             <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
-            
+
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
                 <button
                 className="b-button"
                 onClick={() => {
-                    navigator.clipboard.writeText(room.code)
+                    navigator.clipboard.writeText(roomCode)
                     .then(() => {
                         alert('Room code copied to clipboard!')
                     })
@@ -118,9 +110,38 @@ function RoomPage() {
                     });
                 }}
                 >
-                    Room Code: {room.code}
+                    Room Code: {roomCode}
                 </button>
+                <button className="a-button" onClick={() => setShowShare(true)}>Share</button>
             </div>
+
+            {showShare && (
+                <div className="share-overlay">
+                    <div className="share">
+                        <div className="share-modal">
+                            <div className="share-content">
+                                <p>Share this room with your friends!</p>
+                                <input type="text" value={`http://localhost:3000/join/${roomCode}`} readOnly />
+                                <button
+                                    className="b-button"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(`http://localhost:3000/join/${roomCode}`)
+                                            .then(() => {
+                                                alert('Link copied to clipboard!')
+                                            })
+                                            .catch(err => {
+                                                console.error('Failed to copy link: ', err);
+                                            });
+                                    }}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                            <a className="hyperlink" onClick={() => setShowShare(false)}>Close</a>
+                        </div>
+                    </div>
+                </div>
+            )}
 
 
             {showConfirmation && (
