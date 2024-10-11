@@ -122,7 +122,7 @@ function RoomPage() {
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
     } else if (isAuthorized == 2){
-        return ""
+        return <div> Loading... </div>
     }
     return  (
          <div className="RoomPage">

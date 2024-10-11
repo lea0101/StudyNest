@@ -38,6 +38,12 @@ function JoinPage() {
                     navigate('/invalidinvite');
                     return;
                 }
+                getDoc(roomDocRef).then(snapshot => {
+                    if (typeof snapshot.data() !== 'undefined') {
+                        const userList = snapshot.data().userList;
+                        setDoc(roomDocRef, { userList: [...userList, user.uid] }, { merge: true });
+                    }
+                }).then(() => {
                 getDoc(userDocRef).then(snapshot => {
                     if (typeof snapshot.data() !== 'undefined') {
                         const rooms = snapshot.data().rooms;
@@ -46,11 +52,6 @@ function JoinPage() {
                         });
                     }
                 });
-                getDoc(roomDocRef).then(snapshot => {
-                    if (typeof snapshot.data() !== 'undefined') {
-                        const userList = snapshot.data().userList;
-                        setDoc(roomDocRef, { userList: [...userList, user.uid] }, { merge: true });
-                    }
                 });
             });
             // const userDocRef = doc(db, 'users', user.uid);
