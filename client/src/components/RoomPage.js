@@ -33,6 +33,10 @@ function RoomPage() {
         navigate('/rooms/3/chat'); // hard coded  ...
     }
 
+    const handleEnterWhiteBoard = () => {
+        navigate('/rooms/3/whiteboard'); // hard coded  ...
+    }
+
     return (
         <div className="RoomPage">
             <button className="leave-room-button" onClick={handleLeave}>Leave Study Group</button>
@@ -43,11 +47,12 @@ function RoomPage() {
 
             <p>Explore your virtual study room</p>
             <button className="chat-button" onClick={handleEnterChat}>Enter Chat</button>
+            <button className="chat-button" onClick={handleEnterWhiteBoard}>Enter WhiteBoard</button>
             {/* <ChatPage /> */}
             
 
             <div className="room-code">
-                <p>Room Code: {room.code}</p>
+                <p>Room Code: {roomCode}</p>
             </div>
 
             {/* more content */}

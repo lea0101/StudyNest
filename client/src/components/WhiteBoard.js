@@ -42,7 +42,7 @@ const WhiteBoard = () => {
                     <button id="rectangle" onClick={getUpdateToolHandler}>Rectangle</button>
                     <button id="ellipse" onClick={getUpdateToolHandler}>Ellipse</button>
                     <button id="erase" onClick={getUpdateToolHandler}>Erase</button>
-                    <button id="erase" onClick={() => setClearEvent(true)}>Erase</button>
+                    <button id="erase" onClick={() => setClearEvent(true)}>Clear</button>
                     {/* <button id="select" className="default-select" onClick={singleSelect(this)}>Select</button> */}
                 </div>
                 <div id="color-select" className="single-select no-null-select">
