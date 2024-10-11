@@ -17,6 +17,10 @@ function NavBar() {
         setIsProfileMenuOpen(!isProfileMenuOpen);
     }
 
+    const viewUserSettings = () => {
+        navigate("/settings");
+    }
+
     // function to handle logout
     const handleLogout = async () => {
         try {
@@ -49,7 +53,7 @@ function NavBar() {
                 <FaUserCircle onClick={toggleProfileMenu}/>
                 {isProfileMenuOpen && (
                     <div className='profile-menu'>
-                        <button className="user-settings-button">
+                        <button className="user-settings-button" onClick={viewUserSettings}>
                             User Settings
                         </button> {/* add user settings */}
                         <button className="logout-button" onClick={handleLogout}>

@@ -6,10 +6,11 @@ import SignupPage from './components/SignupPage';
 import Home from './components/HomePage';
 import RoomPage from './components/RoomPage';
 import ProtectedRoute from './components/ProtectedRoute';
-// import ChatPage from './components/chat/ChatPage';
-import ChatPage from "./components/ChatPage";
+import ChatPage from "./components/Chat/ChatPage";
 import { auth } from "./config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+
+import UserSettings from "./components/UserSettings";
 
 function App() {
   const [user] = useAuthState(auth);
@@ -25,7 +26,8 @@ function App() {
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/rooms/:roomName" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
-          {/* <Route path="/rooms/:roomName/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} /> */}
+          <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
+          <Route path="/rooms/:roomName/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </div>
