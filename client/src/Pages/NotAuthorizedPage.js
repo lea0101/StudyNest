@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function NotFoundPage() {
+function NotAuthorizedPage() {
     return (
         <div className="A-Page">
             <h1>Access Denied</h1>
@@ -13,4 +13,4 @@ function NotFoundPage() {
     )
 }
 
-export default NotFoundPage;
+export default NotAuthorizedPage;

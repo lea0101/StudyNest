@@ -9,7 +9,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 
 
 import { db } from "../config/firebase";
-import { doc, setDoc, getDoc, query, where, getDocs, collection } from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc, query, where, getDocs, collection } from "firebase/firestore";
 
 function HomePage() {
   const [showInput, setShowInput] = useState(false); // show input to create a room
@@ -42,13 +42,7 @@ function HomePage() {
     }
     if (rooms.length != 0) {
       const userDocRef = doc(db, 'users', user.uid);
-      setDoc(userDocRef,
-      {
-        rooms: rooms,
-        username: user.email, 
-        displayname: user.displayName, 
-        icon: user.photoURL
-      }, {merge: true});
+      updateDoc(userDocRef, {rooms: rooms}, {merge: true});
     }
   }, [rooms, loading]);
 
@@ -75,29 +69,22 @@ function HomePage() {
   }
 
   // handle deleting rooms
-   const handleDeleteRoom = (roomToDelete) => {
-
+  const handleDeleteRoom = (roomToDelete) => {
      // remove from rooms db
-    const roomDocRef = doc(db, 'Rooms', roomToDelete.code);
-     console.log("dete " + roomToDelete.code);
+    const roomDocRef = doc(db, 'rooms', roomToDelete.code);
     getDoc(roomDocRef).then(snapshot => {
        if (typeof snapshot.data() !== 'undefined') {
          const priorUserList = snapshot.data().userList;
-         console.log(priorUserList)
          const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
-         setDoc(roomDocRef, {userList: newUserList})
-       } else {
-         console.log(" ERORO")
+         updateDoc(roomDocRef, {userList: newUserList});
        }
     })
-
      // remove from user db and local storage
     const newList = rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code);
     setRooms(newList);
-
     // do it one more time here b/c it could be empty, while hook will not let empty lists be set
     const userDocRef = doc(db, 'users', user.uid);
-    setDoc(userDocRef, {rooms: newList}, {merge: true});
+    updateDoc(userDocRef, {rooms: newList}, {merge: true});
   }
 
   // handle joining an existing room
@@ -107,14 +94,15 @@ function HomePage() {
       return
     }
     // check if entered room code exists
-    var added = false;
-    const roomDocRef = doc(db, 'Rooms', roomCode);
+    const roomDocRef = doc(db, 'rooms', roomCode);
     getDoc(roomDocRef).then(doc => {
          if (typeof doc.data() !== 'undefined') {
             setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
             const priorUserList = doc.data().userList;
-            setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
-            added = true;
+            updateDoc(roomDocRef, {userList: [...priorUserList, user.uid]});
+            //setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
+         } else {
+            alert("Room does not exist");
          }
     })
     //const q = query(collection(db, "rooms") , where("code", "==", roomCode));
@@ -126,9 +114,6 @@ function HomePage() {
     //      setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
     //      added = true;
     //  })
-      if (!added) {
-        alert("Room does not exist");
-    }
   }
 
 

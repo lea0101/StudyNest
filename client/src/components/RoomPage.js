@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NavBar from './NavBar';
+import NotAuthorizedPage from "../Pages/NotAuthorizedPage";
 
 
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -13,7 +14,8 @@ import { doc, setDoc, getDoc, getDocs, where, query, collection } from "firebase
 function RoomPage() {
     const auth = getAuth();
     const [user, loading] = useAuthState(auth);
-    const [isAuthorized, setAuthorized] = useState(false);
+    // 3 states of authorization : 0 = logged in 1 = error/unauth 2 = loading
+    const [isAuthorized, setAuthorized] = useState(2);
     const [rooms, setRooms] = useState([]);
     const [userList, setUserList] = useState([]);
     const navigate = useNavigate();
@@ -27,11 +29,16 @@ function RoomPage() {
             return;
         }
         if (user) {
-            const userDocRef = doc(db, 'users', user.uid);
-            getDoc(userDocRef).then(snapshot => {
-                 if (typeof snapshot.data() !== 'undefined') {
-                     if (snapshot.data().rooms.some(e => e.code === roomCode)) {
-                         setAuthorized(true);
+            if (roomCode == undefined) {
+                setAuthorized(1);
+                return;
+            }
+            const roomDocRef = doc(db, 'rooms', roomCode);
+            getDoc(roomDocRef).then(doc => {
+                 if (typeof doc.data() !== 'undefined') {
+                     const userList = doc.data().userList;
+                     if (userList.includes(user.uid)) {
+                         setAuthorized(0);
                      }
                  }
             })
@@ -50,6 +57,14 @@ function RoomPage() {
                     }
                 });
             });
+            //const userDocRef = doc(db, 'users', user.uid);
+            //getDoc(userDocRef).then(snapshot => {
+            //     if (typeof snapshot.data() !== 'undefined') {
+            //         if (snapshot.data().rooms.some(e => e.code === roomCode)) {
+            //             setAuthorized(true);
+            //         }
+            //     }
+            //});
         }
     }, [loading]);
 
@@ -73,12 +88,20 @@ function RoomPage() {
         getDoc(userDocRef).then(snapshot => {
             if (typeof snapshot.data() !== 'undefined') {
                 const updatedRooms = snapshot.data().rooms.filter(room => room.name !== roomName || room.code !== roomCode);
-                setDoc(userDocRef, {rooms: updatedRooms});
+                updateDoc(userDocRef, {rooms: updatedRooms});
             }
+        }).then(() => {
+            const roomDocRef = doc(db, 'rooms', roomCode);
+            getDoc(roomDocRef).then(snapshot => {
+                if (typeof snapshot.data() !== 'undefined') {
+                    const priorUserList = snapshot.data().userList;
+                    const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
+                    updateDoc(roomDocRef, {userList: newUserList});
+                }
+            })
         }).then(() => {
             navigate('/home');
         });
-
     }
 
     // toggle for cancel leave
@@ -96,10 +119,12 @@ function RoomPage() {
         navigate(`/rooms/${roomName}/whiteboard`);
     }
 
-    if (loading) {
+    if (isAuthorized == 1) {
+        return <NotAuthorizedPage/>
+    } else if (isAuthorized == 2){
         return ""
     }
-    return isAuthorized && (
+    return  (
          <div className="RoomPage">
             <button className="leave-room-button" onClick={handleLeave}>Leave Study Group</button>
             <NavBar />

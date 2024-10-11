@@ -35,7 +35,7 @@ function App() {
           {/* Room-related routes with room authorization */}
           <Route path="/rooms/:roomName" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
-          <Route path="/rooms/:roomName/whiteboard" element={<ProtectedRoute><WhiteBoard /></Prote
+          <Route path="/rooms/:roomName/whiteboard" element={<ProtectedRoute><WhiteBoard /></ProtectedRoute>} />
           <Route path="/join/:roomCode" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
           {/* catch-all route for undefined paths */}
           <Route path="/not-authorized" element={<NotAuthorizedPage />} />
