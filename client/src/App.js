@@ -10,6 +10,7 @@ import ChatPage from "./components/Chat/ChatPage";
 import { auth } from "./config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import WhiteBoard from './components/WhiteBoard';
+import JoinPage from './components/JoinPage';
 
 import UserSettings from "./components/UserSettings";
 import NotFoundPage from './Pages/NotFoundPage';
@@ -31,6 +32,7 @@ function App() {
           <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/whiteboard" element={<ProtectedRoute><WhiteBoard /></ProtectedRoute>} />
+          <Route path="/join/:roomCode" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
           {/* catch-all route for undefined paths */}
           <Route path="*" element={< NotFoundPage />} />
         </Routes>

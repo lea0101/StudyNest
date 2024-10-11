@@ -121,11 +121,11 @@ function RoomPage() {
                         <div className="share-modal">
                             <div className="share-content">
                                 <p>Share this room with your friends!</p>
-                                <input type="text" value={`http://localhost:3000/join/${roomName}`} readOnly />
+                                <input type="text" value={`http://localhost:3000/join/${roomCode}`} readOnly />
                                 <button
                                     className="b-button"
                                     onClick={() => {
-                                        navigator.clipboard.writeText(`http://localhost:3000/join/${roomName}`)
+                                        navigator.clipboard.writeText(`http://localhost:3000/join/${roomCode}`)
                                             .then(() => {
                                                 alert('Link copied to clipboard!')
                                             })
