@@ -13,8 +13,8 @@ import { doc, setDoc, getDoc, query, where, getDocs, collection } from "firebase
 
 function HomePage() {
   const [showInput, setShowInput] = useState(false); // show input to create a room
-  const [roomName, setRoomName] = useState('') // name of new room
-  const [rooms, setRooms] = useState([])
+  const [roomName, setRoomName] = useState(''); // name of new room
+  const [rooms, setRooms] = useState([]);
 
   const auth = getAuth();
   const [user, loading] = useAuthState(auth);
@@ -35,7 +35,7 @@ function HomePage() {
   });}, [loading])
 
 
-  // save rooms to LocalStorage whenever room state changes
+  // save rooms to firebase whenever room state changes
   useEffect(() => {
     if (loading) {
       return;
@@ -69,11 +69,12 @@ function HomePage() {
   }
 
   // handle deleting rooms
-  const handleDeleteRoom = (roomToDelete) => {
-    setRooms(rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code));
+   const handleDeleteRoom = (roomToDelete) => {
+    const newList = rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code);
+    setRooms(newList);
     // do it one more time here b/c it could be empty, while hook will not let empty lists be set
     const userDocRef = doc(db, 'users', user.uid);
-    setDoc(userDocRef, {rooms: rooms}, {merge: true});
+    setDoc(userDocRef, {rooms: newList}, {merge: true});
   }
 
   // handle joining an existing room

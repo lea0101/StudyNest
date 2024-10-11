@@ -14,7 +14,6 @@ function RoomPage() {
     const auth = getAuth();
     const [user, loading] = useAuthState(auth);
     const [isAuthorized, setAuthorized] = useState(false);
-    const [room, setRoom] = useState(null);
     const [rooms, setRooms] = useState([]);
     const navigate = useNavigate();
 
@@ -29,22 +28,14 @@ function RoomPage() {
         if (user) {
             const userDocRef = doc(db, 'users', user.uid);
             getDoc(userDocRef).then(snapshot => {
-                const userData = snapshot.data();
-                if (userData && userData.rooms) {
-                    const currRoom = userData.rooms.find(e => e.code === roomCode);
-                    if (currRoom) {
-                        setAuthorized(true);
-                        setRoom(currRoom);
-                    }
-                }
-                // if (typeof snapshot.data() !== 'undefined') {
-                //     if (snapshot.data().rooms.some(e => e.code === roomCode)) {
-                //         setAuthorized(true);
-                //     }
-                // }
+                 if (typeof snapshot.data() !== 'undefined') {
+                     if (snapshot.data().rooms.some(e => e.code === roomCode)) {
+                         setAuthorized(true);
+                     }
+                 }
             });
         }
-    }, [loading, user, roomCode]);
+    }, [loading]);
 
 
     const [showConfirmation, setShowConfirmation] = useState(false);
