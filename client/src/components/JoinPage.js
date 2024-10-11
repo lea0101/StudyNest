@@ -26,6 +26,7 @@ function JoinPage() {
         if (user) {
             const userDocRef = doc(db, 'users', user.uid);
             const q = query(collection(db, "rooms"), where("code", "==", roomCode));
+            const roomDocRef = doc(db, 'rooms', roomCode);
             getDocs(q).then(snapshot => {
                 let ret;
                 snapshot.forEach((doc) => {
@@ -43,6 +44,12 @@ function JoinPage() {
                         setDoc(userDocRef, { rooms: [...rooms, { code: roomCode, name: roomName }] }, { merge: true }).then(() => {
                             navigate('/rooms/' + roomName, { state: { roomCode: roomCode }});
                         });
+                    }
+                });
+                getDoc(roomDocRef).then(snapshot => {
+                    if (typeof snapshot.data() !== 'undefined') {
+                        const userList = snapshot.data().userList;
+                        setDoc(roomDocRef, { userList: [...userList, user.uid] }, { merge: true });
                     }
                 });
             });
