@@ -39,6 +39,7 @@ function RoomPage() {
 
 
     const [showConfirmation, setShowConfirmation] = useState(false);
+    const [showShare, setShowShare] = useState(false);
 
     // toggle for leave
     const handleLeave = () => {
@@ -111,7 +112,36 @@ function RoomPage() {
                 >
                     Room Code: {roomCode}
                 </button>
+                <button className="a-button" onClick={() => setShowShare(true)}>Share</button>
             </div>
+
+            {showShare && (
+                <div className="share-overlay">
+                    <div className="share">
+                        <div className="share-modal">
+                            <div className="share-content">
+                                <p>Share this room with your friends!</p>
+                                <input type="text" value={`http://localhost:3000/join/${roomName}`} readOnly />
+                                <button
+                                    className="b-button"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(`http://localhost:3000/join/${roomName}`)
+                                            .then(() => {
+                                                alert('Link copied to clipboard!')
+                                            })
+                                            .catch(err => {
+                                                console.error('Failed to copy link: ', err);
+                                            });
+                                    }}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                            <a className="hyperlink" onClick={() => setShowShare(false)}>Close</a>
+                        </div>
+                    </div>
+                </div>
+            )}
 
 
             {showConfirmation && (
