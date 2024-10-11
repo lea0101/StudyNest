@@ -8,13 +8,14 @@ import { getAuth } from "firebase/auth";
 
 
 import { db } from "../config/firebase";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, where, query, collection } from "firebase/firestore";
 
 function RoomPage() {
     const auth = getAuth();
     const [user, loading] = useAuthState(auth);
     const [isAuthorized, setAuthorized] = useState(false);
     const [rooms, setRooms] = useState([]);
+    const [userList, setUserList] = useState([]);
     const navigate = useNavigate();
 
     const { roomName } = useParams(); // get room name from url params
@@ -33,6 +34,21 @@ function RoomPage() {
                          setAuthorized(true);
                      }
                  }
+            })
+            .then(() => {
+                getDoc(doc(db, 'rooms', roomCode)).then(snapshot => {
+                    let fetchedUserList = [];
+                    if (typeof snapshot.data() !== 'undefined') {
+                        snapshot.data().userList.map(uid => {
+                            getDoc(doc(db, 'users', uid)).then(snapshot => {
+                                fetchedUserList.push(snapshot.data().username);
+                                // setUserList(fetchedUserList);
+                            }).then(() => {
+                                setUserList(fetchedUserList);
+                            });
+                        });
+                    }
+                });
             });
         }
     }, [loading]);
@@ -89,6 +105,14 @@ function RoomPage() {
             <NavBar />
             <div className="room-header">
                 <h1>Welcome to Room {roomName}</h1>
+            </div>
+            <div>
+                <h2>Users in Room</h2>
+                <ul>
+                    {userList.map((user, i) => (
+                        <li key={i}>{user}</li>
+                    ))}
+                </ul>
             </div>
 
             {/* content in the middle */}
