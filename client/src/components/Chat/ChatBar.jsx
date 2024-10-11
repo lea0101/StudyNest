@@ -3,22 +3,24 @@ import { auth, db } from "../../config/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import "./ChatBar.css";
 
-const ChatBar = ({ scroll }) => {
+const ChatBar = ({ scroll, dbMsgQuery }) => {
   const [message, setMessage] = useState("");
 
   const sendChat = async (event) => {
     event.preventDefault();
     if (message.trim() === "") {
-      alert("Enter a real message");
+      alert("Error cannot send empty message");
       return;
     }
     const { uid, displayName, photoURL } = auth.currentUser;
-    await addDoc(collection(db, "messages"), { // TODO make new collection per group
+    await addDoc(collection(db, dbMsgQuery), { // TODO make new collection per group
       text: message,
       name: displayName,
       avatar: photoURL,
       createdAt: serverTimestamp(),
       uid,
+    }).catch((err) => {
+      alert("Error sending message");
     });
     setMessage("");
     scroll.current.scrollIntoView({ behavior: "smooth" });
@@ -26,9 +28,6 @@ const ChatBar = ({ scroll }) => {
 
   return (
     <form onSubmit={(event) => sendChat(event)} >
-      <label htmlFor="messageInput" hidden>
-        Enter Message
-      </label>
       <input
         id="messageInput"
         name="messageInput"
@@ -38,7 +37,7 @@ const ChatBar = ({ scroll }) => {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
       />
-      <button class="button" type="submit">Send</button>
+      <button className="button" type="submit">Send</button>
     </form>
   );
 };

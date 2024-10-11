@@ -1,17 +1,41 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NavBar from './NavBar';
-// import ChatPage from './chat/ChatPage';
+
+
+import { useAuthState } from "react-firebase-hooks/auth";
+import { getAuth } from "firebase/auth";
+
+
+import { db } from "../config/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 function RoomPage() {
+    const auth = getAuth();
+    const [user, loading] = useAuthState(auth);
+    const [isAuthorized, setAuthorized] = useState(false);
     const navigate = useNavigate();
 
     const { roomName } = useParams(); // get room name from url params
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
-    const rooms = JSON.parse(localStorage.getItem('rooms')) || [];
-    const room = rooms.find(r => r.name === roomName);
+
+    useEffect(() => {
+        if (loading) {
+            return;
+        }
+        if (user) {
+            const userDocRef = doc(db, 'users', user.uid);
+            getDoc(userDocRef).then(snapshot => {
+                if (typeof snapshot.data() !== 'undefined') {
+                    if (snapshot.data().rooms.some(e => e.code === roomCode)) {
+                        setAuthorized(true);
+                    }
+                }
+            });
+        }
+    }, [loading])
+
 
     const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -27,7 +51,16 @@ function RoomPage() {
         localStorage.setItem('rooms', JSON.stringify(updatedRooms));
 
         setShowConfirmation(false);
-        navigate('/home');
+        const userDocRef = doc(db, 'users', user.uid);
+        getDoc(userDocRef).then(snapshot => {
+            if (typeof snapshot.data() !== 'undefined') {
+                const updatedRooms = snapshot.data().rooms.filter(room => room.name !== roomName || room.code !== roomCode);
+                setDoc(userDocRef, {rooms: updatedRooms});
+            }
+        }).then(() => {
+            navigate('/home');
+        });
+
     }
 
     // toggle for cancel leave
@@ -45,8 +78,11 @@ function RoomPage() {
         navigate(`/rooms/${roomName}/whiteboard`);
     }
 
-    return (
-        <div className="RoomPage">
+    if (loading) {
+        return ""
+    }
+    return isAuthorized && (
+         <div className="RoomPage">
             <button className="leave-room-button" onClick={handleLeave}>Leave Study Group</button>
             <NavBar />
             <div className="room-header">
@@ -87,7 +123,6 @@ function RoomPage() {
                 </div>
             )}
         </div>
-    )
-}
+    ) }
 
 export default RoomPage;

@@ -1,8 +1,7 @@
 import React, { useState } from "react"
 import Select from "react-select";
 import '../App.css';
-import { storage } from '../config/firebase';
-import { auth } from '../config/firebase';
+import { storage, auth } from '../config/firebase';
 import { updateProfile } from 'firebase/auth';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";

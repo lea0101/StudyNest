@@ -5,27 +5,46 @@ import Room from "./Room";
 import JoinRoom from "./JoinRoom";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
+import { useAuthState } from "react-firebase-hooks/auth";
+
+
+import { db } from "../config/firebase";
+import { doc, setDoc, getDoc, query, where, getDocs, collection } from "firebase/firestore";
 
 function HomePage() {
-  const navigate = useNavigate(); // used for routes
-
-  // set initial rooms from LocalStorage, holds list of rooms
-  const [rooms, setRooms] = useState(() => {
-    const saved = localStorage.getItem('rooms');
-    const initivalValue = JSON.parse(saved);
-    return initivalValue || [];
-  });
-
   const [showInput, setShowInput] = useState(false); // show input to create a room
   const [roomName, setRoomName] = useState('') // name of new room
+  const [rooms, setRooms] = useState([])
 
   const auth = getAuth();
-  const user = auth.currentUser;
+  const [user, loading] = useAuthState(auth);
+
+  const navigate = useNavigate(); // used for routes
+
+
+  // load in rooms
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+    const userDocRef = doc(db, 'users', user.uid);
+    getDoc(userDocRef).then(snapshot => {
+        if (typeof snapshot.data() !== 'undefined') {
+            setRooms(snapshot.data().rooms);
+        }
+  });}, [loading])
+
 
   // save rooms to LocalStorage whenever room state changes
   useEffect(() => {
-    localStorage.setItem('rooms', JSON.stringify(rooms));
-  }, [rooms]);
+    if (loading) {
+      return;
+    }
+    if (rooms.length != 0) {
+      const userDocRef = doc(db, 'users', user.uid);
+      setDoc(userDocRef, {rooms: rooms}, {merge: true});
+    }
+  }, [rooms, loading]);
 
   // generate a random room code
   const generateRoomCode = () => {
@@ -36,6 +55,7 @@ function HomePage() {
   const handleCreateRooms = () => {
       if (roomName.trim() !== '') {
         const newRoom = { name: roomName, code: generateRoomCode() };
+        setDoc(doc(db, 'rooms', newRoom.code), {name: newRoom.name, code : newRoom.code});
         setRooms([...rooms, newRoom]); // add new room to the list
         setRoomName(''); // clear input after adding
         setShowInput(!showInput);
@@ -51,17 +71,26 @@ function HomePage() {
   // handle deleting rooms
   const handleDeleteRoom = (roomToDelete) => {
     setRooms(rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code));
+    // do it one more time here b/c it could be empty, while hook will not let empty lists be set
+    const userDocRef = doc(db, 'users', user.uid);
+    setDoc(userDocRef, {rooms: rooms}, {merge: true});
   }
 
   // handle joining an existing room
   const handleJoinRoom = (roomCode) => {
     // check if entered room code exists
-    const room = rooms.find(r => r.code === roomCode);
-    if (room) {
-      navigate(`/rooms/${room.name}`);
-    } else {
-      alert('Room code not found!');
-    }
+    const q = query(collection(db, "rooms") , where("code", "==", roomCode));
+    var added = false;
+    const querySnapshot = getDocs(q).then(snapshot => {
+      console.log("IN HERE")
+      snapshot.forEach((doc) => {
+          setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
+          added = true;
+      })
+      if (!added) {
+        alert("Room does not exist");
+      }
+    });
   }
 
 
