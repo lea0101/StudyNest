@@ -23,7 +23,9 @@ function HomePage() {
   const [rooms, setRooms] = useState([])
   useEffect(() => {
     getDoc(userDocRef).then(snapshot => {
-    setRooms(snapshot.data().rooms);
+        if (typeof snapshot.data() !== 'undefined') {
+            setRooms(snapshot.data().rooms);
+        }
   });}, [])
 
   const [showInput, setShowInput] = useState(false); // show input to create a room
