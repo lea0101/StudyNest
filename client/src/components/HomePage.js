@@ -9,7 +9,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 
 
 import { db } from "../config/firebase";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, query, where, getDocs, collection } from "firebase/firestore";
 
 function HomePage() {
   const [showInput, setShowInput] = useState(false); // show input to create a room
@@ -22,6 +22,7 @@ function HomePage() {
   const navigate = useNavigate(); // used for routes
 
 
+  // load in rooms
   useEffect(() => {
     if (loading) {
       return;
@@ -54,6 +55,7 @@ function HomePage() {
   const handleCreateRooms = () => {
       if (roomName.trim() !== '') {
         const newRoom = { name: roomName, code: generateRoomCode() };
+        setDoc(doc(db, 'rooms', newRoom.code), {name: newRoom.name, code : newRoom.code});
         setRooms([...rooms, newRoom]); // add new room to the list
         setRoomName(''); // clear input after adding
         setShowInput(!showInput);
@@ -77,12 +79,18 @@ function HomePage() {
   // handle joining an existing room
   const handleJoinRoom = (roomCode) => {
     // check if entered room code exists
-    const room = rooms.find(r => r.code === roomCode);
-    if (room) {
-      navigate(`/rooms/${room.name}`, {state : {roomCode : roomCode}})
-    } else {
-      alert('Room code not found!');
-    }
+    const q = query(collection(db, "rooms") , where("code", "==", roomCode));
+    var added = false;
+    const querySnapshot = getDocs(q).then(snapshot => {
+      console.log("IN HERE")
+      snapshot.forEach((doc) => {
+          setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
+          added = true;
+      })
+      if (!added) {
+        alert("Room does not exist");
+      }
+    });
   }
 
 
