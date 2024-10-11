@@ -9,7 +9,7 @@ import { getAuth } from "firebase/auth";
 
 
 import { db } from "../config/firebase";
-import { doc, setDoc, getDoc, getDocs, where, query, collection } from "firebase/firestore";
+import { doc, setDoc, UserDoc, getDoc, getDocs, where, query, collection } from "firebase/firestore";
 
 function RoomPage() {
     const auth = getAuth();
