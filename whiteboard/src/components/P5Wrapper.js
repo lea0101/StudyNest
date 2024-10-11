@@ -1,15 +1,56 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Rectangle, Ellipse, Curve, Shader, getShapeType } from './shape';
+import { Rectangle, Ellipse, Curve, Shader, getShapeType, generateShapeFromJSON } from './shape';
 import p5 from 'p5';
+import {
+    query,
+    collection,
+    onSnapshot,
+    addDoc,
+    doc,
+    deleteDoc,
+    serverTimestamp
+} from "firebase/firestore";
+import { db } from "../config/firebase";
 
 const P5Wrapper = ({ tool, color, fill }) => {
     const sketchRef = useRef(null);
     let [strokes, setStrokes] = useState([]);
+    let [strokeIDs, setStrokeIDs] = useState([]);
 
+    useEffect(() => {
+        const q = query(
+            collection(db, "strokes")
+        );
+        const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
+            const fetchedStrokes = [];
+            QuerySnapshot.forEach((doc) => {
+                fetchedStrokes.push(generateShapeFromJSON(doc.data()));
+            });
+            const sortedStrokes = fetchedStrokes.sort((a, b) => a.createdAt - b.createdAt);
+            setStrokes(sortedStrokes);
+        });
+        return () => unsubscribe;
+    }, []);
 
-    function updateStrokes(new_strokes) {
-        setStrokes(new_strokes);
-        // do other db stuff
+    async function addStroke(stroke) {
+        const docRef = await addDoc(collection(db, "strokes"), {...stroke.toJSON(), createdAt: serverTimestamp()});
+        strokes.push(stroke);
+        strokeIDs.push(docRef.id);
+        setStrokes(strokes);
+        setStrokeIDs(strokeIDs);
+    }
+
+    async function deleteStroke(id) {
+        const docRef = doc(db, "strokes", id);
+        await deleteDoc(docRef);
+
+        const strokeIndex = strokeIDs.indexOf(id);
+        if (strokeIndex > -1) {
+            strokes.splice(strokeIndex, 1);
+            strokeIDs.splice(strokeIndex, 1);
+            setStrokes([...strokes]);
+            setStrokeIDs([...strokeIDs]);
+        }
     }
 
     useEffect(() => {
@@ -37,20 +78,21 @@ const P5Wrapper = ({ tool, color, fill }) => {
                             currentShape.height = p.mouseY - currentShape.y;
                             break;
                         case 'curve':
-                            currentShape.addPoint({x: p.mouseX, y: p.mouseY});
+                            currentShape.addPoint({ x: p.mouseX, y: p.mouseY });
                             break;
                         default:
                             console.log("default");
                             break;
-                        }
+                    }
                     currentShape.display(p);
                 }
                 if (p.mouseIsPressed) {
                     if (tool === 'erase') {
                         for (let i = strokes.length - 1; i >= 0; i--) { // very slow, but works
                             if (strokes[i].isNear(p.mouseX, p.mouseY)) {
-                                strokes.splice(i, 1);
-                                updateStrokes(strokes);
+                                // strokes.splice(i, 1);
+                                deleteStroke(strokeIDs[i]);
+                                // updateStrokes(strokes);
                                 // actionManager.append(new ActionErase(i, strokes[i]));
                             }
                         }
@@ -72,7 +114,7 @@ const P5Wrapper = ({ tool, color, fill }) => {
                         currentShape = new Ellipse(p.mouseX, p.mouseY, 0, 0, shader);
                         break;
                     case 'paint':
-                        currentShape = new Curve([{x: p.mouseX, y: p.mouseY}], shader);
+                        currentShape = new Curve([{ x: p.mouseX, y: p.mouseY }], shader);
                         break;
                     default:
                         console.log("default");
@@ -91,8 +133,9 @@ const P5Wrapper = ({ tool, color, fill }) => {
                     currentShape.width = p.mouseX - currentShape.x;
                     currentShape.height = p.mouseY - currentShape.y;
                 }
-                strokes.push(currentShape);
-                updateStrokes(strokes);
+                // strokes.push(currentShape);
+                // updateStrokes(strokes);
+                addStroke(currentShape);
                 currentShape = null;
                 console.log(strokes);
             };
@@ -105,7 +148,7 @@ const P5Wrapper = ({ tool, color, fill }) => {
             p5Instance.remove();
         };
 
-    }, [tool, color, fill]);
+    }, [tool, color, fill, strokes]);
 
     return <div className="p5wrapper" ref={sketchRef}></div>;
 };

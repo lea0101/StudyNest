@@ -23,6 +23,14 @@ class Shader {
             p.drawingContext.setLineDash([]);
         }
     }
+    toJSON() {
+        return {
+            stroke: this.stroke,
+            fill: this.fill,
+            weight: this.weight,
+            dashed: this.dashed
+        };
+    }
 }
 
 // abstract shape class with draw method
@@ -43,6 +51,14 @@ class Shape {
     isBoundedBy(rect) {
         console.error("abstract isBoundedBy method in shape class");
         return false;
+    }
+    toJSON() {
+        return {
+            x: this.x,
+            y: this.y,
+            shader: this.shader.toJSON(),
+            type: getShapeType(this)
+        };
     }
 }
 
@@ -66,6 +82,16 @@ class Rectangle extends Shape {
     isBoundedBy(rect) {
         return rect.containsPoint(this.x, this.y) && rect.containsPoint(this.x + this.width, this.y + this.height);
     }
+    toJSON() {
+        return {
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            shader: this.shader.toJSON(),
+            type: getShapeType(this)
+        };
+    }
 }
 
 function dist(x1, y1, x2, y2) {
@@ -88,6 +114,16 @@ class Ellipse extends Shape {
     }
     isBoundedBy(rect) {
         return rect.containsPoint(this.x, this.y) && rect.containsPoint(this.x + this.width, this.y + this.height);
+    }
+    toJSON() {
+        return {
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            shader: this.shader.toJSON(),
+            type: getShapeType(this)
+        };
     }
 }
 
@@ -146,6 +182,28 @@ class Curve extends Shape {
         }
         return true;
     }
+    toJSON() {
+        return {
+            points: this.points,
+            shader: this.shader.toJSON(),
+            type: getShapeType(this)
+        };
+    }
+}
+
+function generateShapeFromJSON(json) {
+    let shader = new Shader(json.shader.stroke, json.shader.fill, json.shader.weight, json.shader.dashed);
+    switch (json.type) {
+        case "rectangle":
+            return new Rectangle(json.x, json.y, json.width, json.height, shader);
+        case "ellipse":
+            return new Ellipse(json.x, json.y, json.width, json.height, shader);
+        case "curve":
+            return new Curve(json.points, shader);
+        default:
+            console.error("shape type not found");
+            return null;
+    }
 }
 
 function getShapeType(shape) {
@@ -161,4 +219,4 @@ function getShapeType(shape) {
     }
 }
 
-export { Shader, Shape, Rectangle, Ellipse, Curve, getShapeType };
+export { Shader, Shape, Rectangle, Ellipse, Curve, getShapeType, generateShapeFromJSON};
