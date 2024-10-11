@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 
-const P5Wrapper = ({ tool, color, fill }) => {
+const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
     const sketchRef = useRef(null);
     let [strokes, setStrokes] = useState([]);
 
@@ -40,11 +40,24 @@ const P5Wrapper = ({ tool, color, fill }) => {
         setStrokes([...strokes]);
     }
 
-    async function deleteStroke(stroke) {
-        await deleteDoc(stroke.id);
+    async function deleteStroke(idx) {
+        await deleteDoc(strokes[idx].id);
+        strokes.splice(idx, 1);
         // strokes = strokes.filter(stroke => stroke.id !== id);
         setStrokes([...strokes]);
     }
+
+    useEffect(() => {
+        const deleteStrokes = async () => {
+            const deletePromises = strokes.map((stroke) => deleteDoc(stroke.id));
+            await Promise.all(deletePromises);
+            setStrokes([]);
+            setClearEvent(false);
+        };
+        if (clearEvent) {
+            deleteStrokes();
+        }
+    }, [clearEvent]);
 
     useEffect(() => {
         const sketch = (p) => {
@@ -83,8 +96,9 @@ const P5Wrapper = ({ tool, color, fill }) => {
                     if (tool === 'erase') {
                         for (let i = strokes.length - 1; i >= 0; i--) { // very slow, but works
                             if (strokes[i].isNear(p.mouseX, p.mouseY)) {
-                                deleteStroke(strokes[i]);
-                                strokes.splice(i, 1);
+                                deleteStroke(i);
+                                // deleteStroke(strokes[i]);
+                                // strokes.splice(i, 1);
                                 // updateStrokes(strokes);
                                 // actionManager.append(new ActionErase(i, strokes[i]));
                             }
