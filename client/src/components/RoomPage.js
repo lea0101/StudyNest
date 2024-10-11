@@ -14,6 +14,8 @@ function RoomPage() {
     const auth = getAuth();
     const [user, loading] = useAuthState(auth);
     const [isAuthorized, setAuthorized] = useState(false);
+    const [room, setRoom] = useState(null);
+    const [rooms, setRooms] = useState([]);
     const navigate = useNavigate();
 
     const { roomName } = useParams(); // get room name from url params
@@ -27,14 +29,22 @@ function RoomPage() {
         if (user) {
             const userDocRef = doc(db, 'users', user.uid);
             getDoc(userDocRef).then(snapshot => {
-                if (typeof snapshot.data() !== 'undefined') {
-                    if (snapshot.data().rooms.some(e => e.code === roomCode)) {
+                const userData = snapshot.data();
+                if (userData && userData.rooms) {
+                    const currRoom = userData.rooms.find(e => e.code === roomCode);
+                    if (currRoom) {
                         setAuthorized(true);
+                        setRoom(currRoom);
                     }
                 }
+                // if (typeof snapshot.data() !== 'undefined') {
+                //     if (snapshot.data().rooms.some(e => e.code === roomCode)) {
+                //         setAuthorized(true);
+                //     }
+                // }
             });
         }
-    }, [loading])
+    }, [loading, user, roomCode]);
 
 
     const [showConfirmation, setShowConfirmation] = useState(false);
