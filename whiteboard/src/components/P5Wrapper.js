@@ -15,7 +15,6 @@ import { db } from "../config/firebase";
 const P5Wrapper = ({ tool, color, fill }) => {
     const sketchRef = useRef(null);
     let [strokes, setStrokes] = useState([]);
-    let [strokeIDs, setStrokeIDs] = useState([]);
 
     useEffect(() => {
         const q = query(
@@ -24,7 +23,9 @@ const P5Wrapper = ({ tool, color, fill }) => {
         const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
             const fetchedStrokes = [];
             QuerySnapshot.forEach((doc) => {
-                fetchedStrokes.push(generateShapeFromJSON(doc.data()));
+                let stroke = generateShapeFromJSON(doc.data());
+                stroke.setID(doc.ref);
+                fetchedStrokes.push(stroke);
             });
             const sortedStrokes = fetchedStrokes.sort((a, b) => a.createdAt - b.createdAt);
             setStrokes(sortedStrokes);
@@ -34,23 +35,15 @@ const P5Wrapper = ({ tool, color, fill }) => {
 
     async function addStroke(stroke) {
         const docRef = await addDoc(collection(db, "strokes"), {...stroke.toJSON(), createdAt: serverTimestamp()});
+        stroke.setID(docRef);
         strokes.push(stroke);
-        strokeIDs.push(docRef.id);
-        setStrokes(strokes);
-        setStrokeIDs(strokeIDs);
+        setStrokes([...strokes]);
     }
 
-    async function deleteStroke(id) {
-        const docRef = doc(db, "strokes", id);
-        await deleteDoc(docRef);
-
-        const strokeIndex = strokeIDs.indexOf(id);
-        if (strokeIndex > -1) {
-            strokes.splice(strokeIndex, 1);
-            strokeIDs.splice(strokeIndex, 1);
-            setStrokes([...strokes]);
-            setStrokeIDs([...strokeIDs]);
-        }
+    async function deleteStroke(stroke) {
+        await deleteDoc(stroke.id);
+        // strokes = strokes.filter(stroke => stroke.id !== id);
+        setStrokes([...strokes]);
     }
 
     useEffect(() => {
@@ -90,8 +83,8 @@ const P5Wrapper = ({ tool, color, fill }) => {
                     if (tool === 'erase') {
                         for (let i = strokes.length - 1; i >= 0; i--) { // very slow, but works
                             if (strokes[i].isNear(p.mouseX, p.mouseY)) {
-                                // strokes.splice(i, 1);
-                                deleteStroke(strokeIDs[i]);
+                                deleteStroke(strokes[i]);
+                                strokes.splice(i, 1);
                                 // updateStrokes(strokes);
                                 // actionManager.append(new ActionErase(i, strokes[i]));
                             }

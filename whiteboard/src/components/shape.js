@@ -39,6 +39,11 @@ class Shape {
         this.x = x;
         this.y = y;
         this.shader = shader;
+        this.id = null;
+        this.createdAt = new Date();
+    }
+    setID(id) {
+        this.id = id;
     }
     display(p) {
         this.shader.apply(p);
@@ -193,17 +198,23 @@ class Curve extends Shape {
 
 function generateShapeFromJSON(json) {
     let shader = new Shader(json.shader.stroke, json.shader.fill, json.shader.weight, json.shader.dashed);
+    let out;
     switch (json.type) {
         case "rectangle":
-            return new Rectangle(json.x, json.y, json.width, json.height, shader);
+            out = new Rectangle(json.x, json.y, json.width, json.height, shader);
+            break;
         case "ellipse":
-            return new Ellipse(json.x, json.y, json.width, json.height, shader);
+            out = new Ellipse(json.x, json.y, json.width, json.height, shader);
+            break;
         case "curve":
-            return new Curve(json.points, shader);
+            out = new Curve(json.points, shader);
+            break;
         default:
             console.error("shape type not found");
             return null;
     }
+    out.createdAt = json.createdAt;
+    return out;
 }
 
 function getShapeType(shape) {
