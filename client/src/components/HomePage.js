@@ -6,25 +6,34 @@ import JoinRoom from "./JoinRoom";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 
+
+import { db } from "../config/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+
 function HomePage() {
-  const navigate = useNavigate(); // used for routes
-
-  // set initial rooms from LocalStorage, holds list of rooms
-  const [rooms, setRooms] = useState(() => {
-    const saved = localStorage.getItem('rooms');
-    const initivalValue = JSON.parse(saved);
-    return initivalValue || [];
-  });
-
-  const [showInput, setShowInput] = useState(false); // show input to create a room
-  const [roomName, setRoomName] = useState('') // name of new room
 
   const auth = getAuth();
   const user = auth.currentUser;
 
+  const userDocRef = doc(db, 'users', user.uid);
+
+  const navigate = useNavigate(); // used for routes
+
+  // set initial rooms from LocalStorage, holds list of rooms
+  const [rooms, setRooms] = useState([])
+  useEffect(() => {
+    getDoc(userDocRef).then(snapshot => {
+    setRooms(snapshot.data().rooms);
+  });}, [])
+
+  const [showInput, setShowInput] = useState(false); // show input to create a room
+  const [roomName, setRoomName] = useState('') // name of new room
+
   // save rooms to LocalStorage whenever room state changes
   useEffect(() => {
-    localStorage.setItem('rooms', JSON.stringify(rooms));
+    if (rooms.length != 0) {
+      setDoc(userDocRef, {rooms: rooms}, {merge: true});
+    }
   }, [rooms]);
 
   // generate a random room code
