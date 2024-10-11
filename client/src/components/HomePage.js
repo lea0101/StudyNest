@@ -42,7 +42,14 @@ function HomePage() {
     }
     if (rooms.length != 0) {
       const userDocRef = doc(db, 'users', user.uid);
-      updateDoc(userDocRef, {rooms: rooms}, {merge: true});
+      //updateDoc(userDocRef, {rooms: rooms}, {merge: true});
+      setDoc(userDocRef,
+      {
+        rooms: rooms,
+        username: user.email,
+        displayname: user.displayName,
+        icon: user.photoURL
+      }, {merge: true});
     }
   }, [rooms, loading]);
 
