@@ -6,7 +6,7 @@ const WhiteBoard = () => {
     let [tool, setTool] = useState('ellipse');
     let [color, setColor] = useState('black');
     let [fill, setFill] = useState(false);
-    let [strokes, setStrokes] = useState([]);
+    let [clearEvent, setClearEvent] = useState(false);
 
     function getUpdateToolHandler(event) {
         setTool(event.target.id);
@@ -42,7 +42,7 @@ const WhiteBoard = () => {
                     <button id="rectangle" onClick={getUpdateToolHandler}>Rectangle</button>
                     <button id="ellipse" onClick={getUpdateToolHandler}>Ellipse</button>
                     <button id="erase" onClick={getUpdateToolHandler}>Erase</button>
-                    <button id="clear" onClick={() => setStrokes([])}>Clear</button>
+                    <button id="erase" onClick={() => setClearEvent(true)}>Erase</button>
                     {/* <button id="select" className="default-select" onClick={singleSelect(this)}>Select</button> */}
                 </div>
                 <div id="color-select" className="single-select no-null-select">
@@ -57,7 +57,7 @@ const WhiteBoard = () => {
                     <button id="blue" onClick={getUpdateColorHandler}></button>
                 </div>
             </div>
-            <P5Wrapper tool={tool} color={color} fill={fill} strokes={strokes} setStrokes={setStrokes}/>
+            <P5Wrapper tool={tool} color={color} fill={fill} clearEvent={clearEvent} setClearEvent={setClearEvent}/>
         </div>
     );
 }

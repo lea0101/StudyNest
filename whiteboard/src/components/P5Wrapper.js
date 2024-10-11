@@ -12,9 +12,9 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 
-const P5Wrapper = ({ tool, color, fill, strokes, setStrokes }) => {
+const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
     const sketchRef = useRef(null);
-    // let [strokes, setStrokes] = useState([]);
+    let [strokes, setStrokes] = useState([]);
 
     useEffect(() => {
         const q = query(
@@ -34,30 +34,30 @@ const P5Wrapper = ({ tool, color, fill, strokes, setStrokes }) => {
     }, []);
 
     async function addStroke(stroke) {
-        const docRef = await addDoc(collection(db, "strokes"), { ...stroke.toJSON(), createdAt: serverTimestamp() });
+        const docRef = await addDoc(collection(db, "strokes"), {...stroke.toJSON(), createdAt: serverTimestamp()});
         stroke.setID(docRef);
         strokes.push(stroke);
         setStrokes([...strokes]);
     }
 
-    async function deleteStroke(stroke) {
-        await deleteDoc(stroke.id);
+    async function deleteStroke(idx) {
+        await deleteDoc(strokes[idx].id);
+        strokes.splice(idx, 1);
         // strokes = strokes.filter(stroke => stroke.id !== id);
         setStrokes([...strokes]);
     }
 
     useEffect(() => {
-        if (strokes.length === 0) {
-            const q = query(
-                collection(db, "strokes")
-            );
-            onSnapshot(q, (QuerySnapshot) => {
-                QuerySnapshot.forEach((doc) => {
-                    deleteDoc(doc.ref);
-                });
-            });
+        const deleteStrokes = async () => {
+            const deletePromises = strokes.map((stroke) => deleteDoc(stroke.id));
+            await Promise.all(deletePromises);
+            setStrokes([]);
+            setClearEvent(false);
+        };
+        if (clearEvent) {
+            deleteStrokes();
         }
-    }, [strokes]);
+    }, [clearEvent]);
 
     useEffect(() => {
         const sketch = (p) => {
@@ -96,8 +96,9 @@ const P5Wrapper = ({ tool, color, fill, strokes, setStrokes }) => {
                     if (tool === 'erase') {
                         for (let i = strokes.length - 1; i >= 0; i--) { // very slow, but works
                             if (strokes[i].isNear(p.mouseX, p.mouseY)) {
-                                deleteStroke(strokes[i]);
-                                strokes.splice(i, 1);
+                                deleteStroke(i);
+                                // deleteStroke(strokes[i]);
+                                // strokes.splice(i, 1);
                                 // updateStrokes(strokes);
                                 // actionManager.append(new ActionErase(i, strokes[i]));
                             }
