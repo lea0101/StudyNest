@@ -12,9 +12,9 @@ import {
 } from "firebase/firestore";
 import { db } from "../config/firebase";
 
-const P5Wrapper = ({ tool, color, fill }) => {
+const P5Wrapper = ({ tool, color, fill, strokes, setStrokes }) => {
     const sketchRef = useRef(null);
-    let [strokes, setStrokes] = useState([]);
+    // let [strokes, setStrokes] = useState([]);
 
     useEffect(() => {
         const q = query(
@@ -34,7 +34,7 @@ const P5Wrapper = ({ tool, color, fill }) => {
     }, []);
 
     async function addStroke(stroke) {
-        const docRef = await addDoc(collection(db, "strokes"), {...stroke.toJSON(), createdAt: serverTimestamp()});
+        const docRef = await addDoc(collection(db, "strokes"), { ...stroke.toJSON(), createdAt: serverTimestamp() });
         stroke.setID(docRef);
         strokes.push(stroke);
         setStrokes([...strokes]);
@@ -45,6 +45,19 @@ const P5Wrapper = ({ tool, color, fill }) => {
         // strokes = strokes.filter(stroke => stroke.id !== id);
         setStrokes([...strokes]);
     }
+
+    useEffect(() => {
+        if (strokes.length === 0) {
+            const q = query(
+                collection(db, "strokes")
+            );
+            onSnapshot(q, (QuerySnapshot) => {
+                QuerySnapshot.forEach((doc) => {
+                    deleteDoc(doc.ref);
+                });
+            });
+        }
+    }, [strokes]);
 
     useEffect(() => {
         const sketch = (p) => {
