@@ -9,7 +9,7 @@ import { getAuth } from "firebase/auth";
 
 
 import { db } from "../config/firebase";
-import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection } from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot } from "firebase/firestore";
 
 function RoomPage() {
     const auth = getAuth();
@@ -41,21 +41,6 @@ function RoomPage() {
                          setAuthorized(0);
                      }
                  }
-            })
-            .then(() => {
-                getDoc(doc(db, 'rooms', roomCode)).then(snapshot => {
-                    let fetchedUserList = [];
-                    if (typeof snapshot.data() !== 'undefined') {
-                        snapshot.data().userList.map(uid => {
-                            getDoc(doc(db, 'users', uid)).then(snapshot => {
-                                fetchedUserList.push(snapshot.data().username);
-                                // setUserList(fetchedUserList);
-                            }).then(() => {
-                                setUserList(fetchedUserList);
-                            });
-                        });
-                    }
-                });
             });
             //const userDocRef = doc(db, 'users', user.uid);
             //getDoc(userDocRef).then(snapshot => {
@@ -67,6 +52,30 @@ function RoomPage() {
             //});
         }
     }, [loading]);
+
+    useEffect(() => {
+        const q = query(
+            collection(db, "rooms"),
+            where("code", "==", roomCode)
+        );
+        const unsubscribe = onSnapshot(q, async (QuerySnapshot) => {
+            const fetchedUsersPromises = [];
+    
+            QuerySnapshot.forEach((d) => {
+                d.data().userList.forEach((uid) => {
+                    const userPromise = getDoc(doc(db, 'users', uid)).then(snapshot => {
+                        return snapshot.data().username;
+                    });
+                    fetchedUsersPromises.push(userPromise);
+                });
+            });
+    
+            const fetchedUsers = await Promise.all(fetchedUsersPromises);
+            setUserList(fetchedUsers);
+        });
+    
+        return () => unsubscribe;
+    }, []);
 
 
     const [showConfirmation, setShowConfirmation] = useState(false);
