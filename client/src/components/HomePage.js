@@ -6,9 +6,6 @@ import JoinRoom from "./JoinRoom";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 
-const auth = getAuth();
-const user = auth.currentUser;
-
 function HomePage() {
   const navigate = useNavigate(); // used for routes
 
@@ -21,6 +18,9 @@ function HomePage() {
 
   const [showInput, setShowInput] = useState(false); // show input to create a room
   const [roomName, setRoomName] = useState('') // name of new room
+
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   // save rooms to LocalStorage whenever room state changes
   useEffect(() => {
@@ -68,7 +68,7 @@ function HomePage() {
   return (
     <div className="HomePage">
         <NavBar />
-         <h1>Welcome {user?.displayName}</h1>
+        <h1>Welcome {user?.displayName}</h1>
         <h2>Your Rooms</h2>
 
         <div>
