@@ -5,38 +5,45 @@ import Room from "./Room";
 import JoinRoom from "./JoinRoom";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 
 import { db } from "../config/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
 function HomePage() {
+  const [showInput, setShowInput] = useState(false); // show input to create a room
+  const [roomName, setRoomName] = useState('') // name of new room
+  const [rooms, setRooms] = useState([])
 
   const auth = getAuth();
-  const user = auth.currentUser;
-
-  const userDocRef = doc(db, 'users', user.uid);
+  const [user, loading] = useAuthState(auth);
 
   const navigate = useNavigate(); // used for routes
 
-  // set initial rooms from LocalStorage, holds list of rooms
-  const [rooms, setRooms] = useState([])
+
   useEffect(() => {
+    if (loading) {
+      return;
+    }
+    const userDocRef = doc(db, 'users', user.uid);
     getDoc(userDocRef).then(snapshot => {
         if (typeof snapshot.data() !== 'undefined') {
             setRooms(snapshot.data().rooms);
         }
-  });}, [])
+  });}, [loading])
 
-  const [showInput, setShowInput] = useState(false); // show input to create a room
-  const [roomName, setRoomName] = useState('') // name of new room
 
   // save rooms to LocalStorage whenever room state changes
   useEffect(() => {
+    if (loading) {
+      return;
+    }
     if (rooms.length != 0) {
+      const userDocRef = doc(db, 'users', user.uid);
       setDoc(userDocRef, {rooms: rooms}, {merge: true});
     }
-  }, [rooms]);
+  }, [rooms, loading]);
 
   // generate a random room code
   const generateRoomCode = () => {
@@ -62,6 +69,8 @@ function HomePage() {
   // handle deleting rooms
   const handleDeleteRoom = (roomToDelete) => {
     setRooms(rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code));
+    // do it one more time here b/c it could be empty, while hook will not let empty lists be set
+    const userDocRef = doc(db, 'users', user.uid);
     setDoc(userDocRef, {rooms: rooms}, {merge: true});
   }
 

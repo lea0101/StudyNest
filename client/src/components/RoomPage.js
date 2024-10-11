@@ -1,9 +1,9 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NavBar from './NavBar';
 
 
+import { useAuthState } from "react-firebase-hooks/auth";
 import { getAuth } from "firebase/auth";
 
 
@@ -12,15 +12,30 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 
 function RoomPage() {
     const auth = getAuth();
-    const user = auth.currentUser;
-
-    const userDocRef = doc(db, 'users', user.uid);
-
+    const [user, loading] = useAuthState(auth);
+    const [isAuthorized, setAuthorized] = useState(false);
     const navigate = useNavigate();
 
     const { roomName } = useParams(); // get room name from url params
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
+
+    useEffect(() => {
+        if (loading) {
+            return;
+        }
+        if (user) {
+            const userDocRef = doc(db, 'users', user.uid);
+            getDoc(userDocRef).then(snapshot => {
+                if (typeof snapshot.data() !== 'undefined') {
+                    if (snapshot.data().rooms.some(e => e.code === roomCode)) {
+                        setAuthorized(true);
+                    }
+                }
+            });
+        }
+    }, [loading])
+
 
     const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -31,6 +46,7 @@ function RoomPage() {
 
     const handleConfirmLeave = () => {
         setShowConfirmation(false);
+        const userDocRef = doc(db, 'users', user.uid);
         getDoc(userDocRef).then(snapshot => {
             if (typeof snapshot.data() !== 'undefined') {
                 const updatedRooms = snapshot.data().rooms.filter(room => room.name !== roomName || room.code !== roomCode);
@@ -50,8 +66,11 @@ function RoomPage() {
         navigate(`/rooms/${roomName}/chat`, { state: {roomCode : roomCode}});
     }
 
-    return (
-        <div className="RoomPage">
+    if (loading) {
+        return ""
+    }
+    return isAuthorized && (
+         <div className="RoomPage">
             <button className="leave-room-button" onClick={handleLeave}>Leave Study Group</button>
             <NavBar />
             <div className="room-header">
@@ -61,7 +80,6 @@ function RoomPage() {
             <p>Explore your virtual study room</p>
             <button className="chat-button" onClick={handleEnterChat}>Enter Chat</button>
             {/* <ChatPage /> */}
-            
 
             <div className="room-code">
                 <p>Room Code: {roomCode}</p>
@@ -79,7 +97,6 @@ function RoomPage() {
                 </div>
             )}
         </div>
-    )
-}
+    ) }
 
 export default RoomPage;
