@@ -52,7 +52,7 @@ function RoomPage() {
             
 
             <div className="room-code">
-                <p>Room Code: {roomCode}</p>
+                <p onClick={() => navigator.clipboard.writeText(roomCode)}>Room Code: {roomCode}</p>
             </div>
 
             {/* more content */}
