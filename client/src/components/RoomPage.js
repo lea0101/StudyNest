@@ -2,16 +2,25 @@ import React from 'react';
 import { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NavBar from './NavBar';
-// import ChatPage from './chat/ChatPage';
+
+
+import { getAuth } from "firebase/auth";
+
+
+import { db } from "../config/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 function RoomPage() {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    const userDocRef = doc(db, 'users', user.uid);
+
     const navigate = useNavigate();
 
     const { roomName } = useParams(); // get room name from url params
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
-    const rooms = JSON.parse(localStorage.getItem('rooms')) || [];
-    const room = rooms.find(r => r.name === roomName);
 
     const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -22,7 +31,15 @@ function RoomPage() {
 
     const handleConfirmLeave = () => {
         setShowConfirmation(false);
-        navigate('/home');
+        getDoc(userDocRef).then(snapshot => {
+            if (typeof snapshot.data() !== 'undefined') {
+                const updatedRooms = snapshot.data().rooms.filter(room => room.name !== roomName || room.code !== roomCode);
+                setDoc(userDocRef, {rooms: updatedRooms});
+            }
+        }).then(() => {
+            navigate('/home');
+        });
+
     }
 
     const handleCancelLeave = () => {
@@ -30,7 +47,7 @@ function RoomPage() {
     }
 
     const handleEnterChat = () => {
-        navigate('/rooms/3/chat'); // hard coded  ...
+        navigate(`/rooms/${roomName}/chat`, { state: {roomCode : roomCode}});
     }
 
     return (
@@ -47,7 +64,7 @@ function RoomPage() {
             
 
             <div className="room-code">
-                <p>Room Code: {room.code}</p>
+                <p>Room Code: {roomCode}</p>
             </div>
 
             {/* more content */}

@@ -62,6 +62,7 @@ function HomePage() {
   // handle deleting rooms
   const handleDeleteRoom = (roomToDelete) => {
     setRooms(rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code));
+    setDoc(userDocRef, {rooms: rooms}, {merge: true});
   }
 
   // handle joining an existing room
@@ -69,7 +70,7 @@ function HomePage() {
     // check if entered room code exists
     const room = rooms.find(r => r.code === roomCode);
     if (room) {
-      navigate(`/rooms/${room.name}`);
+      navigate(`/rooms/${room.name}`, {state : {roomCode : roomCode}})
     } else {
       alert('Room code not found!');
     }
