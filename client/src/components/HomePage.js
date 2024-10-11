@@ -55,7 +55,7 @@ function HomePage() {
   const handleCreateRooms = () => {
       if (roomName.trim() !== '') {
         const newRoom = { name: roomName, code: generateRoomCode() };
-        setDoc(doc(db, 'rooms', newRoom.code), {name: newRoom.name, code : newRoom.code});
+        setDoc(doc(db, 'rooms', newRoom.code), {name: newRoom.name, code : newRoom.code, owner: user.uid, userList: [user.uid]});
         setRooms([...rooms, newRoom]); // add new room to the list
         setRoomName(''); // clear input after adding
         setShowInput(!showInput);
@@ -70,8 +70,25 @@ function HomePage() {
 
   // handle deleting rooms
    const handleDeleteRoom = (roomToDelete) => {
+
+     // remove from rooms db
+    const roomDocRef = doc(db, 'Rooms', roomToDelete.code);
+     console.log("dete " + roomToDelete.code);
+    getDoc(roomDocRef).then(snapshot => {
+       if (typeof snapshot.data() !== 'undefined') {
+         const priorUserList = snapshot.data().userList;
+         console.log(priorUserList)
+         const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
+         setDoc(roomDocRef, {userList: newUserList})
+       } else {
+         console.log(" ERORO")
+       }
+    })
+
+     // remove from user db and local storage
     const newList = rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code);
     setRooms(newList);
+
     // do it one more time here b/c it could be empty, while hook will not let empty lists be set
     const userDocRef = doc(db, 'users', user.uid);
     setDoc(userDocRef, {rooms: newList}, {merge: true});
@@ -79,19 +96,33 @@ function HomePage() {
 
   // handle joining an existing room
   const handleJoinRoom = (roomCode) => {
+    if (rooms.find(r => r.code === roomCode)) {
+      alert("You are already in that room!")
+      return
+    }
     // check if entered room code exists
-    const q = query(collection(db, "rooms") , where("code", "==", roomCode));
     var added = false;
-    const querySnapshot = getDocs(q).then(snapshot => {
-      console.log("IN HERE")
-      snapshot.forEach((doc) => {
-          setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
-          added = true;
-      })
+    const roomDocRef = doc(db, 'Rooms', roomCode);
+    getDoc(roomDocRef).then(doc => {
+         if (typeof doc.data() !== 'undefined') {
+            setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
+            const priorUserList = doc.data().userList;
+            setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
+            added = true;
+         }
+    })
+    //const q = query(collection(db, "rooms") , where("code", "==", roomCode));
+    //var added = false;
+    //const querySnapshot = getDocs(q).then(snapshot => {
+    //  snapshot.forEach((doc) => {
+    //      setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
+    //      const priorUserList = doc.data().userList;
+    //      setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
+    //      added = true;
+    //  })
       if (!added) {
         alert("Room does not exist");
-      }
-    });
+    }
   }
 
 
@@ -119,7 +150,7 @@ function HomePage() {
                 <button className="cancel-button" onClick={handleCancel}>Cancel</button>
             </div>
           )}
-          
+
           {/* button to show input */}
           {!showInput && (
             <button className="add-room-button" onClick={() => setShowInput(true)}>
