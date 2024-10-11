@@ -94,13 +94,13 @@ function RoomPage() {
             <p>Explore your virtual study room</p>
             <button className="a-button" onClick={handleEnterChat}>Chat</button>
             <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
-            
+
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
                 <button
                 className="b-button"
                 onClick={() => {
-                    navigator.clipboard.writeText(room.code)
+                    navigator.clipboard.writeText(roomCode)
                     .then(() => {
                         alert('Room code copied to clipboard!')
                     })
@@ -109,7 +109,7 @@ function RoomPage() {
                     });
                 }}
                 >
-                    Room Code: {room.code}
+                    Room Code: {roomCode}
                 </button>
             </div>
 
