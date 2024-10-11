@@ -266,7 +266,12 @@ body, html {
   bottom: 5px;
   left: 20px;
   font-size: 14px;
-  color: gray
+  color: gray;
+}
+
+.room-code:hover {
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .button-link {

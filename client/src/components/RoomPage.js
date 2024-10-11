@@ -66,6 +66,10 @@ function RoomPage() {
         navigate(`/rooms/${roomName}/chat`, { state: {roomCode : roomCode}});
     }
 
+    const handleEnterWhiteBoard = () => {
+        navigate(`/rooms/${roomName}/whiteboard`);
+    }
+
     if (loading) {
         return ""
     }
@@ -79,10 +83,11 @@ function RoomPage() {
 
             <p>Explore your virtual study room</p>
             <button className="chat-button" onClick={handleEnterChat}>Enter Chat</button>
+            <button className="chat-button" onClick={handleEnterWhiteBoard}>Enter WhiteBoard</button>
             {/* <ChatPage /> */}
 
             <div className="room-code">
-                <p>Room Code: {roomCode}</p>
+                <p onClick={() => navigator.clipboard.writeText(roomCode)}>Room Code: {roomCode}</p>
             </div>
 
             {/* more content */}
