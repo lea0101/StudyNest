@@ -6,6 +6,7 @@ const P5Wrapper = ({ tool, color, fill }) => {
     const sketchRef = useRef(null);
     let [strokes, setStrokes] = useState([]);
 
+
     function updateStrokes(new_strokes) {
         setStrokes(new_strokes);
         // do other db stuff
