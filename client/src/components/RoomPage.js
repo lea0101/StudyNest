@@ -128,6 +128,10 @@ function RoomPage() {
         navigate(`/rooms/${roomName}/whiteboard`);
     }
 
+    const handleEnterFileCollab = () => {
+        navigate(`/rooms/${roomName}/filecollab`, { state: {roomCode : roomCode}});
+    }
+
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
     } else if (isAuthorized == 2){
@@ -153,6 +157,7 @@ function RoomPage() {
             <p>Explore your virtual study room</p>
             <button className="a-button" onClick={handleEnterChat}>Chat</button>
             <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+            <button className="a-button" onClick={handleEnterFileCollab}>Collaborate on a File</button>
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
