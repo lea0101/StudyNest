@@ -23,16 +23,29 @@ function HomePage() {
 
 
   // load in rooms
+  // useEffect(() => {
+  //   if (loading) {
+  //     return;
+  //   }
+  //   const userDocRef = doc(db, 'users', user.uid);
+  //   getDoc(userDocRef).then(snapshot => {
+  //       if (typeof snapshot.data() !== 'undefined') {
+  //           setRooms(snapshot.data().rooms);
+  //       }
+  // });}, [loading])
   useEffect(() => {
-    if (loading) {
-      return;
-    }
+    if (loading) return;
+
     const userDocRef = doc(db, 'users', user.uid);
     getDoc(userDocRef).then(snapshot => {
-        if (typeof snapshot.data() !== 'undefined') {
-            setRooms(snapshot.data().rooms);
-        }
-  });}, [loading])
+      const userData = snapshot.data();
+      if (userData && Array.isArray(userData.rooms)) {
+        setRooms(userData.rooms);
+      } else {
+        setRooms([]);
+      }
+    });
+  }, [loading, user]);
 
 
   // save rooms to firebase whenever room state changes
@@ -157,9 +170,16 @@ function HomePage() {
           )}
 
           {/* list of rooms */}
-          {rooms.map((room, index) => (
+          {Array.isArray(rooms) && rooms.length > 0 ? (
+            rooms.map((room, index) => (
+              <Room key={index} name={room.name} code={room.code} onDelete={handleDeleteRoom} />
+            ))
+          ) : (
+            console.log("no rooms made")
+          )}
+          {/* {rooms.map((room, index) => (
             <Room key={index} name={room.name} code={room.code} onDelete={handleDeleteRoom} />
-          ))}
+          ))} */}
 
         </div>
     </div>

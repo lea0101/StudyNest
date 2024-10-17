@@ -80,6 +80,7 @@ function RoomPage() {
 
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [showShare, setShowShare] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
 
     // toggle for leave
     const handleLeave = () => {
@@ -118,6 +119,15 @@ function RoomPage() {
         setShowConfirmation(false);
     }
 
+    // handle opening and closing of the room settings modal
+    const handleOpenRoomSettings = () => {
+        setShowSettings(true);
+    }
+
+    const handleCloseRoomSettings = () => {
+        setShowSettings(false);
+    }
+
     // handle when user wants to go to chat
     const handleEnterChat = () => {
         navigate(`/rooms/${roomName}/chat`, { state: {roomCode : roomCode}});
@@ -128,6 +138,16 @@ function RoomPage() {
         navigate(`/rooms/${roomName}/whiteboard`);
     }
 
+    // handle when user wants to go to fire sharing
+    const handleEnterFileSharing = () => {
+        navigate(`/rooms/${roomName}/file`);
+    }
+
+    // handle when user wants to go to video streaming
+    const handleEnterVideo = () => {
+        navigate(`/rooms/${roomName}/video`);
+    }
+
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
     } else if (isAuthorized == 2){
@@ -135,6 +155,7 @@ function RoomPage() {
     }
     return  (
          <div className="RoomPage">
+            <button className="room-settings-button" onClick={handleOpenRoomSettings}>Room Settings</button>
             <button className="leave-room-button" onClick={handleLeave}>Leave Study Group</button>
             <NavBar />
             <div className="room-header">
@@ -153,6 +174,8 @@ function RoomPage() {
             <p>Explore your virtual study room</p>
             <button className="a-button" onClick={handleEnterChat}>Chat</button>
             <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+            <button className="a-button" onClick={handleEnterFileSharing}>File Sharing</button>
+            <button className="a-button" onClick={handleEnterVideo}>Video Streaming</button>
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
@@ -211,6 +234,46 @@ function RoomPage() {
                     </div>
                 </div>
             )}
+
+            {showSettings && (
+                <div className="confirmation-modal">
+                    <div className="confirmation-content">
+                        <div className="settings-header">
+                            <h2>Room Settings</h2>
+                        </div>
+                        <div>
+                            <h3>Manage Users</h3>
+                            <ul className="user-settings-list">
+                                {userList.map((user, i) => (
+                                    <li key={i} style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            marginBottom: '6px'
+                                            }}>
+                                        <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user}</span>
+                                        <select
+                                            className="user-role-dropdown"
+                                            // onChange={(e) => handleRoleChange(user, e.target.value)}
+                                        >
+                                            <option value="Editor">Editor</option>
+                                            <option value="Viewer">Viewer</option>
+                                        </select>
+                                        <button
+                                            className="remove-access-button"
+                                            // onClick={() => handleRemoveAccess(user)}
+                                        >Remove Access</button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
+                            <button className="a-button" onClick={handleCloseRoomSettings}>Save</button>
+                            <button className="b-button" onClick={handleCloseRoomSettings}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     ) }
 
