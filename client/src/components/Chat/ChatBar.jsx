@@ -13,7 +13,7 @@ const ChatBar = ({ scroll, dbMsgQuery }) => {
       return;
     }
     const { uid, displayName, photoURL } = auth.currentUser;
-    await addDoc(collection(db, dbMsgQuery), { // TODO make new collection per group
+    await addDoc(dbMsgQuery, { // TODO make new collection per group
       text: message,
       name: displayName,
       avatar: photoURL,
@@ -28,6 +28,7 @@ const ChatBar = ({ scroll, dbMsgQuery }) => {
 
   return (
     <form onSubmit={(event) => sendChat(event)} >
+    <input id='file_upload_button' type='file' accept='image/*,.gif' />
       <input
         id="messageInput"
         name="messageInput"

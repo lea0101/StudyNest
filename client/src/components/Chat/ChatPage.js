@@ -22,11 +22,14 @@ function ChatPage() {
   const { roomName } = useParams(); // get room name from url params
   const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
   const roomCode = state?.roomCode;
-  const dbMsgQuery = "messages-" + roomCode
+  const dbMsgQuery = collection(db, 'rooms', roomCode, 'messages');
+
+  //const storageRef = ref(storage, `user_icons/${file.name}`);
+  //const uploadTask = uploadBytesResumable(storageRef, file);
 
   useEffect(() => {
     const q = query(
-      collection(db, dbMsgQuery),
+      dbMsgQuery,
       orderBy("createdAt", "desc"),
       limit(50)
     );
