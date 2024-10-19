@@ -9,7 +9,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 
 
 import { db } from "../config/firebase";
-import { doc, setDoc, updateDoc, getDoc, query, where, getDocs, collection } from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc, query, where, getDocs, collection, onSnapshot } from "firebase/firestore";
 
 function HomePage() {
   const [showInput, setShowInput] = useState(false); // show input to create a room
@@ -37,7 +37,8 @@ function HomePage() {
     if (loading) return;
 
     const userDocRef = doc(db, 'users', user.uid);
-    getDoc(userDocRef).then(snapshot => {
+
+    const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
       const userData = snapshot.data();
       if (userData && Array.isArray(userData.rooms)) {
         setRooms(userData.rooms);
@@ -45,6 +46,8 @@ function HomePage() {
         setRooms([]);
       }
     });
+
+    return () => unsubscribe();
   }, [loading, user]);
 
 
@@ -72,15 +75,47 @@ function HomePage() {
   }
 
   // handle the creation of a new room
+  // const handleCreateRooms = () => {
+  //     if (roomName.trim() !== '') {
+  //       const newRoom = { name: roomName, code: generateRoomCode() };
+  //       setDoc(doc(db, 'rooms', newRoom.code), {name: newRoom.name, code : newRoom.code, owner: user.uid, userList: [user.uid]});
+  //       setRooms([...rooms, newRoom]); // add new room to the list
+  //       setRoomName(''); // clear input after adding
+  //       setShowInput(!showInput);
+  //     }
+  // }
   const handleCreateRooms = () => {
-      if (roomName.trim() !== '') {
-        const newRoom = { name: roomName, code: generateRoomCode() };
-        setDoc(doc(db, 'rooms', newRoom.code), {name: newRoom.name, code : newRoom.code, owner: user.uid, userList: [user.uid]});
-        setRooms([...rooms, newRoom]); // add new room to the list
-        setRoomName(''); // clear input after adding
+    if (roomName.trim() !== '') {
+      const newRoom = {
+        name: roomName,
+        code: generateRoomCode(),
+        owner: user.uid, // add owner as the user, assuming user.uid is available
+        userList: [
+          { uid: user.uid, role: "host"} // add the creator as the host
+        ]
+      };
+
+      console.log(newRoom.name);
+      console.log(newRoom.code);
+      console.log(newRoom.owner);
+      console.log(newRoom.userList);
+
+      const roomDocRef = doc(db, 'rooms', newRoom.code);
+      setDoc(roomDocRef, newRoom)
+      .then(() => {
+        setRooms((prevRooms) => [...prevRooms, newRoom]);
+        setRoomName('');
         setShowInput(!showInput);
-      }
-  }
+      })
+      .catch((error) => {
+        console.error("Error creating room: ", error);
+      })
+      // setDoc(doc(db, 'rooms', newRoom.code), newRoom);
+      // setRooms([...rooms, newRoom]); // add new room to the list
+      // setRoomName(''); // clear input after adding
+      // setShowInput(!showInput);
+    }
+}
 
   // handle canceling room creation
   const handleCancel = () => {
@@ -108,23 +143,23 @@ function HomePage() {
   }
 
   // handle joining an existing room
-  const handleJoinRoom = (roomCode) => {
-    if (rooms.find(r => r.code === roomCode)) {
-      alert("You are already in that room!")
-      return
-    }
-    // check if entered room code exists
-    const roomDocRef = doc(db, 'rooms', roomCode);
-    getDoc(roomDocRef).then(doc => {
-         if (typeof doc.data() !== 'undefined') {
-            setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
-            const priorUserList = doc.data().userList;
-            updateDoc(roomDocRef, {userList: [...priorUserList, user.uid]});
-            //setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
-         } else {
-            alert("Room does not exist");
-         }
-    })
+  // const handleJoinRoom = (roomCode) => {
+  //   if (rooms.find(r => r.code === roomCode)) {
+  //     alert("You are already in that room!")
+  //     return
+  //   }
+  //   // check if entered room code exists
+  //   const roomDocRef = doc(db, 'rooms', roomCode);
+  //   getDoc(roomDocRef).then(doc => {
+  //        if (typeof doc.data() !== 'undefined') {
+  //           setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
+  //           const priorUserList = doc.data().userList;
+  //           updateDoc(roomDocRef, {userList: [...priorUserList, user.uid]});
+  //           //setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
+  //        } else {
+  //           alert("Room does not exist");
+  //        }
+  //   })
     //const q = query(collection(db, "rooms") , where("code", "==", roomCode));
     //var added = false;
     //const querySnapshot = getDocs(q).then(snapshot => {
@@ -134,6 +169,52 @@ function HomePage() {
     //      setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
     //      added = true;
     //  })
+
+    const handleJoinRoom = (roomCode) => {
+      if (rooms.find(r => r.code === roomCode)) {
+        alert("You are already in that room!")
+        return
+      }
+      // check if entered room code exists
+      const roomDocRef = doc(db, 'rooms', roomCode);
+      getDoc(roomDocRef).then(doc => {
+        if (doc.exists()) {
+          const roomData = doc.data();
+
+          const updatedUserList = [
+            ...roomData.userList,
+            { uid: user.uid, role: "editor"} // add user as an editor
+          ];
+          updateDoc(roomDocRef, { userList: updatedUserList})
+            .then(() => {
+              setRooms((prevRooms) => [
+                ...prevRooms,
+                { name: roomData.name, code: roomData.code }
+              ]);
+            })
+            .catch((error) => {
+              console.error("Error updating room: ", error);
+            })
+        } else {
+          alert("Room does not exist!");
+        }
+
+
+        //  if (typeof doc.data() !== 'undefined') {
+        //     // setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
+        //     // const priorUserList = doc.data().userList;
+        //     // updateDoc(roomDocRef, {userList: [...priorUserList, user.uid]});
+        //     const updatedUserList = [
+        //       ...doc.data().userList,
+        //       { uid: user.uid, role: "editor"}
+        //     ];
+        //     updateDoc(roomDocRef, { userList: updatedUserList});
+        //  } else {
+        //     alert("Room does not exist");
+        //  }
+      }).catch((error) => {
+        console.error("Error fetching room: ", error);
+      })
   }
 
 
@@ -175,7 +256,7 @@ function HomePage() {
               <Room key={index} name={room.name} code={room.code} onDelete={handleDeleteRoom} />
             ))
           ) : (
-            console.log("no rooms made")
+            console.log("")
           )}
           {/* {rooms.map((room, index) => (
             <Room key={index} name={room.name} code={room.code} onDelete={handleDeleteRoom} />

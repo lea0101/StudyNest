@@ -24,10 +24,48 @@ function RoomPage() {
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
 
+    const [userRole, setUserRole] = useState('');
+
+    // useEffect(() => {
+    //     if (loading) {
+    //         return;
+    //     }
+    //     if (user) {
+    //         if (roomCode == undefined) {
+    //             setAuthorized(1);
+    //             return;
+    //         }
+    //         const roomDocRef = doc(db, 'rooms', roomCode);
+    //         getDoc(roomDocRef).then(doc => {
+    //              if (typeof doc.data() !== 'undefined') {
+    //                  const userList = doc.data().userList;
+    //                  if (userList.includes(user.uid)) {
+    //                      setAuthorized(0);
+    //                  }
+    //              }
+    //         });
+    //         //const userDocRef = doc(db, 'users', user.uid);
+    //         //getDoc(userDocRef).then(snapshot => {
+    //         //     if (typeof snapshot.data() !== 'undefined') {
+    //         //         if (snapshot.data().rooms.some(e => e.code === roomCode)) {
+    //         //             setAuthorized(true);
+    //         //         }
+    //         //     }
+    //         //});
+    //     }
+    // }, [loading]);
     useEffect(() => {
+        console.log("useEffect 1");
+
         if (loading) {
             return;
         }
+
+        if (roomCode == undefined) {
+            setAuthorized(1);
+            return;
+        }
+        
         if (user) {
             if (roomCode == undefined) {
                 setAuthorized(1);
@@ -35,48 +73,124 @@ function RoomPage() {
             }
             const roomDocRef = doc(db, 'rooms', roomCode);
             getDoc(roomDocRef).then(doc => {
-                 if (typeof doc.data() !== 'undefined') {
-                     const userList = doc.data().userList;
-                     if (userList.includes(user.uid)) {
-                         setAuthorized(0);
-                     }
+                 if (doc.exists()) {
+                    const userList = doc.data().userList || {};
+                    const userInList = Object.values(userList).some(userObj => userObj.uid === user.uid);
+
+                    if (userInList) {
+                        setAuthorized(0); // set authorized if user is in userList
+                    } else {
+                        setAuthorized(1);
+                    }
+                 } else {
+                    setAuthorized(1);
                  }
-            });
-            //const userDocRef = doc(db, 'users', user.uid);
-            //getDoc(userDocRef).then(snapshot => {
-            //     if (typeof snapshot.data() !== 'undefined') {
-            //         if (snapshot.data().rooms.some(e => e.code === roomCode)) {
-            //             setAuthorized(true);
-            //         }
-            //     }
-            //});
+            }).catch(error => {
+                console.error("Error fetching room: ", error);
+                setAuthorized(1);
+            })
         }
     }, [loading]);
 
+    // useEffect(() => {
+    //     const q = query(
+    //         collection(db, "rooms"),
+    //         where("code", "==", roomCode)
+    //     );
+    //     const unsubscribe = onSnapshot(q, async (QuerySnapshot) => {
+    //         const fetchedUsersPromises = [];
+    
+    //         QuerySnapshot.forEach((d) => {
+    //             d.data().userList.forEach((uid) => {
+    //                 const userPromise = getDoc(doc(db, 'users', uid)).then(snapshot => {
+    //                     return snapshot.data().username;
+    //                 });
+    //                 fetchedUsersPromises.push(userPromise);
+    //             });
+    //         });
+    
+    //         const fetchedUsers = await Promise.all(fetchedUsersPromises);
+    //         setUserList(fetchedUsers);
+    //     });
+    
+    //     return () => unsubscribe;
+    // }, []);
+    /* listen to changes in Firestore rooms collection for a specific roomCode, fetch userList from room document, and retreiev each user's username from users collection, and update userList with these usernames */
     useEffect(() => {
+        console.log("useEffect 2");
+
+        if (!roomCode) return;
+
         const q = query(
             collection(db, "rooms"),
             where("code", "==", roomCode)
         );
+
         const unsubscribe = onSnapshot(q, async (QuerySnapshot) => {
             const fetchedUsersPromises = [];
+            const usersWithRoles = []; // store users with their roles
     
             QuerySnapshot.forEach((d) => {
-                d.data().userList.forEach((uid) => {
-                    const userPromise = getDoc(doc(db, 'users', uid)).then(snapshot => {
-                        return snapshot.data().username;
+                const userList = d.data().userList || {};
+                console.log('userList: ', userList);
+
+                if (userList) {
+                    Object.values(userList).forEach((userObj) => {
+                        const uid = userObj.uid;
+                        console.log('userObj:', userObj);
+                        console.log('uid: ', uid);
+                        console.log('user.uid', user.uid);
+
+                        if (uid === user.uid) {
+                            // if current user is in the userList
+                            setUserRole(userObj.role);
+                        }
+                        console.log('role: ', userRole);
+                        usersWithRoles.push({
+                            uid: uid,
+                            role: userObj.role
+                        });
+                        console.log(userList);
+
+                        // fetch username (aka email) from the 'users' collection
+                        const userPromise = getDoc(doc(db, 'users', uid))
+                            .then(snapshot => {
+                                return snapshot.data().username;
+                            })
+                            .catch(error => {
+                                console.error('Error fetching user data: ', error);
+                                return 'Unknown User';
+                            });
+
+                        fetchedUsersPromises.push(userPromise);
                     });
-                    fetchedUsersPromises.push(userPromise);
-                });
+                }
             });
     
-            const fetchedUsers = await Promise.all(fetchedUsersPromises);
-            setUserList(fetchedUsers);
+            const fetchedUsers = await Promise.all(fetchedUsersPromises); // wait for all usernames to be fetched
+
+            // combine fetched usernames with usersWithRoles
+            const updatedUserList = usersWithRoles.map((userWithRole, index) => ({
+                ...userWithRole,
+                username: fetchedUsers[index]
+            }));
+
+            // set userList with both usernames and roles
+            console.log('fetchedUsers: ', fetchedUsers);
+            console.log('usersWithRoles: ', usersWithRoles);
+            console.log('updatedUserList: ', updatedUserList);
+            console.log('userList: ', userList);
+
+            setUserList(updatedUserList);
+            console.log('Updated User List: ', userList);
         });
     
-        return () => unsubscribe;
-    }, []);
-
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        }
+    }, [roomCode]);
 
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [showShare, setShowShare] = useState(false);
@@ -148,11 +262,42 @@ function RoomPage() {
         navigate(`/rooms/${roomName}/video`);
     }
 
+    // handle role change
+    const handleRoleChange = async (userItem, newRole) => {
+        const roomRef = doc(db, 'rooms', roomCode);
+
+        try {
+            const roomDoc = await getDoc(roomRef);
+            if (roomDoc.exists()) {
+                const data = roomDoc.data();
+                const currentUserList = data.userList;
+                console.log('currentUserList: ', currentUserList);
+
+                const userIndex = Object.keys(currentUserList).findIndex(
+                    (key) => currentUserList[key].uid === userItem.uid
+                );
+
+                if (userIndex !== -1) {
+                    currentUserList[userIndex].role = newRole;
+
+                    await updateDoc(roomRef, {userList: currentUserList});
+                } else {
+                    console.error('User not found in userList');
+                }
+            } else {
+                console.error('Room document does not exist');
+            }
+        } catch (error) {
+            console.error('Error updating role: ', error);
+        }
+    };
+
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
     } else if (isAuthorized == 2){
         return <div> Loading... </div>
     }
+
     return  (
          <div className="RoomPage">
             <button className="room-settings-button" onClick={handleOpenRoomSettings}>Room Settings</button>
@@ -165,7 +310,8 @@ function RoomPage() {
                 <h2>Users in Room</h2>
                 <ul>
                     {userList.map((user, i) => (
-                        <li key={i}>{user}</li>
+                        // <li key={i}>{user}</li>
+                        <li key={i}>{user.username}</li>
                     ))}
                 </ul>
             </div>
@@ -243,25 +389,45 @@ function RoomPage() {
                         </div>
                         <div>
                             <h3>Manage Users</h3>
+                            {userRole && (
+                                <h4>
+                                    {userRole === 'host' && 'You are a Host'}
+                                    {userRole === 'editor' && 'You are an Editor'}
+                                    {userRole === 'viewer' && 'You are a Viewer'}
+                                </h4>
+                            )}
+
                             <ul className="user-settings-list">
-                                {userList.map((user, i) => (
+                                {userList.map((userItem, i) => (
                                     <li key={i} style={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
                                             marginBottom: '6px'
                                             }}>
-                                        <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user}</span>
-                                        <select
-                                            className="user-role-dropdown"
-                                            // onChange={(e) => handleRoleChange(user, e.target.value)}
-                                        >
-                                            <option value="Editor">Editor</option>
-                                            <option value="Viewer">Viewer</option>
-                                        </select>
-                                        <button
-                                            className="remove-access-button"
-                                            // onClick={() => handleRemoveAccess(user)}
-                                        >Remove Access</button>
+                                        <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userItem.username}</span>
+                                        <span style={{width: '100px'}}>{userItem.role.charAt(0).toUpperCase() + userItem.role.slice(1)}</span>
+                                        {/* only show the dropdown if the user is a host */}
+                                        {userRole === 'host' && userItem.uid !== user.uid ? (
+                                            <>
+                                                <select
+                                                className="user-role-dropdown"
+                                                onChange={(e) => handleRoleChange(userItem, e.target.value.toLowerCase())}
+                                                >
+                                                    <option value="Editor">Editor</option>
+                                                    <option value="Viewer">Viewer</option>
+                                                </select>
+                                                <button
+                                                    className="remove-access-button"
+                                                    // onClick={() => handleRemoveAccess(user)}
+                                                >
+                                                    Remove Access
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <span style={{ marginLeft: '3px'}}>
+                                                {/* {userItem.role === 'host' ? 'Host' : userItem.role.charAt(0).toUpperCase() + userItem.role.slice(1)} */}
+                                            </span>
+                                        )}
                                     </li>
                                 ))}
                             </ul>
