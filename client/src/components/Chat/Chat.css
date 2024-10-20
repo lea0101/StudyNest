@@ -1,4 +1,12 @@
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 .imessage {
+  overflow: scroll;
+  overflow-x: hidden; /* Hide horizontal scrollbar */
   background-color: #fff;
   border: 1px solid #e5e5ea;
   border-radius: 0.25rem;
@@ -6,7 +14,7 @@
   flex-direction: column;
   font-family: "SanFrancisco";
   font-size: 1.25rem;
-  margin: 1rem auto 1rem;
+  margin: 1rem auto .2rem;
   max-width: 600px;
   padding: 0.5rem 1.5rem;
 }
@@ -262,4 +270,111 @@ h2 {
     margin: 0.5rem 0;
   }
 }
+
+.chat_bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+/*======================================================*/
+
+.button_container {
+	 width: auto;
+}
+
+.upload_button {
+  height: 24.5px;
+  width: 24.5px;
+}
+
+.send_button {
+  color: #e2e2e2;
+  height: 40px;
+  width: 40px;
+}
+
+ .button {
+   padding:5px;
+	 position: relative;
+	 border: 3px solid #e2e2e2;
+	 border-radius: 25px;
+	 cursor: pointer;
+
+   margin: 5px;
+   background: none;
+	 overflow: hidden;
+	 transition: all 0.4s ease-out;
+}
+ .button__success {
+	 font-size: 24px;
+	 display: block;
+	 position: absolute;
+	 left: 0;
+	 top: 0;
+	 height: 100%;
+	 width: 100%;
+	 background-color: transparent;
+	 color: #fff;
+	 text-align: center;
+	 transition: all 0.4s;
+	 transform: translateY(100%);
+}
+ .button__text {
+	 display: block;
+	 color: #e2e2e2;
+	 font-weight: 40;
+	 letter-spacing: 1px;
+	 padding-top: 1.5px;
+	 text-align: center;
+	 transition: opacity 0.2s;
+}
+ .button:after {
+	 content: '';
+	 display: block;
+	 position: absolute;
+	 left: 0;
+	 top: 0;
+	 height: 100%;
+	 width: 0%;
+	 background-color: #a7ffc6;
+	 transition: width 1s cubic-bezier(0.42, 0, 0, 1.035) 0.5s, opacity 0.1s;
+}
+ .button.is-loading {
+	 /*width: 100%;*/
+}
+ .button.is-loading:after {
+   width: 100%;
+}
+ .button.is-loading .button__text {
+	 opacity: 0;
+}
+ .button.is-completed {
+	 background-color: #80ffac;
+	 border-color: #80ffac;
+}
+ .button.is-completed:after {
+	 opacity: 0;
+}
+ .button.is-completed .button__success {
+	 transform: translateY(0%);
+}
+
+/*.fly {*/
+/*    animation: fly 5s linear forwards; [> Animation settings <]*/
+/*}*/
+
+
+/*@keyframes fly {*/
+/*    0% {*/
+/*        transform: translateX(-100px) translateY(0); [> Start position <]*/
+/*    }*/
+/*    50% {*/
+/*        transform: translateX(50vw) translateY(-100px); [> Mid-flight position <]*/
+/*    }*/
+/*    100% {*/
+/*        transform: translateX(100vw) translateY(-200px); [> End position <]*/
+/*        opacity: 0; [> Fade out <]*/
+/*    }*/
+/*}*/
 
