@@ -11,6 +11,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
   const [message, setMessage] = useState("");
   const [isEnabled, setIsEnabled] = useState(true);
   const [uploadAnims, setUploadAnims] = useState(true);
+  const [sendAnims, setSendAnims] = useState("");
   const inputFile = useRef(null);
   const { uid, displayName, photoURL } = auth.currentUser;
 
@@ -136,10 +137,9 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
         onChange={(e) => setMessage(e.target.value)}
       />
       <button className="send_button button" type="submit" disabled={!isEnabled}>
-        <FontAwesomeIcon icon={faPaperPlane} id='airplane' />
+        <FontAwesomeIcon icon={faPaperPlane} id='airplane' className={`plane ${isEnabled ? "" : "is-sent"}`}/>
       </button>
     </form>
   );
 };
-//onAnimationEnd={() => { this.classList.remove('fly') }}
 export default ChatBar;

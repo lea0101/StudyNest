@@ -184,22 +184,6 @@ p.user-name.them {
 }
 
 
-/*.chat-bubble {*/
-/*  border-radius: 20px 20px 20px 0;*/
-/*  padding: 15px;*/
-/*  background-color: #7cc5d9;*/
-/*  color: #1c2c4c;*/
-/*  width: max-content;*/
-/*  max-width: calc(100% - 50px);*/
-/*  box-shadow: -2px 2px 1px 1px #4c768d;*/
-/*  display: flex;*/
-/*  align-items: flex-start;*/
-/*  margin-bottom: 20px;*/
-/*}*/
-
-
-
-
 /* general styling */
 @font-face {
   font-family: "SanFrancisco";
@@ -360,21 +344,18 @@ h2 {
 	 transform: translateY(0%);
 }
 
-/*.fly {*/
-/*    animation: fly 5s linear forwards; [> Animation settings <]*/
-/*}*/
+.plane {
+  opacity: 1;
+  transition: opacity .5s;
+}
 
+.is-sent {
+  transform: translate(100%, -100%);
+  opacity: 0;
+  transition: translate .20s opacity .2s;
+}
 
-/*@keyframes fly {*/
-/*    0% {*/
-/*        transform: translateX(-100px) translateY(0); [> Start position <]*/
-/*    }*/
-/*    50% {*/
-/*        transform: translateX(50vw) translateY(-100px); [> Mid-flight position <]*/
-/*    }*/
-/*    100% {*/
-/*        transform: translateX(100vw) translateY(-200px); [> End position <]*/
-/*        opacity: 0; [> Fade out <]*/
-/*    }*/
-/*}*/
+.is-sent:after {
+    transform: translate(0, 0); /* Centering adjustment */
+}
 
