@@ -24,30 +24,54 @@ function HomePage() {
 
   // load in rooms
   // useEffect(() => {
-  //   if (loading) {
-  //     return;
-  //   }
+  //   if (loading) return;
+
   //   const userDocRef = doc(db, 'users', user.uid);
-  //   getDoc(userDocRef).then(snapshot => {
-  //       if (typeof snapshot.data() !== 'undefined') {
-  //           setRooms(snapshot.data().rooms);
-  //       }
-  // });}, [loading])
+
+  //   const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
+  //     const userData = snapshot.data();
+  //     if (userData && Array.isArray(userData.rooms)) {
+  //       setRooms(userData.rooms);
+  //     } else {
+  //       setRooms([]);
+  //     }
+  //   });
+
+  //   return () => unsubscribe();
+  // }, [loading, user]);
   useEffect(() => {
     if (loading) return;
 
-    const userDocRef = doc(db, 'users', user.uid);
+    const fetchRooms = async () => {
+      try {
+        const roomsSnapshot = await getDocs(collection(db, 'rooms'));
+        const userRooms = [];
 
-    const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
-      const userData = snapshot.data();
-      if (userData && Array.isArray(userData.rooms)) {
-        setRooms(userData.rooms);
-      } else {
+        roomsSnapshot.forEach(doc => {
+          const roomData = doc.data();
+          // console.log('roomData: ', roomData);
+          // console.log('roomData.userList: ', roomData.userList);
+
+          const userListArray = Object.values(roomData.userList || {}).map((userItem) => ({
+            role: userItem.role,
+            uid: userItem.uid
+          }));
+
+          const isUserInRoom = userListArray.some(userItem => userItem.uid === user.uid);
+
+          if (isUserInRoom) {
+            userRooms.push({ code: roomData.code, name: roomData.name });
+          }
+
+          setRooms(userRooms);
+        })
+      } catch (error) {
+        console.error("Error fetching rooms: ", error);
         setRooms([]);
       }
-    });
+    };
 
-    return () => unsubscribe();
+    fetchRooms();
   }, [loading, user]);
 
 
@@ -90,9 +114,7 @@ function HomePage() {
         name: roomName,
         code: generateRoomCode(),
         owner: user.uid, // add owner as the user, assuming user.uid is available
-        userList: [
-          { uid: user.uid, role: "host"} // add the creator as the host
-        ]
+        userList: [ { uid: user.uid, role: "host"} ] // add the creator as the host
       };
 
       console.log(newRoom.name);
@@ -124,23 +146,48 @@ function HomePage() {
   }
 
   // handle deleting rooms
+  // const handleDeleteRoom = (roomToDelete) => {
+  //    // remove from rooms db
+  //   const roomDocRef = doc(db, 'rooms', roomToDelete.code);
+  //   getDoc(roomDocRef).then(snapshot => {
+  //      if (typeof snapshot.data() !== 'undefined') {
+  //        const priorUserList = snapshot.data().userList;
+  //        const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
+  //        updateDoc(roomDocRef, {userList: newUserList});
+  //      }
+  //   })
+  //    // remove from user db and local storage
+  //   const newList = rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code);
+  //   setRooms(newList);
+  //   // do it one more time here b/c it could be empty, while hook will not let empty lists be set
+  //   const userDocRef = doc(db, 'users', user.uid);
+  //   updateDoc(userDocRef, {rooms: newList}, {merge: true});
+  // }
   const handleDeleteRoom = (roomToDelete) => {
-     // remove from rooms db
-    const roomDocRef = doc(db, 'rooms', roomToDelete.code);
-    getDoc(roomDocRef).then(snapshot => {
-       if (typeof snapshot.data() !== 'undefined') {
-         const priorUserList = snapshot.data().userList;
-         const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
-         updateDoc(roomDocRef, {userList: newUserList});
-       }
-    })
-     // remove from user db and local storage
-    const newList = rooms.filter(room => room.name !== roomToDelete.name || room.code !== roomToDelete.code);
-    setRooms(newList);
-    // do it one more time here b/c it could be empty, while hook will not let empty lists be set
-    const userDocRef = doc(db, 'users', user.uid);
-    updateDoc(userDocRef, {rooms: newList}, {merge: true});
-  }
+    // remove from rooms db
+  const roomDocRef = doc(db, 'rooms', roomToDelete.code);
+
+  getDoc(roomDocRef).then(snapshot => {
+    if (snapshot.exists()) {
+      const priorUserList = snapshot.data().userList || [];
+      const newUserList = priorUserList.filter(userUid => userUid.uid !== user.uid);
+
+      updateDoc(roomDocRef, { userList: newUserList })
+        .then(() => {
+          const newList = rooms.filter(room => room.code !== roomToDelete.code);
+          setRoomName(newList);
+          const userDocRef = doc(db, 'users', user.uid);
+          updateDoc(userDocRef, { rooms: newList }, {merge: true});
+        })
+        .catch(error => {
+          console.error("Error updating room user list: ", error);
+        })
+    }
+
+  }).catch(error => {
+      console.error("Error fetching rooms: ", error);
+    });
+ }
 
   // handle joining an existing room
   // const handleJoinRoom = (roomCode) => {
@@ -169,22 +216,29 @@ function HomePage() {
     //      setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
     //      added = true;
     //  })
-
     const handleJoinRoom = (roomCode) => {
       if (rooms.find(r => r.code === roomCode)) {
         alert("You are already in that room!")
         return
       }
+
       // check if entered room code exists
       const roomDocRef = doc(db, 'rooms', roomCode);
+
       getDoc(roomDocRef).then(doc => {
         if (doc.exists()) {
           const roomData = doc.data();
 
-          const updatedUserList = [
-            ...roomData.userList,
-            { uid: user.uid, role: "editor"} // add user as an editor
-          ];
+          const currUserList = Object.values(roomData.userList || {}).map((userItem) => ({
+            role: userItem.role,
+            uid: userItem.uid
+          }));
+
+          const updatedUserList = roomData.userList ? [
+            ...currUserList,
+            { uid: user.uid, role: "editor" }
+          ] : [{ role: "editor ", uid: user.uid }]; // default to a new array is userList does not exist
+
           updateDoc(roomDocRef, { userList: updatedUserList})
             .then(() => {
               setRooms((prevRooms) => [
@@ -198,20 +252,6 @@ function HomePage() {
         } else {
           alert("Room does not exist!");
         }
-
-
-        //  if (typeof doc.data() !== 'undefined') {
-        //     // setRooms([...rooms, { name: doc.data().name, code: doc.data().code }]); // add new room to the list
-        //     // const priorUserList = doc.data().userList;
-        //     // updateDoc(roomDocRef, {userList: [...priorUserList, user.uid]});
-        //     const updatedUserList = [
-        //       ...doc.data().userList,
-        //       { uid: user.uid, role: "editor"}
-        //     ];
-        //     updateDoc(roomDocRef, { userList: updatedUserList});
-        //  } else {
-        //     alert("Room does not exist");
-        //  }
       }).catch((error) => {
         console.error("Error fetching room: ", error);
       })
@@ -258,9 +298,6 @@ function HomePage() {
           ) : (
             console.log("")
           )}
-          {/* {rooms.map((room, index) => (
-            <Room key={index} name={room.name} code={room.code} onDelete={handleDeleteRoom} />
-          ))} */}
 
         </div>
     </div>

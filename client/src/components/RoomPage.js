@@ -26,34 +26,7 @@ function RoomPage() {
 
     const [userRole, setUserRole] = useState('');
 
-    // useEffect(() => {
-    //     if (loading) {
-    //         return;
-    //     }
-    //     if (user) {
-    //         if (roomCode == undefined) {
-    //             setAuthorized(1);
-    //             return;
-    //         }
-    //         const roomDocRef = doc(db, 'rooms', roomCode);
-    //         getDoc(roomDocRef).then(doc => {
-    //              if (typeof doc.data() !== 'undefined') {
-    //                  const userList = doc.data().userList;
-    //                  if (userList.includes(user.uid)) {
-    //                      setAuthorized(0);
-    //                  }
-    //              }
-    //         });
-    //         //const userDocRef = doc(db, 'users', user.uid);
-    //         //getDoc(userDocRef).then(snapshot => {
-    //         //     if (typeof snapshot.data() !== 'undefined') {
-    //         //         if (snapshot.data().rooms.some(e => e.code === roomCode)) {
-    //         //             setAuthorized(true);
-    //         //         }
-    //         //     }
-    //         //});
-    //     }
-    // }, [loading]);
+    /* listening to changes to determine whether a user is authorized to access a specific room */
     useEffect(() => {
         console.log("useEffect 1");
 
@@ -92,29 +65,6 @@ function RoomPage() {
         }
     }, [loading]);
 
-    // useEffect(() => {
-    //     const q = query(
-    //         collection(db, "rooms"),
-    //         where("code", "==", roomCode)
-    //     );
-    //     const unsubscribe = onSnapshot(q, async (QuerySnapshot) => {
-    //         const fetchedUsersPromises = [];
-    
-    //         QuerySnapshot.forEach((d) => {
-    //             d.data().userList.forEach((uid) => {
-    //                 const userPromise = getDoc(doc(db, 'users', uid)).then(snapshot => {
-    //                     return snapshot.data().username;
-    //                 });
-    //                 fetchedUsersPromises.push(userPromise);
-    //             });
-    //         });
-    
-    //         const fetchedUsers = await Promise.all(fetchedUsersPromises);
-    //         setUserList(fetchedUsers);
-    //     });
-    
-    //     return () => unsubscribe;
-    // }, []);
     /* listen to changes in Firestore rooms collection for a specific roomCode, fetch userList from room document, and retreiev each user's username from users collection, and update userList with these usernames */
     useEffect(() => {
         console.log("useEffect 2");
@@ -137,20 +87,20 @@ function RoomPage() {
                 if (userList) {
                     Object.values(userList).forEach((userObj) => {
                         const uid = userObj.uid;
-                        console.log('userObj:', userObj);
-                        console.log('uid: ', uid);
-                        console.log('user.uid', user.uid);
+                        // console.log('userObj:', userObj);
+                        // console.log('uid: ', uid);
+                        // console.log('user.uid', user.uid);
 
                         if (uid === user.uid) {
                             // if current user is in the userList
                             setUserRole(userObj.role);
                         }
-                        console.log('role: ', userRole);
+                        // console.log('role: ', userRole);
                         usersWithRoles.push({
                             uid: uid,
                             role: userObj.role
                         });
-                        console.log(userList);
+                        // console.log(userList);
 
                         // fetch username (aka email) from the 'users' collection
                         const userPromise = getDoc(doc(db, 'users', uid))
@@ -176,13 +126,13 @@ function RoomPage() {
             }));
 
             // set userList with both usernames and roles
-            console.log('fetchedUsers: ', fetchedUsers);
-            console.log('usersWithRoles: ', usersWithRoles);
-            console.log('updatedUserList: ', updatedUserList);
-            console.log('userList: ', userList);
+            // console.log('fetchedUsers: ', fetchedUsers);
+            // console.log('usersWithRoles: ', usersWithRoles);
+            // console.log('updatedUserList: ', updatedUserList);
+            // console.log('userList: ', userList);
 
             setUserList(updatedUserList);
-            console.log('Updated User List: ', userList);
+            // console.log('Updated User List: ', userList);
         });
     
         return () => {
@@ -290,6 +240,43 @@ function RoomPage() {
         } catch (error) {
             console.error('Error updating role: ', error);
         }
+    };
+
+    // handle host removing a user
+    const handleRemoveAccess = async (userItem) => {
+        const confirmRemoval = window.confirm(`Are you sure you want to remove ${userItem.email || userItem.displayName} from this room?`);
+
+        if (!confirmRemoval) return; // exit if host cancels
+
+        const roomRef = doc(db, 'rooms', roomCode);
+
+        try {
+            const roomDoc = await getDoc(roomRef);
+            if (roomDoc.exists()) {
+                const data = roomDoc.data();
+                const currUserList = data.userList;
+                console.log('currUserList in handleRemoveAccess: ', currUserList);
+
+                const updatedUserList = Object.keys(currUserList).reduce((list, key) => {
+                    if (currUserList[key].uid !== userItem.uid) {
+                        list[key] = currUserList[key]; // only keep users who are not the one being removed
+                    }
+
+                    return list;
+                }, {});
+
+                console.log('updatedUserList in handleRemoveAccess: ', updatedUserList);
+
+                // update firestore with new userList
+                await updateDoc(roomRef, { userList: updatedUserList });
+                console.log(`${userItem.email} removed from the room.`)
+                
+            } else {
+                console.error('Room document does not exist');
+            }
+        } catch (error) {
+            console.error('Error removing user: ', error);
+        };
     };
 
     if (isAuthorized == 1) {
@@ -418,7 +405,7 @@ function RoomPage() {
                                                 </select>
                                                 <button
                                                     className="remove-access-button"
-                                                    // onClick={() => handleRemoveAccess(user)}
+                                                    onClick={() => handleRemoveAccess(userItem)}
                                                 >
                                                     Remove Access
                                                 </button>
