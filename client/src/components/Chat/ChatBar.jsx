@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
-import { auth, storage, db } from "../../config/firebase";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import React, { useState, useRef } from "react";
+import { auth, storage } from "../../config/firebase";
+import { addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faPaperPlane, faUpload } from '@fortawesome/free-solid-svg-icons'
@@ -10,8 +10,6 @@ import "./ChatBar.css";
 const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
   const [message, setMessage] = useState("");
   const [isEnabled, setIsEnabled] = useState(true);
-  const [uploadAnims, setUploadAnims] = useState(true);
-  const [sendAnims, setSendAnims] = useState("");
   const inputFile = useRef(null);
   const { uid, displayName, photoURL } = auth.currentUser;
 
@@ -117,7 +115,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
 
       <div className="button_container">
         <input id='file_upload_button' onChange={() => handleButtonAnimation()}  type='file' accept='image/*,.gif' ref={inputFile} hidden/>
-        <div id='file_button' className={`upload_button button ${uploadAnims}`} data-button onClick={handleUpload}>
+        <div id='file_button' className="upload_button button" data-button onClick={handleUpload}>
           <span className="button__text">
             <FontAwesomeIcon icon={faUpload} />
           </span>

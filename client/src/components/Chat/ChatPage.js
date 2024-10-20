@@ -45,7 +45,7 @@ function ChatPage() {
       setMessages(sortedMessages);
     });
     return () => unsubscribe;
-  }, []);
+  }, [dbMsgQuery]);
 
   const handleGoBack = () => {
     navigate(`/rooms/${roomName}`, { state: {roomCode : roomCode}});
@@ -57,12 +57,12 @@ function ChatPage() {
         {
           messages?.map((message, i) => {
             // if the message sender changes
-            const endTags = ((i == messages.length - 1) || message.uid != messages[i + 1].uid) ? "": "no-tail";
+            const endTags = ((i === messages.length - 1) || message.uid !== messages[i + 1].uid) ? "": "no-tail";
             const messageOwner = (message.uid === user.uid) ? "me" : "them";
             const imageSrc = message.imageSrc;
 
             // if there is a change in message sender, add in profile and header
-            if ((i == 0) || (messages[i - 1].uid != message.uid)) {
+            if ((i === 0) || (messages[i - 1].uid !== message.uid)) {
               return (
                 <>
                   <div className={`namebar ${messageOwner}`}>
@@ -71,14 +71,14 @@ function ChatPage() {
                   </div>
                   <p key={message.id} className={`from-${messageOwner} ${endTags}`}>
                     {message.text}
-                    { imageSrc  && <img className="msg_img" src={`${imageSrc}`} alt="error rendering image"/> }
+                    { imageSrc  && <img className="msg_img" src={`${imageSrc}`} alt="error rendering"/> }
                   </p>
                 </>
               )
             }
             return <p key={message.id} className={`from-${messageOwner} ${endTags}`}>
                       {message.text}
-                      { imageSrc  && <img className="msg_img" src={`${imageSrc}`} alt="error rendering image"/> }
+                      { imageSrc  && <img className="msg_img" src={`${imageSrc}`} alt="error rendering"/> }
                    </p>
           })
         }

@@ -5,6 +5,8 @@
 }
 
 .imessage {
+  width: 600px;
+  height: -webkit-fill-available;
   overflow: scroll;
   overflow-x: hidden; /* Hide horizontal scrollbar */
   background-color: #fff;
@@ -15,7 +17,6 @@
   font-family: "SanFrancisco";
   font-size: 1.25rem;
   margin: 1rem auto .2rem;
-  max-width: 600px;
   padding: 0.5rem 1.5rem;
 }
 
@@ -170,7 +171,6 @@ p.user-name.them {
   height: 35px;
   border-radius: 50%;
   margin-right: 10px;
-
 }
 
 .avatar.me {
@@ -178,10 +178,6 @@ p.user-name.them {
   margin-right: 0px;
 }
 
-.msg_img {
-  padding-top: .25rem;
-  width: -webkit-fill-available;
-}
 
 
 /* general styling */
@@ -206,12 +202,6 @@ body {
   margin: 0;
 }
 
-.container {
-  margin: 0 auto;
-  max-width: 600px;
-  padding: 1rem;
-}
-
 h1 {
   font-weight: normal;
   margin-bottom: 0.5rem;
@@ -225,14 +215,6 @@ h2 {
   padding-bottom: 1.5rem;
 }
 
-.comment {
-  color: #222;
-  font-size: 1.25rem;
-  line-height: 1.5;
-  margin-bottom: 1.25rem;
-  max-width: 100%;
-  padding: 0;
-}
 
 @media screen and (max-width: 800px) {
   body {
@@ -253,109 +235,5 @@ h2 {
   .imessage p {
     margin: 0.5rem 0;
   }
-}
-
-.chat_bar {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-}
-/*======================================================*/
-
-.button_container {
-	 width: auto;
-}
-
-.upload_button {
-  height: 24.5px;
-  width: 24.5px;
-}
-
-.send_button {
-  color: #e2e2e2;
-  height: 40px;
-  width: 40px;
-}
-
- .button {
-   padding:5px;
-	 position: relative;
-	 border: 3px solid #e2e2e2;
-	 border-radius: 25px;
-	 cursor: pointer;
-
-   margin: 5px;
-   background: none;
-	 overflow: hidden;
-	 transition: all 0.4s ease-out;
-}
- .button__success {
-	 font-size: 24px;
-	 display: block;
-	 position: absolute;
-	 left: 0;
-	 top: 0;
-	 height: 100%;
-	 width: 100%;
-	 background-color: transparent;
-	 color: #fff;
-	 text-align: center;
-	 transition: all 0.4s;
-	 transform: translateY(100%);
-}
- .button__text {
-	 display: block;
-	 color: #e2e2e2;
-	 font-weight: 40;
-	 letter-spacing: 1px;
-	 padding-top: 1.5px;
-	 text-align: center;
-	 transition: opacity 0.2s;
-}
- .button:after {
-	 content: '';
-	 display: block;
-	 position: absolute;
-	 left: 0;
-	 top: 0;
-	 height: 100%;
-	 width: 0%;
-	 background-color: #a7ffc6;
-	 transition: width 1s cubic-bezier(0.42, 0, 0, 1.035) 0.5s, opacity 0.1s;
-}
- .button.is-loading {
-	 /*width: 100%;*/
-}
- .button.is-loading:after {
-   width: 100%;
-}
- .button.is-loading .button__text {
-	 opacity: 0;
-}
- .button.is-completed {
-	 background-color: #80ffac;
-	 border-color: #80ffac;
-}
- .button.is-completed:after {
-	 opacity: 0;
-}
- .button.is-completed .button__success {
-	 transform: translateY(0%);
-}
-
-.plane {
-  opacity: 1;
-  transition: opacity .5s;
-}
-
-.is-sent {
-  transform: translate(100%, -100%);
-  opacity: 0;
-  transition: translate .20s opacity .2s;
-}
-
-.is-sent:after {
-    transform: translate(0, 0); /* Centering adjustment */
 }
 
