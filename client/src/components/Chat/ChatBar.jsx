@@ -4,6 +4,7 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faPaperPlane, faUpload } from '@fortawesome/free-solid-svg-icons'
+import { v4 as uuidv4 } from "uuid";
 import "./ChatBar.css";
 
 const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
@@ -50,7 +51,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
         setIsEnabled(true);
         return;
       }
-      const storageRef = ref(storage, `message_data/${roomCode}/${file.name}`);
+      const storageRef = ref(storage, `message_data/${roomCode}/${uuidv4()}-${file.name}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
       uploadTask.on("state_changed", (snapshot) => {},
         (error) => { alert("Error uploading file"); },
