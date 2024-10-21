@@ -36,6 +36,7 @@ function App() {
           <Route path="/rooms/:roomName" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/whiteboard" element={<ProtectedRoute><WhiteBoard /></ProtectedRoute>} />
+          <Route path="/rooms/:roomName/video" element={<ProtectedRoute><Video /></ProtectedRoute>} />
           <Route path="/join/:roomCode" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
           {/* catch-all route for undefined paths */}
           <Route path="/not-authorized" element={<NotAuthorizedPage />} />
