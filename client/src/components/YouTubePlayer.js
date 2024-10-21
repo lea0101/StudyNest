@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import YouTube from 'react-youtube';
+
 
 function YouTubePlayer({ videoId, timestamp, onTimeUpdate }) {
     const [player, setPlayer] = useState(null);
@@ -7,21 +9,21 @@ function YouTubePlayer({ videoId, timestamp, onTimeUpdate }) {
       setPlayer(event.target);
     }
   
-    useEffect(() => {
-      if (player) {
-        player.seekTo(timestamp);
-      }
-    }, [timestamp]);
-  
-    // const onStateChange = (event) => {
-    //   if (event.data === YouTube.PlayerState.PLAYING) {
-    //     const interval = setInterval(() => {
-    //       const currentTime = player.getCurrentTime();
-    //       onTimeUpdate(currentTime);
-    //     }, 500);
-    //     return () => clearInterval(interval);
+    // useEffect(() => {
+    //   if (player) {
+    //     player.seekTo(timestamp);
     //   }
-    // }
+    // }, [timestamp]);
+  
+    const onStateChange = (event) => {
+      if (event.data === YouTube.PlayerState.PLAYING) {
+        const interval = setInterval(() => {
+          const currentTime = player.getCurrentTime();
+          onTimeUpdate(currentTime);
+        }, 500);
+        return () => clearInterval(interval);
+      }
+    }
   
     return <YouTube className="youtube-container" videoId={videoId} onReady={onPlayerReady} onStateChange={onStateChange} />;
 }

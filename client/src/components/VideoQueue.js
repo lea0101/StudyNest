@@ -25,7 +25,7 @@ function VideoQueue({ setCurrentVideo }) {
             <ol>
                 {
                     queue.map((video) => {
-                        return <li key={video.id}><button onClick={() => setCurrentVideo(video.id)}>{video.title}</button></li>;
+                        return <li key={video.id}><a onClick={() => setCurrentVideo(video.id)}>{video.title}</a></li>;
                     })
                 }
             </ol>

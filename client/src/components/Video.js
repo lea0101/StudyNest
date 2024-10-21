@@ -13,6 +13,8 @@ const Video = () => {
     }, [videoId]);
 
     function addAnnotation() {
+        console.log('add annotation');
+        console.log(annotations);
         let annotationText = document.getElementById('annotationInput').value;
         document.getElementById('annotationInput').value = '';
         let annotation = {
@@ -41,8 +43,22 @@ const Video = () => {
         <div>
             <div>
                 <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={setTimestamp}/>
-                <input id="annotationInput" type="text" />
-                <button onSubmit={addAnnotation}>Submit</button>
+                <div>
+                    <h2>Annotations</h2>
+                    <ul>
+                        {
+                            annotations.filter((annotation) => Math.abs(timestamp - annotation.timestamp) < 5)
+                                        .map((annotation, index) => {
+                                                return <li key={index}>{annotation.timestamp}: {annotation.text}</li>;
+                                            }
+                                        )
+                        }
+                    </ul>
+                </div>
+                <div>
+                    <input id="annotationInput" type="text" />
+                    <button onClick={addAnnotation}>Submit</button>
+                </div>
             </div>
             <VideoQueue setCurrentVideo={setVideoId}></VideoQueue>
         </div>
