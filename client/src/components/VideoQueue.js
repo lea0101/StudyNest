@@ -20,18 +20,18 @@ function VideoQueue({ setCurrentVideo }) {
     }
 
     return (
-        <div>
+        <div className='video-queue-container'>
             <h2>Video Queue</h2>
             <ol>
                 {
                     queue.map((video) => {
-                        return <li key={video.id}><a onClick={() => setCurrentVideo(video.id)}>{video.title}</a></li>;
+                        return <li classname='video-queue-item' key={video.id}><a onClick={() => setCurrentVideo(video.id)}>{video.title}</a></li>;
                     })
                 }
             </ol>
             <div>
                 <input id="addVideoURLInput" type="text" />
-                <button onClick={addVideo}>Add Video</button>
+                <button className='b-button' onClick={addVideo}>Add Video</button>
             </div>
         </div>
     );

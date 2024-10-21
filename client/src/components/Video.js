@@ -40,10 +40,10 @@ const Video = () => {
     }
 
     return (
-        <div>
+        <div className='video-preview-container'>
             <div>
                 <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={setTimestamp}/>
-                <div>
+                <div className='annotation-container'>
                     <h2>Annotations</h2>
                     <ul>
                         {
@@ -57,7 +57,7 @@ const Video = () => {
                 </div>
                 <div>
                     <input id="annotationInput" type="text" />
-                    <button onClick={addAnnotation}>Submit</button>
+                    <button className='b-button' onClick={addAnnotation}>Submit</button>
                 </div>
             </div>
             <VideoQueue setCurrentVideo={setVideoId}></VideoQueue>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import YouTube from 'react-youtube';
 
-
 function YouTubePlayer({ videoId, timestamp, onTimeUpdate }) {
     const [player, setPlayer] = useState(null);
 
