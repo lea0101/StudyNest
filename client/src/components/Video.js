@@ -12,10 +12,6 @@ const Video = () => {
         // fetch annotations for the video
     }, [videoId]);
 
-    useEffect(() => {
-        // fetch videos in the queue
-    }, []);
-
     function addAnnotation() {
         let annotationText = document.getElementById('annotationInput').value;
         document.getElementById('annotationInput').value = '';
