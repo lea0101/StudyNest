@@ -40,28 +40,44 @@ function JoinPage() {
                 }
                 getDoc(roomDocRef).then(snapshot => {
                     if (typeof snapshot.data() !== 'undefined') {
-                        const userList = snapshot.data().userList;
-                        setDoc(roomDocRef, { userList: [...userList, user.uid] }, { merge: true });
+                        // const userList = snapshot.data().userList;
+                        // setDoc(roomDocRef, { userList: [...userList, user.uid] }, { merge: true });
+                        const userList = snapshot.data().userList || {};
+                        const userInRoom = Object.values(userList).some(userEntry => userEntry.uid === user.uid); // check if user is already in the room
+
+                        if (!userInRoom) {
+                            // add user to userList
+                            const nextIndex = Object.keys(userList).length;
+                            userList[nextIndex] = { role: 'editor', uid: user.uid};
+
+                            // update room document with new user
+                            setDoc(roomDocRef, { userList }, { merge: true });
+                        }
+                        
                     }
                 }).then(() => {
                 getDoc(userDocRef).then(snapshot => {
                     if (typeof snapshot.data() !== 'undefined') {
-                        const rooms = snapshot.data().rooms;
-                        setDoc(userDocRef, { rooms: [...rooms, { code: roomCode, name: roomName }] }, { merge: true }).then(() => {
-                            navigate('/rooms/' + roomName, { state: { roomCode: roomCode }});
-                        });
+                        // const rooms = snapshot.data().rooms;
+                        // setDoc(userDocRef, { rooms: [...rooms, { code: roomCode, name: roomName }] }, { merge: true }).then(() => {
+                        //     navigate('/rooms/' + roomName, { state: { roomCode: roomCode }});
+                        // });
+
+                        const rooms = snapshot.data().rooms || [];
+                        const roomExists = rooms.some(room => room.code === roomCode);
+
+                        if (!roomExists) {
+                            // add room to the user's rooms
+                            setDoc(userDocRef, { rooms: [...rooms, { code: roomCode, name: roomName }] }, { merge: true }).then(() => {
+                                navigate('/rooms/' + roomName, { state: { roomCode }});
+                            })
+                        } else {
+                            navigate('/rooms/' + roomName, { state: { roomCode }});
+                        }
                     }
                 });
                 });
             });
-            // const userDocRef = doc(db, 'users', user.uid);
-            // getDoc(userDocRef).then(snapshot => {
-            //     if (typeof snapshot.data() !== 'undefined') {
-            //         if (snapshot.data().rooms.some(e => e.code === roomCode)) {
-            //             setAuthorized(true);
-            //         }
-            //     }
-            // });
         }
     }, [loading]);
 
