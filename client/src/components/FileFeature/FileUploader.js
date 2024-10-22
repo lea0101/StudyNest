@@ -50,7 +50,7 @@ function FileUploader() {
   return (
     <div className="FileUploader">
       <NavBar />
-	<form onSubmit={handleSubmit} className='prefs-form'>
+	<form onSubmit={() => handleSubmit} className='prefs-form'>
         <input id='file_upload_button' type='file' accept='application/pdf' />
 	   <button type="submit" class='save-button'>Upload File</button>
 	</form>

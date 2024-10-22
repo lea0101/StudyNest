@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { storage, auth } from '../../config/firebase';
 import { useAuthState } from "react-firebase-hooks/auth";
-import { ref, listAll, getDownloadURL, uploadBytesResumable } from "firebase/storage";
+import { ref, listAll, getDownloadURL, uploadBytesResumable, getStorage } from "firebase/storage";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import FileUploader from "./FileUploader";
 import NavBar from "../NavBar";
@@ -11,6 +11,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url,
 ).toString();
+
+import type { PDFDocumentProxy } from "pdfjs-dist";
+
 
 
 const FileViewer = (props) => {
@@ -22,7 +25,12 @@ const FileViewer = (props) => {
     
     const { state } = useLocation();
     
+    function onDocumentLoadSuccess({ numPages }: { numPages: number}): void {
+        setNumPages(numPages);
+    }
+    /*
     useEffect(() => {
+        /*
         getDownloadURL(ref(storage, `${props.file}`))
         .then((url) => {
             setURL(url);
@@ -30,8 +38,15 @@ const FileViewer = (props) => {
         })
         .catch(() => setIsLoading(false));
         return () => {};
-    }, []);
 
+        const storage = getStorage();
+        const pathReference = ref(storage, `${props.file}`);
+        setURL(pathReference);
+        setIsLoading(false);
+    }, []);
+    */
+    
+    setURL("https://www.irs.gov/pub/irs-pdf/f1040se.pdf");
     if (isLoading) return <p>Loading...</p>;
     else {
         if (!url) {
@@ -39,7 +54,7 @@ const FileViewer = (props) => {
         }
         else {
             return (
-                <Document file={url}>
+                <Document onLoadSuccess={() => onDocumentLoadSuccess} file={url}>
                     <Page pageNumber={pageNumber} />
                 </Document>
             );
@@ -48,58 +63,4 @@ const FileViewer = (props) => {
 };
 
 
-/*
-async function getFileURL(pdfURL)
-{
-    const arrayBuffer = await fetch(pdfURL);
-    const blob = await arrayBuffer.blob();
-    const url = await blobToURL(blob);
-
-    function blobToURL(blob) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = function () {
-                const b64data = reader.result;
-                resoprlve(b64data);
-            };
-        });
-    };
-    return url;
-}
-
-function FileViewer({file}) {
-    const [ numPages, setNumpages ] = useState(0);
-    const [ containerWidth, setContainerWidth ] = useState(0);
-
-    const [ pdfURL, setPDFURL ] = useState();
-
-    useEffect(() => {
-        if (file)
-        {
-            getDownloadURL(ref(storage, file))
-            .then( (url) => setPDFURL(getFileURL(url)));
-            
-        }
-        else
-        {
-            return;
-        }
-    }, []);
-
-    const maxWidth = 800;
-    return (
-        <div>
-            <Document file="https://www.irs.gov/pub/irs-pdf/f1040se.pdf">
-                {Array.from(new Array(numPages), (_el, index) => (
-                    <Page
-                        key={`page_${index + 1}`}
-                        pageNumber={index + 1}
-                        width={containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth}
-                    />))}
-            </Document>
-        </div>
-    );
-}
-*/
 export default FileViewer;
