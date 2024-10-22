@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { storage, auth } from '../../config/firebase';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, listAll, getDownloadURL, uploadBytesResumable } from "firebase/storage";
@@ -6,70 +6,100 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import FileUploader from "./FileUploader";
 import NavBar from "../NavBar";
 import "./FileCollab.css";
+import { pdfjs, Document, Page } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString();
+
+
+const FileViewer = (props) => {
+
+    const [ numPages, setNumPages ] = useState(null);
+    const [ pageNumber, setPageNumber ] = useState(1);
+    const [ isLoading, setIsLoading ] = useState(true);
+    const [ url, setURL ] = useState(null);
+    
+    const { state } = useLocation();
+    
+    useEffect(() => {
+        getDownloadURL(ref(storage, `${props.file}`))
+        .then((url) => {
+            setURL(url);
+            setInterval(() => setIsLoading(false), 500);
+        })
+        .catch(() => setIsLoading(false));
+        return () => {};
+    }, []);
+
+    if (isLoading) return <p>Loading...</p>;
+    else {
+        if (!url) {
+            return <p>Oops, something went wrong. Try refreshing the page.</p>;
+        }
+        else {
+            return (
+                <Document file={url}>
+                    <Page pageNumber={pageNumber} />
+                </Document>
+            );
+        }
+    }
+};
+
 
 /*
-function GetFileList()
+async function getFileURL(pdfURL)
+{
+    const arrayBuffer = await fetch(pdfURL);
+    const blob = await arrayBuffer.blob();
+    const url = await blobToURL(blob);
 
-    const [files, setFiles] = useState([]);
-    const { state } = useLocation();
-    const roomName = state?.roomCode;
-    console.log(roomName);
-    const getItems = () => {
-        storage
-            .ref()
-            .child(`file_uploads/`)
-            .listAll()
-            .then((res) => {
-                res.items.forEach((item) => {
-                    setFiles((arr) => [...arr, item.name]);
-                    console.log(item.name);
-                });
-            })
-                .catch((err) => {
-                    alert(err.message);
-              });
+    function blobToURL(blob) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = function () {
+                const b64data = reader.result;
+                resoprlve(b64data);
+            };
+        });
     };
-    return files;
+    return url;
 }
-    */
 
-const FileCollab = () => {
-    const [ files, setFiles ] = useState([]);
-    const { state } = useLocation();
-    const roomName = state?.roomCode;
-    const getFileList = async () => {
-        const storageRef = await ref(storage, `file_uploads/${roomName}`);
-        const result = await listAll(storageRef);
-        const urlPromises = result.items.map((data) => data.name);
-        return Promise.all(urlPromises);
-    };
+function FileViewer({file}) {
+    const [ numPages, setNumpages ] = useState(0);
+    const [ containerWidth, setContainerWidth ] = useState(0);
 
-    const loadFiles = async () => {
-        const urls = await getFileList();
-        setFiles(urls);
-    };
+    const [ pdfURL, setPDFURL ] = useState();
 
-    loadFiles();
+    useEffect(() => {
+        if (file)
+        {
+            getDownloadURL(ref(storage, file))
+            .then( (url) => setPDFURL(getFileURL(url)));
+            
+        }
+        else
+        {
+            return;
+        }
+    }, []);
+
+    const maxWidth = 800;
     return (
-        <div className="module">
-            <NavBar />
-            <br/>
-            <br/>
-            <br/>
-            <div>
-                <h1>Collaborate on a File!</h1>
-                <div className="files-sidebar">
-                    <h3>Files in this Room</h3>
-                    {files.map((val) => (
-                        <button>{val}</button>
-                    ))}
-                </div>
-                <div>
-                    <FileUploader/>
-                </div>
-            </div>
+        <div>
+            <Document file="https://www.irs.gov/pub/irs-pdf/f1040se.pdf">
+                {Array.from(new Array(numPages), (_el, index) => (
+                    <Page
+                        key={`page_${index + 1}`}
+                        pageNumber={index + 1}
+                        width={containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth}
+                    />))}
+            </Document>
         </div>
     );
 }
-
-export default FileCollab;
+*/
+export default FileViewer;

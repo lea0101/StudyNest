@@ -4,38 +4,14 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, listAll, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import FileUploader from "./FileUploader";
+import FileViewer from "./FileViewer";
 import NavBar from "../NavBar";
 import "./FileCollab.css";
-
-/*
-function GetFileList()
-
-    const [files, setFiles] = useState([]);
-    const { state } = useLocation();
-    const roomName = state?.roomCode;
-    console.log(roomName);
-    const getItems = () => {
-        storage
-            .ref()
-            .child(`file_uploads/`)
-            .listAll()
-            .then((res) => {
-                res.items.forEach((item) => {
-                    setFiles((arr) => [...arr, item.name]);
-                    console.log(item.name);
-                });
-            })
-                .catch((err) => {
-                    alert(err.message);
-              });
-    };
-    return files;
-}
-    */
 
 const FileCollab = () => {
     const [ files, setFiles ] = useState([]);
     const { state } = useLocation();
+    const [ selectedFile, setSelectedFile ] = useState('');
     const roomName = state?.roomCode;
     const getFileList = async () => {
         const storageRef = await ref(storage, `file_uploads/${roomName}`);
@@ -61,11 +37,15 @@ const FileCollab = () => {
                 <div className="files-sidebar">
                     <h3>Files in this Room</h3>
                     {files.map((val) => (
-                        <button>{val}</button>
+                        <button onClick={() => setSelectedFile(`file_uploads/${roomName}/${val}`)}>{val}</button>
                     ))}
                 </div>
                 <div>
-                    <FileUploader/>
+                    <FileUploader />
+                </div>
+                <div>
+                    { (selectedFile &&
+                    <FileViewer file={selectedFile} />) || (<p>Select a file to view.</p>)}
                 </div>
             </div>
         </div>
