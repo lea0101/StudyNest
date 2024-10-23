@@ -7,7 +7,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { getAuth } from "firebase/auth";
 
 
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 import { doc, setDoc, getDoc, getDocs, query, collection, where } from "firebase/firestore";
 
 function JoinPage() {

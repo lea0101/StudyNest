@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react"
-import '../App.css';
+import '../../App.css';
 import NavBar from './NavBar';
-import Room from "./Room";
+import Room from "../Room/Room";
 import JoinRoom from "./JoinRoom";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 import { doc, setDoc, updateDoc, getDoc, query, where, getDocs, collection, onSnapshot } from "firebase/firestore";
 
 function HomePage() {
@@ -23,22 +23,7 @@ function HomePage() {
 
 
   // load in rooms
-  // useEffect(() => {
-  //   if (loading) return;
 
-  //   const userDocRef = doc(db, 'users', user.uid);
-
-  //   const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
-  //     const userData = snapshot.data();
-  //     if (userData && Array.isArray(userData.rooms)) {
-  //       setRooms(userData.rooms);
-  //     } else {
-  //       setRooms([]);
-  //     }
-  //   });
-
-  //   return () => unsubscribe();
-  // }, [loading, user]);
   useEffect(() => {
     if (loading) return;
 
@@ -216,45 +201,45 @@ function HomePage() {
     //      setDoc(roomDocRef, {userList: [...priorUserList, user.uid]})
     //      added = true;
     //  })
-    const handleJoinRoom = (roomCode) => {
-      if (rooms.find(r => r.code === roomCode)) {
-        alert("You are already in that room!")
-        return
+  const handleJoinRoom = (roomCode) => {
+    if (rooms.find(r => r.code === roomCode)) {
+      alert("You are already in that room!")
+      return
+    }
+
+    // check if entered room code exists
+    const roomDocRef = doc(db, 'rooms', roomCode);
+
+    getDoc(roomDocRef).then(doc => {
+      if (doc.exists()) {
+        const roomData = doc.data();
+
+        const currUserList = Object.values(roomData.userList || {}).map((userItem) => ({
+          role: userItem.role,
+          uid: userItem.uid
+        }));
+
+        const updatedUserList = roomData.userList ? [
+          ...currUserList,
+          { uid: user.uid, role: "editor" }
+        ] : [{ role: "editor ", uid: user.uid }]; // default to a new array is userList does not exist
+
+        updateDoc(roomDocRef, { userList: updatedUserList})
+          .then(() => {
+            setRooms((prevRooms) => [
+              ...prevRooms,
+              { name: roomData.name, code: roomData.code }
+            ]);
+          })
+          .catch((error) => {
+            console.error("Error updating room: ", error);
+          })
+      } else {
+        alert("Room does not exist!");
       }
-
-      // check if entered room code exists
-      const roomDocRef = doc(db, 'rooms', roomCode);
-
-      getDoc(roomDocRef).then(doc => {
-        if (doc.exists()) {
-          const roomData = doc.data();
-
-          const currUserList = Object.values(roomData.userList || {}).map((userItem) => ({
-            role: userItem.role,
-            uid: userItem.uid
-          }));
-
-          const updatedUserList = roomData.userList ? [
-            ...currUserList,
-            { uid: user.uid, role: "editor" }
-          ] : [{ role: "editor ", uid: user.uid }]; // default to a new array is userList does not exist
-
-          updateDoc(roomDocRef, { userList: updatedUserList})
-            .then(() => {
-              setRooms((prevRooms) => [
-                ...prevRooms,
-                { name: roomData.name, code: roomData.code }
-              ]);
-            })
-            .catch((error) => {
-              console.error("Error updating room: ", error);
-            })
-        } else {
-          alert("Room does not exist!");
-        }
-      }).catch((error) => {
-        console.error("Error fetching room: ", error);
-      })
+    }).catch((error) => {
+      console.error("Error fetching room: ", error);
+    })
   }
 
 
