@@ -4,15 +4,15 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, listAll, getDownloadURL, uploadBytesResumable, getStorage } from "firebase/storage";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import FileUploader from "./FileUploader";
-import NavBar from "../NavBar";
+import NavBar from "../Home/NavBar";
 import "./FileCollab.css";
 import { pdfjs, Document, Page } from 'react-pdf';
+import type { PDFDocumentProxy } from "pdfjs-dist";
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
   import.meta.url,
 ).toString();
 
-import type { PDFDocumentProxy } from "pdfjs-dist";
 
 
 

@@ -4,7 +4,7 @@ import { storage, auth } from '../../config/firebase';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import NavBar from "../NavBar";
+import NavBar from "../Home/NavBar";
 
 import { db } from "../../config/firebase";
 import { doc, setDoc } from "firebase/firestore";

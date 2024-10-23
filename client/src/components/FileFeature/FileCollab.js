@@ -5,7 +5,7 @@ import { ref, listAll, getDownloadURL, uploadBytesResumable } from "firebase/sto
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import FileUploader from "./FileUploader";
 import FileViewer from "./FileViewer";
-import NavBar from "../NavBar";
+import NavBar from "../Home/NavBar";
 import "./FileCollab.css";
 
 const FileCollab = () => {

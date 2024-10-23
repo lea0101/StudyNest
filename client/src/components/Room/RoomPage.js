@@ -24,10 +24,24 @@ function RoomPage() {
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
 
+    const [userRole, setUserRole] = useState('');
+
+    const [selectedColor, setSelectedColor] = useState("");
+    const [selectedLight, setSelectedLight] = useState("");
+
+    /* listening to changes to determine whether a user is authorized to access a specific room */
     useEffect(() => {
+        console.log("useEffect 1");
+
         if (loading) {
             return;
         }
+
+        if (roomCode == undefined) {
+            setAuthorized(1);
+            return;
+        }
+        
         if (user) {
             if (roomCode == undefined) {
                 setAuthorized(1);
@@ -35,51 +49,105 @@ function RoomPage() {
             }
             const roomDocRef = doc(db, 'rooms', roomCode);
             getDoc(roomDocRef).then(doc => {
-                 if (typeof doc.data() !== 'undefined') {
-                     const userList = doc.data().userList;
-                     if (userList.includes(user.uid)) {
-                         setAuthorized(0);
-                     }
+                 if (doc.exists()) {
+                    const userList = doc.data().userList || {};
+                    const userInList = Object.values(userList).some(userObj => userObj.uid === user.uid);
+
+                    if (userInList) {
+                        setAuthorized(0); // set authorized if user is in userList
+                    } else {
+                        setAuthorized(1);
+                    }
+                 } else {
+                    setAuthorized(1);
                  }
-            });
-            //const userDocRef = doc(db, 'users', user.uid);
-            //getDoc(userDocRef).then(snapshot => {
-            //     if (typeof snapshot.data() !== 'undefined') {
-            //         if (snapshot.data().rooms.some(e => e.code === roomCode)) {
-            //             setAuthorized(true);
-            //         }
-            //     }
-            //});
+            }).catch(error => {
+                console.error("Error fetching room: ", error);
+                setAuthorized(1);
+            })
         }
     }, [loading]);
 
+    /* listen to changes in Firestore rooms collection for a specific roomCode, fetch userList from room document, and retreiev each user's username from users collection, and update userList with these usernames */
     useEffect(() => {
+        console.log("useEffect 2");
+
+        if (!roomCode) return;
+
         const q = query(
             collection(db, "rooms"),
             where("code", "==", roomCode)
         );
+
         const unsubscribe = onSnapshot(q, async (QuerySnapshot) => {
             const fetchedUsersPromises = [];
+            const usersWithRoles = []; // store users with their roles
     
             QuerySnapshot.forEach((d) => {
-                d.data().userList.forEach((uid) => {
-                    const userPromise = getDoc(doc(db, 'users', uid)).then(snapshot => {
-                        return snapshot.data().username;
+                const userList = d.data().userList || {};
+                console.log('userList: ', userList);
+
+                if (userList) {
+                    Object.values(userList).forEach((userObj) => {
+                        const uid = userObj.uid;
+                        // console.log('userObj:', userObj);
+                        // console.log('uid: ', uid);
+                        // console.log('user.uid', user.uid);
+
+                        if (uid === user.uid) {
+                            // if current user is in the userList
+                            setUserRole(userObj.role);
+                        }
+                        // console.log('role: ', userRole);
+                        usersWithRoles.push({
+                            uid: uid,
+                            role: userObj.role
+                        });
+                        // console.log(userList);
+
+                        // fetch username (aka email) from the 'users' collection
+                        const userPromise = getDoc(doc(db, 'users', uid))
+                            .then(snapshot => {
+                                return snapshot.data().username;
+                            })
+                            .catch(error => {
+                                console.error('Error fetching user data: ', error);
+                                return 'Unknown User';
+                            });
+
+                        fetchedUsersPromises.push(userPromise);
                     });
-                    fetchedUsersPromises.push(userPromise);
-                });
+                }
             });
     
-            const fetchedUsers = await Promise.all(fetchedUsersPromises);
-            setUserList(fetchedUsers);
+            const fetchedUsers = await Promise.all(fetchedUsersPromises); // wait for all usernames to be fetched
+
+            // combine fetched usernames with usersWithRoles
+            const updatedUserList = usersWithRoles.map((userWithRole, index) => ({
+                ...userWithRole,
+                username: fetchedUsers[index]
+            }));
+
+            // set userList with both usernames and roles
+            // console.log('fetchedUsers: ', fetchedUsers);
+            // console.log('usersWithRoles: ', usersWithRoles);
+            // console.log('updatedUserList: ', updatedUserList);
+            // console.log('userList: ', userList);
+
+            setUserList(updatedUserList);
+            // console.log('Updated User List: ', userList);
         });
     
-        return () => unsubscribe;
-    }, []);
-
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        }
+    }, [roomCode]);
 
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [showShare, setShowShare] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
 
     // toggle for leave
     const handleLeave = () => {
@@ -118,6 +186,15 @@ function RoomPage() {
         setShowConfirmation(false);
     }
 
+    // handle opening and closing of the room settings modal
+    const handleOpenRoomSettings = () => {
+        setShowSettings(true);
+    }
+
+    const handleCloseRoomSettings = () => {
+        setShowSettings(false);
+    }
+
     // handle when user wants to go to chat
     const handleEnterChat = () => {
         navigate(`/rooms/${roomName}/chat`, { state: {roomCode : roomCode}});
@@ -130,18 +207,100 @@ function RoomPage() {
 
     const handleEnterFileCollab = () => {
         navigate(`/rooms/${roomName}/filecollab`, { state: {roomCode : roomCode}});
+    }
 
     const handleEnterVideo = () => {
         navigate(`/rooms/${roomName}/video`);
     }
+
+    // handle role change
+    const handleRoleChange = async (userItem, newRole) => {
+        const roomRef = doc(db, 'rooms', roomCode);
+
+        try {
+            const roomDoc = await getDoc(roomRef);
+            if (roomDoc.exists()) {
+                const data = roomDoc.data();
+                const currentUserList = data.userList;
+                console.log('currentUserList: ', currentUserList);
+
+                const userIndex = Object.keys(currentUserList).findIndex(
+                    (key) => currentUserList[key].uid === userItem.uid
+                );
+
+                if (userIndex !== -1) {
+                    currentUserList[userIndex].role = newRole;
+
+                    await updateDoc(roomRef, {userList: currentUserList});
+                } else {
+                    console.error('User not found in userList');
+                }
+            } else {
+                console.error('Room document does not exist');
+            }
+        } catch (error) {
+            console.error('Error updating role: ', error);
+        }
+    };
+
+    // handle host removing a user
+    const handleRemoveAccess = async (userItem) => {
+        const confirmRemoval = window.confirm(`Are you sure you want to remove ${userItem.email || userItem.displayName} from this room?`);
+
+        if (!confirmRemoval) return; // exit if host cancels
+
+        const roomRef = doc(db, 'rooms', roomCode);
+
+        try {
+            const roomDoc = await getDoc(roomRef);
+            if (roomDoc.exists()) {
+                const data = roomDoc.data();
+                const currUserList = data.userList;
+                console.log('currUserList in handleRemoveAccess: ', currUserList);
+
+                const updatedUserList = Object.keys(currUserList).reduce((list, key) => {
+                    if (currUserList[key].uid !== userItem.uid) {
+                        list[key] = currUserList[key]; // only keep users who are not the one being removed
+                    }
+
+                    return list;
+                }, {});
+
+                console.log('updatedUserList in handleRemoveAccess: ', updatedUserList);
+
+                // update firestore with new userList
+                await updateDoc(roomRef, { userList: updatedUserList });
+                console.log(`${userItem.email} removed from the room.`)
+                
+            } else {
+                console.error('Room document does not exist');
+            }
+        } catch (error) {
+            console.error('Error removing user: ', error);
+        };
+    };
+
+    const handleColorChange = (event) => {
+        const value = event.target.value;
+        setSelectedColor(value);
+        console.log('selectedColor: ', selectedColor);
+    };
+
+    const handleLightChange = (event) => {
+        const value = event.target.value;
+        setSelectedLight(value);
+        console.log('selectedLight: ', selectedLight);
+    };
 
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
     } else if (isAuthorized == 2){
         return <div> Loading... </div>
     }
+
     return  (
          <div className="RoomPage">
+            <button className="room-settings-button" onClick={handleOpenRoomSettings}>Room Settings</button>
             <button className="leave-room-button" onClick={handleLeave}>Leave Study Group</button>
             <NavBar />
             <div className="room-header">
@@ -151,7 +310,8 @@ function RoomPage() {
                 <h2>Users in Room</h2>
                 <ul>
                     {userList.map((user, i) => (
-                        <li key={i}>{user}</li>
+                        // <li key={i}>{user}</li>
+                        <li key={i}>{user.username}</li>
                     ))}
                 </ul>
             </div>
@@ -160,8 +320,8 @@ function RoomPage() {
             <p>Explore your virtual study room</p>
             <button className="a-button" onClick={handleEnterChat}>Chat</button>
             <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
-            <button className="a-button" onClick={handleEnterFileCollab}>Collaborate on a File</button>
-            <button className="a-button" onClick={handleEnterVideo}>Video</button>
+            <button className="a-button" onClick={handleEnterFileCollab}>File Sharing</button>
+            <button className="a-button" onClick={handleEnterVideo}>Video Streaming</button>
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
@@ -210,7 +370,6 @@ function RoomPage() {
                 </div>
             )}
 
-
             {showConfirmation && (
                 <div className="confirmation-modal">
                     <div className="confirmation-content">
@@ -220,7 +379,129 @@ function RoomPage() {
                     </div>
                 </div>
             )}
+
+            {/* Room Settings */}
+            {showSettings && (
+                <div className="confirmation-modal">
+                    <div className="confirmation-content">
+                        <div className="settings-header">
+                            <h2>Room Settings</h2>
+                        </div>
+
+                        {userRole && userRole === 'viewer' && (
+                            <div>
+                                <h4>You are a Viewer</h4>
+                                <p>You do not have access to Room Settings.</p>
+                            </div>
+                        )}
+
+                        {userRole && userRole === 'editor' && (
+                            <div>
+                                <h3>Manage Users</h3>
+                                <h4>You are an Editor</h4>
+                                <ul className="user-settings-list">
+                                    {userList.map((userItem, i) => (
+                                        <li key={i} style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                marginBottom: '6px'
+                                                }}>
+                                            <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userItem.username}</span>
+                                            <span style={{width: '100px'}}>{userItem.role.charAt(0).toUpperCase() + userItem.role.slice(1)}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {userRole && userRole === 'host' && (
+                            <div>
+                                <h3>Manage Users</h3>
+                                <h4>You are the Host</h4>
+                                <div>
+                                    <ul className="user-settings-list">
+                                        {userList.map((userItem, i) => (
+                                            <li key={i} style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    marginBottom: '6px'
+                                                    }}>
+                                                <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userItem.username}</span>
+                                                <span style={{width: '100px'}}>{userItem.role.charAt(0).toUpperCase() + userItem.role.slice(1)}</span>
+                                                {userRole === 'host' && userItem.uid !== user.uid ? (
+                                                    <>
+                                                        <select
+                                                        className="user-role-dropdown"
+                                                        onChange={(e) => handleRoleChange(userItem, e.target.value.toLowerCase())}
+                                                        >
+                                                            <option value="Editor">Editor</option>
+                                                            <option value="Viewer">Viewer</option>
+                                                        </select>
+                                                        <button
+                                                            className="remove-access-button"
+                                                            onClick={() => handleRemoveAccess(userItem)}
+                                                        >
+                                                            Remove Access
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <span style={{ marginLeft: '3px'}}></span>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+
+                        {userRole && (userRole === 'host' || userRole === 'editor') && (
+                            <div>
+                                <h3>Room Customization</h3>
+                                <ul className="room-color-themes">
+                                    <li key="color" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px'}}>
+                                        Color Themes
+                                        <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Color Dropdown</span>
+                                        <>
+                                            <select
+                                                value={selectedColor}
+                                                // onChange={handleColorChange}
+                                            >
+                                                <option value="blue">Blue</option>
+                                                <option value="red">Red</option>
+                                                <option value="purple">Purple</option>
+                                                <option value="green">Green</option>
+                                                <option value="pink">Pink</option>
+                                            </select>
+                                        </>
+                                    </li>
+                                    <li key="light" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px'}}>
+                                        Light Mode
+                                        <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Light Mode Dropdown</span>
+                                        <>
+                                            <select
+                                                value={selectedColor}
+                                                // onChange={handleLightChange}
+                                            >
+                                                <option value="light">Light Mode</option>
+                                                <option value="dark">Dark Mode</option>
+                                            </select>
+                                        </>
+                                    </li>
+                                </ul>
+                            </div>
+                        )}
+
+                        <div style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
+                            <button className="a-button" onClick={handleCloseRoomSettings}>Save</button>
+                            <button className="b-button" onClick={handleCloseRoomSettings}>Cancel</button>
+                        </div>
+                        
+                    </div>
+                </div>
+            )}
+
         </div>
     ) }
+
 
 export default RoomPage;
