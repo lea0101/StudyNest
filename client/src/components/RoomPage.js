@@ -288,6 +288,12 @@ function RoomPage() {
         console.log('selectedColor: ', selectedColor);
     };
 
+    const handleLightChange = (event) => {
+        const value = event.target.value;
+        setSelectedLight(value);
+        console.log('selectedLight: ', selectedLight);
+    };
+
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
     } else if (isAuthorized == 2){
@@ -462,9 +468,8 @@ function RoomPage() {
                                                 value={selectedColor}
                                                 // onChange={handleColorChange}
                                             >
-                                                <option value="">-- Select an option --</option>
-                                                <option value="red">Red</option>
                                                 <option value="blue">Blue</option>
+                                                <option value="red">Red</option>
                                                 <option value="purple">Purple</option>
                                                 <option value="green">Green</option>
                                                 <option value="pink">Pink</option>
@@ -474,6 +479,15 @@ function RoomPage() {
                                     <li key="light" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px'}}>
                                         Light Mode
                                         <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Light Mode Dropdown</span>
+                                        <>
+                                            <select
+                                                value={selectedColor}
+                                                // onChange={handleLightChange}
+                                            >
+                                                <option value="light">Light Mode</option>
+                                                <option value="dark">Dark Mode</option>
+                                            </select>
+                                        </>
                                     </li>
                                 </ul>
                             </div>
