@@ -128,6 +128,9 @@ function RoomPage() {
         navigate(`/rooms/${roomName}/whiteboard`);
     }
 
+    const handleEnterFileCollab = () => {
+        navigate(`/rooms/${roomName}/filecollab`, { state: {roomCode : roomCode}});
+
     const handleEnterVideo = () => {
         navigate(`/rooms/${roomName}/video`);
     }
@@ -157,6 +160,7 @@ function RoomPage() {
             <p>Explore your virtual study room</p>
             <button className="a-button" onClick={handleEnterChat}>Chat</button>
             <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+            <button className="a-button" onClick={handleEnterFileCollab}>Collaborate on a File</button>
             <button className="a-button" onClick={handleEnterVideo}>Video</button>
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
