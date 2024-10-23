@@ -493,95 +493,11 @@ function RoomPage() {
                             </div>
                         )}
 
-                        {/*<div className="settings-users">
-                            <h3>Manage Users</h3>
-                            {userRole && (
-                                <h4>
-                                    {userRole === 'host' && 'You are a Host'}
-                                    {userRole === 'editor' && 'You are an Editor'}
-                                    {userRole === 'viewer' && 'You are a Viewer'}
-                                </h4>
-                            )} */}
-
-                            {/* {userRole === 'viewer' ? (
-                                <p>You do not have access to Room Settings.</p>
-                            ) : (
-                                <div>
-                                    <ul className="user-settings-list">
-                                        {userList.map((userItem, i) => (
-                                            <li key={i} style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    marginBottom: '6px'
-                                                    }}>
-                                                <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userItem.username}</span>
-                                                <span style={{width: '100px'}}>{userItem.role.charAt(0).toUpperCase() + userItem.role.slice(1)}</span>
-                                                {userRole === 'host' && userItem.uid !== user.uid ? (
-                                                    <>
-                                                        <select
-                                                        className="user-role-dropdown"
-                                                        onChange={(e) => handleRoleChange(userItem, e.target.value.toLowerCase())}
-                                                        >
-                                                            <option value="Editor">Editor</option>
-                                                            <option value="Viewer">Viewer</option>
-                                                        </select>
-                                                        <button
-                                                            className="remove-access-button"
-                                                            onClick={() => handleRemoveAccess(userItem)}
-                                                        >
-                                                            Remove Access
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <span style={{ marginLeft: '3px'}}>
-                                                    </span>
-                                                )}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )} */}
-
-                            {/* <ul className="user-settings-list">
-                                {userList.map((userItem, i) => (
-                                    <li key={i} style={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            marginBottom: '6px'
-                                            }}>
-                                        <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userItem.username}</span>
-                                        <span style={{width: '100px'}}>{userItem.role.charAt(0).toUpperCase() + userItem.role.slice(1)}</span>
-                                        // if user is a host then show a dropdown
-                                        {userRole === 'host' && userItem.uid !== user.uid ? (
-                                            <>
-                                                <select
-                                                className="user-role-dropdown"
-                                                onChange={(e) => handleRoleChange(userItem, e.target.value.toLowerCase())}
-                                                >
-                                                    <option value="Editor">Editor</option>
-                                                    <option value="Viewer">Viewer</option>
-                                                </select>
-                                                <button
-                                                    className="remove-access-button"
-                                                    onClick={() => handleRemoveAccess(userItem)}
-                                                >
-                                                    Remove Access
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <span style={{ marginLeft: '3px'}}>
-                                                // show nothing
-                                            </span>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div> */}
-
                         <div style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
                             <button className="a-button" onClick={handleCloseRoomSettings}>Save</button>
                             <button className="b-button" onClick={handleCloseRoomSettings}>Cancel</button>
                         </div>
+                        
                     </div>
                 </div>
             )}
