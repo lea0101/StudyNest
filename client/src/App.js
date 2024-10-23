@@ -11,7 +11,7 @@ import { auth, db } from "./config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import WhiteBoard from './components/Whiteboard/WhiteBoard';
 import JoinPage from './components/Home/JoinPage';
-import Video from './components/Video';
+import Video from './components/Video/Video';
 
 import UserSettings from "./components/Settings/UserSettings";
 import NotFoundPage from './Pages/NotFoundPage';
