@@ -11,6 +11,7 @@ import { auth, db } from "./config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import WhiteBoard from './components/Whiteboard/WhiteBoard';
 import JoinPage from './components/Home/JoinPage';
+import Video from './components/Video';
 
 import UserSettings from "./components/Settings/UserSettings";
 import NotFoundPage from './Pages/NotFoundPage';
@@ -36,6 +37,7 @@ function App() {
           <Route path="/rooms/:roomName" element={<ProtectedRoute><RoomPage /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/whiteboard" element={<ProtectedRoute><WhiteBoard /></ProtectedRoute>} />
+          <Route path="/rooms/:roomName/video" element={<ProtectedRoute><Video /></ProtectedRoute>} />
           <Route path="/join/:roomCode" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
           {/* catch-all route for undefined paths */}
           <Route path="/not-authorized" element={<NotAuthorizedPage />} />
