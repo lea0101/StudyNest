@@ -28,25 +28,14 @@ const FileViewer = (props) => {
     function onDocumentLoadSuccess({ numPages }: { numPages: number}): void {
         setNumPages(numPages);
     }
-    /*
-    useEffect(() => {
-        /*
-        getDownloadURL(ref(storage, `${props.file}`))
-        .then((url) => {
-            setURL(url);
-            setInterval(() => setIsLoading(false), 500);
-        })
-        .catch(() => setIsLoading(false));
-        return () => {};
 
+    useEffect(() => {
         const storage = getStorage();
         const pathReference = ref(storage, `${props.file}`);
         setURL(pathReference);
         setIsLoading(false);
     }, []);
-    */
     
-    setURL("https://www.irs.gov/pub/irs-pdf/f1040se.pdf");
     if (isLoading) return <p>Loading...</p>;
     else {
         if (!url) {
