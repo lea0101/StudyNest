@@ -26,6 +26,9 @@ function RoomPage() {
 
     const [userRole, setUserRole] = useState('');
 
+    const [selectedColor, setSelectedColor] = useState("");
+    const [selectedLight, setSelectedLight] = useState("");
+
     /* listening to changes to determine whether a user is authorized to access a specific room */
     useEffect(() => {
         console.log("useEffect 1");
@@ -279,6 +282,12 @@ function RoomPage() {
         };
     };
 
+    const handleColorChange = (event) => {
+        const value = event.target.value;
+        setSelectedColor(value);
+        console.log('selectedColor: ', selectedColor);
+    };
+
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
     } else if (isAuthorized == 2){
@@ -448,6 +457,19 @@ function RoomPage() {
                                     <li key="color" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px'}}>
                                         Color Themes
                                         <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Color Dropdown</span>
+                                        <>
+                                            <select
+                                                value={selectedColor}
+                                                // onChange={handleColorChange}
+                                            >
+                                                <option value="">-- Select an option --</option>
+                                                <option value="red">Red</option>
+                                                <option value="blue">Blue</option>
+                                                <option value="purple">Purple</option>
+                                                <option value="green">Green</option>
+                                                <option value="pink">Pink</option>
+                                            </select>
+                                        </>
                                     </li>
                                     <li key="light" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px'}}>
                                         Light Mode
