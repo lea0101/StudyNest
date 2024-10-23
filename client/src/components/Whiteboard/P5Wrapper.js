@@ -10,7 +10,7 @@ import {
     deleteDoc,
     serverTimestamp
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 
 const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
     const sketchRef = useRef(null);

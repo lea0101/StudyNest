@@ -1,4 +1,17 @@
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 .imessage {
+  width: 600px;
+  height: 100%;
+  height: -moz-available;          /* WebKit-based browsers will ignore this. */
+  height: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+  height: fill-available;
+  overflow: scroll;
+  overflow-x: hidden; /* Hide horizontal scrollbar */
   background-color: #fff;
   border: 1px solid #e5e5ea;
   border-radius: 0.25rem;
@@ -6,8 +19,7 @@
   flex-direction: column;
   font-family: "SanFrancisco";
   font-size: 1.25rem;
-  margin: 0 auto 1rem;
-  max-width: 600px;
+  margin: 1rem auto .2rem;
   padding: 0.5rem 1.5rem;
 }
 
@@ -17,6 +29,7 @@
   max-width: 75%;
   padding: 0.5rem .875rem;
   position: relative;
+  text-align: left;
   word-wrap: break-word;
 }
 
@@ -161,27 +174,12 @@ p.user-name.them {
   height: 35px;
   border-radius: 50%;
   margin-right: 10px;
-
 }
 
 .avatar.me {
   margin-left: 10px;
   margin-right: 0px;
 }
-
-/*.chat-bubble {*/
-/*  border-radius: 20px 20px 20px 0;*/
-/*  padding: 15px;*/
-/*  background-color: #7cc5d9;*/
-/*  color: #1c2c4c;*/
-/*  width: max-content;*/
-/*  max-width: calc(100% - 50px);*/
-/*  box-shadow: -2px 2px 1px 1px #4c768d;*/
-/*  display: flex;*/
-/*  align-items: flex-start;*/
-/*  margin-bottom: 20px;*/
-/*}*/
-
 
 
 
@@ -207,12 +205,6 @@ body {
   margin: 0;
 }
 
-.container {
-  margin: 0 auto;
-  max-width: 600px;
-  padding: 1rem;
-}
-
 h1 {
   font-weight: normal;
   margin-bottom: 0.5rem;
@@ -226,14 +218,6 @@ h2 {
   padding-bottom: 1.5rem;
 }
 
-.comment {
-  color: #222;
-  font-size: 1.25rem;
-  line-height: 1.5;
-  margin-bottom: 1.25rem;
-  max-width: 100%;
-  padding: 0;
-}
 
 @media screen and (max-width: 800px) {
   body {
@@ -246,7 +230,7 @@ h2 {
 
   .imessage {
     font-size: 1.05rem;
-    margin: 0 auto 1rem;
+    margin: 1rem auto 1rem;
     max-width: 600px;
     padding: 0.25rem 0.875rem;
   }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect }from "react";
 import { Navigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "../config/firebase";
+import { auth, db } from "./firebase";
 import {doc, getDoc} from "firebase/firestore";
 
 function ProtectedRoute({ children, roomCode=null }) {

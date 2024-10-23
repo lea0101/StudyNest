@@ -1,19 +1,19 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css';
-import LoginPage from './components/LoginPage';
-import SignupPage from './components/SignupPage';
-import Home from './components/HomePage';
-import RoomPage from './components/RoomPage';
-import ProtectedRoute from './components/ProtectedRoute';
+import LoginPage from './components/Login/LoginPage';
+import SignupPage from './components/Login/SignupPage';
+import Home from './components/Home/HomePage';
+import RoomPage from './components/Room/RoomPage';
+import ProtectedRoute from './config/ProtectedRoute';
 import ChatPage from "./components/Chat/ChatPage";
 import { auth, db } from "./config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
-import WhiteBoard from './components/WhiteBoard';
-import JoinPage from './components/JoinPage';
+import WhiteBoard from './components/Whiteboard/WhiteBoard';
+import JoinPage from './components/Home/JoinPage';
 import Video from './components/Video';
 
-import UserSettings from "./components/UserSettings";
+import UserSettings from "./components/Settings/UserSettings";
 import NotFoundPage from './Pages/NotFoundPage';
 import NotAuthorizedPage from "./Pages/NotAuthorizedPage";
 

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import NavBar from './NavBar';
-import NotAuthorizedPage from "../Pages/NotAuthorizedPage";
+import NavBar from '../Home/NavBar';
+import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 
 
 import { useAuthState } from "react-firebase-hooks/auth";
 import { getAuth } from "firebase/auth";
 
 
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot } from "firebase/firestore";
 
 function RoomPage() {

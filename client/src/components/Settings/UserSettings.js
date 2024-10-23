@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react"
 import Select from "react-select";
-import '../App.css';
-import { storage, auth } from '../config/firebase';
+import '../../App.css';
+import { storage, auth } from '../../config/firebase';
 import { updateProfile } from 'firebase/auth';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import NavBar from "./NavBar";
+import NavBar from "../Home/NavBar";
 
-import defaultIcon1 from '../img/default_icon_1.png'
-import defaultIcon2 from '../img/default_icon_2.png'
-import defaultIcon3 from '../img/default_icon_3.png'
-import defaultIcon4 from '../img/default_icon_4.png'
-import defaultIcon5 from '../img/default_icon_5.png'
-import defaultIcon6 from '../img/default_icon_6.png'
-import iconPlaceholder from '../img/icon_placeholder.png'
+import defaultIcon1 from '../../img/default_icon_1.png'
+import defaultIcon2 from '../../img/default_icon_2.png'
+import defaultIcon3 from '../../img/default_icon_3.png'
+import defaultIcon4 from '../../img/default_icon_4.png'
+import defaultIcon5 from '../../img/default_icon_5.png'
+import defaultIcon6 from '../../img/default_icon_6.png'
+import iconPlaceholder from '../../img/icon_placeholder.png'
 
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
 const defaultIcons = [
