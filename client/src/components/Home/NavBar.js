@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
-import { auth } from '../config/firebase';
+import { auth } from '../../config/firebase';
 
 function NavBar() {
     const navigate = useNavigate(); // to navigate after logging out
