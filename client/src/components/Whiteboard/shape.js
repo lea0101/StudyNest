@@ -42,6 +42,18 @@ class Shape {
         this.id = null;
         this.createdAt = new Date();
     }
+    getMinX() {
+        return this.x;
+    }
+    getMaxX() {
+        return this.x;
+    }
+    getMinY() {
+        return this.y;
+    }
+    getMaxY() {
+        return this.y;
+    }
     setID(id) {
         this.id = id;
     }
@@ -73,6 +85,18 @@ class Rectangle extends Shape {
         super(x, y, shader);
         this.width = width;
         this.height = height;
+    }
+    getMinX() {
+        return this.x;
+    }
+    getMaxX() {
+        return this.x + this.width;
+    }
+    getMinY() {
+        return this.y;
+    }
+    getMaxY() {
+        return this.y + this.height;
     }
     display(p) {
         this.shader.apply(p);
@@ -109,6 +133,18 @@ class Ellipse extends Shape {
         super(x, y, shader);
         this.width = width;
         this.height = height;
+    }
+    getMinX() {
+        return this.x;
+    }
+    getMaxX() {
+        return this.x + this.width;
+    }
+    getMinY() {
+        return this.y;
+    }
+    getMaxY() {
+        return this.y + this.height;
     }
     display(p) {
         this.shader.apply(p);
@@ -162,6 +198,34 @@ class Curve extends Shape {
         super(points[0].x, points[0].y, shader);
         this.points = points;
     }
+    getMinX() {
+        let minX = this.points[0].x;
+        for (let point of this.points) {
+            minX = Math.min(minX, point.x);
+        }
+        return minX;
+    }
+    getMaxX() {
+        let maxX = this.points[0].x;
+        for (let point of this.points) {
+            maxX = Math.max(maxX, point.x);
+        }
+        return maxX;
+    }
+    getMinY() {
+        let minY = this.points[0].y;
+        for (let point of this.points) {
+            minY = Math.min(minY, point.y);
+        }
+        return minY;
+    }
+    getMaxY() {
+        let maxY = this.points[0].y;
+        for (let point of this.points) {
+            maxY = Math.max(maxY, point.y);
+        }
+        return maxY;
+    }
     display(p) {
         this.shader.apply(p);
         for (let i = 0; i < this.points.length - 1; i++) {
@@ -183,7 +247,9 @@ class Curve extends Shape {
     }
     isBoundedBy(rect) {
         for (let point of this.points) {
-            rect.containsPoint(point.x, point.y);
+            if (!rect.containsPoint(point.x, point.y)) {
+                return false;
+            }
         }
         return true;
     }

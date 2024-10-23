@@ -578,3 +578,28 @@ input {
   text-decoration: underline;
   cursor: pointer;
 }
+
+.video-preview-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 20px;
+  background-color: rgb(255, 253, 248);
+  border: 1px solid black;
+}
+
+.video-queue-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: rgb(255, 253, 248);
+}
+
+.video-queue-item:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}

@@ -23,7 +23,6 @@ function HomePage() {
 
 
   // load in rooms
-
   useEffect(() => {
     if (loading) return;
 
