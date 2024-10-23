@@ -1,8 +1,8 @@
-import { auth, provider } from "../config/firebase"
+import { auth, provider } from "../../config/firebase"
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import "./login.css";
-import logo from '../img/btn_google_signin_dark_pressed_web.png'; // Tell webpack this JS file uses this image
+import logo from '../../img/btn_google_signin_dark_pressed_web.png'; // Tell webpack this JS file uses this image
 import { useNavigate } from "react-router-dom"; // import navigate for routing -CC
 
 

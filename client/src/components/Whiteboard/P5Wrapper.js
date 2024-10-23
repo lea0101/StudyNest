@@ -10,11 +10,12 @@ import {
     deleteDoc,
     serverTimestamp
 } from "firebase/firestore";
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 
 const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
     const sketchRef = useRef(null);
     let [strokes, setStrokes] = useState([]);
+    let [selection, setSelection] = useState([]);
 
     useEffect(() => {
         const q = query(
@@ -105,13 +106,29 @@ const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
                         }
                     }
                 }
+                // draw box around selected shapes
+                if (selection.length > 0) {
+                    let minX = selection[0].getMinX();
+                    let minY = selection[0].getMinY();
+                    let maxX = selection[0].getMaxX();
+                    let maxY = selection[0].getMaxY();
+                    for (let shape of selection) {
+                        minX = Math.min(minX, shape.getMinX());
+                        minY = Math.min(minY, shape.getMinY());
+                        maxX = Math.max(maxX, shape.getMaxX());
+                        maxY = Math.max(maxY, shape.getMaxY());
+                    }
+                    p.noFill();
+                    p.stroke(0);
+                    p.strokeWeight(1);
+                    p.rect(minX, minY, maxX - minX, maxY - minY);
+                }
             };
 
             p.mousePressed = function () {
                 if (p.mouseX <= 0 || p.mouseX >= p.width || p.mouseY <= 0 || p.mouseY >= p.height) {
                     return;
                 }
-                console.log(p.mouseX, p.mouseY, tool, currentShape);
                 let shader = new Shader(color, fill ? color : null, 10, false);
                 switch (tool) {
                     case 'rectangle':
@@ -126,15 +143,14 @@ const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
                     default:
                         console.log("default");
                         break;
-                    // case 'select':
-                    //     currentShape = new Rectangle(p.mouseX, p.mouseY, 0, 0, shader);
-                    //     break;
+                    case 'select':
+                        currentShape = new Rectangle(p.mouseX, p.mouseY, 0, 0, shader);
+                        break;
                 }
             };
 
             p.mouseReleased = function () {
                 if (currentShape === null) return;
-                console.log(currentShape);
                 let shapeType = getShapeType(currentShape);
                 if (shapeType === "rectangle" || shapeType === "ellipse") {
                     currentShape.width = p.mouseX - currentShape.x;
@@ -142,9 +158,20 @@ const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
                 }
                 // strokes.push(currentShape);
                 // updateStrokes(strokes);
-                addStroke(currentShape);
+                if (tool != 'select') {
+                    addStroke(currentShape);
+                } else {
+                    let newSelection = [];
+                    for (let i = 0; i < strokes.length; i++) {
+                        if (strokes[i].isBoundedBy(currentShape)) {
+                            // add to selection
+                            newSelection.push(strokes[i]);
+                        }
+                    }
+                    setSelection([...newSelection]);
+                    console.log(newSelection);
+                }
                 currentShape = null;
-                console.log(strokes);
             };
 
         };
@@ -155,7 +182,7 @@ const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
             p5Instance.remove();
         };
 
-    }, [tool, color, fill, strokes]);
+    }, [tool, color, fill, strokes, selection]);
 
     return <div className="p5wrapper" ref={sketchRef}></div>;
 };

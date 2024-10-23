@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import NavBar from './NavBar';
-import NotAuthorizedPage from "../Pages/NotAuthorizedPage";
+import NavBar from '../Home/NavBar';
+import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 
 
 import { useAuthState } from "react-firebase-hooks/auth";
 import { getAuth } from "firebase/auth";
 
 
-import { db } from "../config/firebase";
+import { db } from "../../config/firebase";
 import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot } from "firebase/firestore";
 
 function RoomPage() {
@@ -130,6 +130,9 @@ function RoomPage() {
 
     const handleEnterFileCollab = () => {
         navigate(`/rooms/${roomName}/filecollab`, { state: {roomCode : roomCode}});
+
+    const handleEnterVideo = () => {
+        navigate(`/rooms/${roomName}/video`);
     }
 
     if (isAuthorized == 1) {
@@ -158,6 +161,7 @@ function RoomPage() {
             <button className="a-button" onClick={handleEnterChat}>Chat</button>
             <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
             <button className="a-button" onClick={handleEnterFileCollab}>Collaborate on a File</button>
+            <button className="a-button" onClick={handleEnterVideo}>Video</button>
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
