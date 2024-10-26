@@ -39,11 +39,10 @@ const FileCollab = () => {
                     {files.map((val) => (
                         <button onClick={() => setSelectedFile(`file_uploads/${roomName}/${val}`)}>{val}</button>
                     ))}
-                </div>
-                <div>
+                    <br/>
                     <FileUploader />
                 </div>
-                <div>
+                <div className="files-mainviewer">
                     { (selectedFile &&
                     <FileViewer file={selectedFile} />) || (<p>Select a file to view.</p>)}
                 </div>

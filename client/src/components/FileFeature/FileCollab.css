@@ -3,6 +3,7 @@
     align-items: left;
     padding: 0;
     width: 200px;
+    max-width: 400px;
     background-color: #f1f1f1;
     height: 100%;
     overflow: auto;
@@ -15,4 +16,11 @@
     text-decoration: none;
 }
 
-
+.files-mainviewer {
+    width: 800px;
+    height: 100%;
+    overflow: auto;
+    margin-left: 50px;
+    float: right;
+    align-items: right;
+}

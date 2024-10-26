@@ -13,9 +13,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-
-
-
 const FileViewer = (props) => {
 
     const [ numPages, setNumPages ] = useState(null);
@@ -28,27 +25,23 @@ const FileViewer = (props) => {
     function onDocumentLoadSuccess({ numPages }: { numPages: number}): void {
         setNumPages(numPages);
     }
-
-    useEffect(() => {
-        const storage = getStorage();
-        const pathReference = ref(storage, `${props.file}`);
-        setURL(pathReference);
-        setIsLoading(false);
-    }, []);
     
-    if (isLoading) return <p>Loading...</p>;
-    else {
+    useEffect(() => {
+        const storageRef = ref(storage, props.file);
+        getDownloadURL(storageRef).then((url) => {
+            console.log(url);
+            setURL(url);
+        });
+    }, []);
         if (!url) {
             return <p>Oops, something went wrong. Try refreshing the page.</p>;
         }
         else {
             return (
                 <Document onLoadSuccess={() => onDocumentLoadSuccess} file={url}>
-                    <Page pageNumber={pageNumber} />
                 </Document>
             );
         }
-    }
 };
 
 
