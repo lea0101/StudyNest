@@ -9,7 +9,7 @@
   height: 100%;
   height: -moz-available;          /* WebKit-based browsers will ignore this. */
   height: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
-  height: fill-available;
+  height: stretch;
   overflow: scroll;
   overflow-x: hidden; /* Hide horizontal scrollbar */
   background-color: #fff;

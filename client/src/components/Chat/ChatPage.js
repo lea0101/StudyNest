@@ -9,7 +9,8 @@ import {
 import { useAuthState } from "react-firebase-hooks/auth";
 import { db, auth } from "../../config/firebase";
 import ChatBar from "./ChatBar";
-//import MessageBox from "./MessageBox"
+import MessageBox from "./MessageBox"
+import SenderInfo from "./SenderInfo"
 import "./Chat.css";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
@@ -58,28 +59,17 @@ function ChatPage() {
           messages?.map((message, i) => {
             // if the message sender changes
             const endTags = ((i === messages.length - 1) || message.uid !== messages[i + 1].uid) ? "": "no-tail";
-            const messageOwner = (message.uid === user.uid) ? "me" : "them";
-            const imageSrc = message.imageSrc;
 
             // if there is a change in message sender, add in profile and header
             if ((i === 0) || (messages[i - 1].uid !== message.uid)) {
               return (
                 <>
-                  <div className={`namebar ${messageOwner}`}>
-                    <img className={`avatar ${messageOwner}`} src={message.avatar} alt="user avatar" />
-                    <p className={`user-name ${messageOwner}`}>{message.name}</p>
-                  </div>
-                  <p key={message.id} className={`from-${messageOwner} ${endTags}`}>
-                    {message.text}
-                    { imageSrc  && <img className="msg_img" src={`${imageSrc}`} alt="error rendering"/> }
-                  </p>
+                  <SenderInfo message={message} />
+                  <MessageBox message={message} endTags={endTags} key={message.id}/>
                 </>
               )
             }
-            return <p key={message.id} className={`from-${messageOwner} ${endTags}`}>
-                      {message.text}
-                      { imageSrc  && <img className="msg_img" src={`${imageSrc}`} alt="error rendering"/> }
-                   </p>
+            return <MessageBox message={message} endTags={endTags} key={message.id}/>
           })
         }
       </div>
