@@ -66,7 +66,7 @@ body, html {
   top: 100px;
   right: 5px;
   width: 140px;
-  background-color: #6fb2c5;
+  background-color: var(--button-color, #6fb2c5);
 }
 
 .room-settings-button {
@@ -74,7 +74,7 @@ body, html {
   top: 60px;
   right: 5px;
   width: 140px;
-  background-color: #6fb2c5;
+  background-color: var(--button-color, #6fb2c5);
 }
 
 .confirm-leave-button {
@@ -613,4 +613,18 @@ input {
 .video-queue-item:hover {
   text-decoration: underline;
   cursor: pointer;
+}
+
+.dynamic-button {
+  background-color: var(--button-color, #6fb2c5);
+  color: black;
+  width: 100%;
+  max-width: 200px;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-sizing: border-box;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
 }

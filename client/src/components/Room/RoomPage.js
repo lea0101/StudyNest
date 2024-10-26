@@ -26,8 +26,18 @@ function RoomPage() {
 
     const [userRole, setUserRole] = useState('');
 
-    const [selectedColor, setSelectedColor] = useState("");
-    const [selectedLight, setSelectedLight] = useState("");
+    const [selectedColor, setSelectedColor] = useState("default");
+    const [selectedLight, setSelectedLight] = useState("light");
+    // const colorMapping = {
+    //     default: '#6fb2c5',
+    //     red: 'rgb(217, 91, 91)',
+    //     orange: 'rgb(227, 153, 75)',
+    //     yellow: 'rgb(245, 227, 125)',
+    //     green: 'rgb(93, 156, 105)',
+    //     blue: 'rgb(45, 91, 166)',
+    //     purple: 'rgb(165, 132, 224)',
+    //     pink: 'rgb(242, 170, 213)'
+    // }
 
     /* listening to changes to determine whether a user is authorized to access a specific room */
     useEffect(() => {
@@ -68,7 +78,7 @@ function RoomPage() {
         }
     }, [loading]);
 
-    /* listen to changes in Firestore rooms collection for a specific roomCode, fetch userList from room document, and retreiev each user's username from users collection, and update userList with these usernames */
+    /* listen to changes in Firestore rooms collection for a specific roomCode, fetch userList from room document, and retrieve each user's username from users collection, and update userList with these usernames */
     useEffect(() => {
         console.log("useEffect 2");
 
@@ -148,26 +158,38 @@ function RoomPage() {
     useEffect (() => {
         console.log("useEffect 3");
 
-        const fetchSettings = async () => {
-            try {
-                const roomRef = doc(db, "rooms", roomCode);
-                const roomSnap = await getDoc(roomRef);
+        const roomRef = doc(db, "rooms", roomCode);
 
-                if (roomSnap.exists()) {
-                    const settings = roomSnap.data().settings || {};
-                    setSelectedColor(settings.color || 'default');
-                    setSelectedLight(settings.light || 'light');
-                } else {
-                    console.log('No such room document')
-                }
-            } catch (error) {
-                console.error('Error fetching settings: ', error);
+        const unsubscribe = onSnapshot(roomRef, (doc) => {
+            const data = doc.data();
+            if (data && data.settings) {
+                setSelectedColor(data.settings.color || 'default');
+                setSelectedLight(data.settings.light || 'light');
             }
-        }
+        });
 
-        fetchSettings();
+        return () => unsubscribe();
 
     }, [roomCode]);
+
+    useEffect(() => {
+        console.log("useEffect 4");
+
+        const colorMapping = {
+            default: '#6fb2c5',
+            red: 'rgb(217, 91, 91)',
+            orange: 'rgb(204, 131, 53)',
+            yellow: 'rgb(245, 227, 125)',
+            green: 'rgb(118, 153, 93)',
+            blue: 'rgb(59, 124, 150)',
+            purple: 'rgb(165, 132, 224)',
+            pink: 'rgb(242, 170, 213)'
+        }
+
+        const buttonColor = colorMapping[selectedColor];
+        document.documentElement.style.setProperty('--button-color', buttonColor);
+
+    }, [selectedColor]);
 
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [showShare, setShowShare] = useState(false);
@@ -307,7 +329,6 @@ function RoomPage() {
     const handleColorChange = async (event) => {
         const value = event.target.value;
         setSelectedColor(value);
-        console.log('selectedColor: ', selectedColor);
 
         try {
             const roomRef = doc(db, "rooms", roomCode);
@@ -322,7 +343,6 @@ function RoomPage() {
     const handleLightChange = async (event) => {
         const value = event.target.value;
         setSelectedLight(value);
-        console.log('selectedLight: ', selectedLight);
 
         try {
             const roomRef = doc(db, "rooms", roomCode);
@@ -375,10 +395,10 @@ function RoomPage() {
 
             {/* content in the middle */}
             <p>Explore your virtual study room</p>
-            <button className="a-button" onClick={handleEnterChat}>Chat</button>
-            <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
-            <button className="a-button" onClick={handleEnterFileCollab}>File Sharing</button>
-            <button className="a-button" onClick={handleEnterVideo}>Video Streaming</button>
+            <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
+            <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+            <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
+            <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
@@ -396,7 +416,7 @@ function RoomPage() {
                 >
                     Room Code: {roomCode}
                 </button>
-                <button className="a-button" onClick={() => setShowShare(true)}>Share</button>
+                <button className="dynamic-button" onClick={() => setShowShare(true)}>Share</button>
             </div>
 
             {/* Share Room Code */}
@@ -554,8 +574,11 @@ function RoomPage() {
                                             >
                                                 <option value="default">Default</option>
                                                 <option value="red">Red</option>
-                                                <option value="purple">Purple</option>
+                                                <option value="orange">Orange</option>
+                                                <option value="yellow">Yellow</option>
                                                 <option value="green">Green</option>
+                                                <option value="blue">Blue</option>
+                                                <option value="purple">Purple</option>
                                                 <option value="pink">Pink</option>
                                             </select>
                                         </>
@@ -579,7 +602,7 @@ function RoomPage() {
                         )}
 
                         <div style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
-                            <button className="a-button" onClick={handleCloseRoomSettings}>Save</button>
+                            <button className="dynamic-button" onClick={handleCloseRoomSettings}>Save</button>
                             <button className="b-button" onClick={handleCloseRoomSettings}>Cancel</button>
                         </div>
                         
