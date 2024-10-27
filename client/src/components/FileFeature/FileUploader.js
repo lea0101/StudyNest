@@ -41,7 +41,7 @@ const rejectStyle = {
 };
 
 function FileUploader() {
-  const maxFileSizeMB = .5;
+  const maxFileSizeMB = 3;
   const { state } = useLocation(); 
   const roomName = state?.roomCode;
 
@@ -72,12 +72,11 @@ function FileUploader() {
 
   const files = acceptedFiles.map(file => (
     <li key={file.path}>
-      {file.path} - {file.size} bytes
+      {file.path} [{file.size} bytes]
     </li>
   ));
 
   const handleSubmit = (e) => {
-      console.log(e);
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const file = formData.get("my-file");
@@ -117,14 +116,16 @@ function FileUploader() {
         <input type ="file" name="my-file" required style ={{opacity: 0}} ref={hiddenInputRef}/>
         <input {...getInputProps()} />
         <p>Drag and Drop a File Here</p>
-        <button type="button" onClick={open}>
+        <button className="file-form-button" type="button" onClick={open}>
             Browse Device
         </button>
       </div>
       <aside>
-        <ul>{files}</ul>
+        <p className="file-upload-selection">{files}</p>
       </aside>
-      <button type="submit">Submit</button>
+      <button className="file-form-button" type="submit">Submit</button>
+      <br/>
+      <br/>
       </form>
     </div>
   );

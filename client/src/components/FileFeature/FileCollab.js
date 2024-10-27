@@ -7,6 +7,7 @@ import FileUploader from "./FileUploader";
 import FileViewer from "./FileViewer";
 import NavBar from "../Home/NavBar";
 import "./FileCollab.css";
+import "../../App.css";
 
 const FileCollab = () => {
     const [ files, setFiles ] = useState([]);
@@ -32,19 +33,21 @@ const FileCollab = () => {
             <br/>
             <br/>
             <br/>
-            <div>
-                <h1>Collaborate on a File!</h1>
+            <h1>Collaborate on a File</h1>
+            <div className="container">
                 <div className="files-sidebar">
                     <h3>Files in this Room</h3>
                     {files.map((val) => (
-                        <button onClick={() => setSelectedFile(`file_uploads/${roomName}/${val}`)}>{val}</button>
+                        <button className="file-list-button" onClick={() => setSelectedFile(`file_uploads/${roomName}/${val}`)}>{val}</button>
                     ))}
-                    <br/>
-                    <FileUploader />
+                    <FileUploader/>
                 </div>
+        <br/>
                 <div className="files-mainviewer">
+        <br/>
+        <br/>
                     { (selectedFile &&
-                    <FileViewer file={selectedFile} />) || (<p>Select a file to view.</p>)}
+                    <FileViewer file={selectedFile} key={selectedFile}/>) || (<p>Select a file to view.</p>)}
                 </div>
             </div>
         </div>
