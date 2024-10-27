@@ -37,7 +37,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
   const sendChat = async (e) => {
     e.preventDefault();
     setIsEnabled(false);
-    // file handling 
+    // file handling
     const file = inputFile.current.files[0];
     console.log(file)
     if (file) {

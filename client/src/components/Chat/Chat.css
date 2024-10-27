@@ -4,6 +4,17 @@
   height: 100vh;
 }
 
+.details {
+  font-size: small;
+  margin: 0px;
+}
+
+.details.me {
+  padding: 0px 5px;
+  text-align: right;
+  align-self: flex-end;
+}
+
 .imessage {
   width: 600px;
   height: 100%;
@@ -18,6 +29,7 @@
   display: flex;
   flex-direction: column;
   font-family: "SanFrancisco";
+  padding: 0px;
   font-size: 1.25rem;
   margin: 1rem auto .2rem;
   padding: 0.5rem 1.5rem;
@@ -77,6 +89,7 @@ p.from-them ~ p.from-them:not(:last-child) {
 }
 
 p.from-them ~ p.from-them:last-child {
+  margin: 0.25rem 0 0;
   margin-bottom: 0.5rem;
 }
 
@@ -84,11 +97,16 @@ p.from-them ~ p.from-them {
   margin: 0.25rem 0 0;
 }
 
+p.from-me:first-child {
+  margin: 0 0 0.25rem;
+}
+
 p.from-me ~ p.from-me:not(:last-child) {
   margin: 0.25rem 0 0;
 }
 
 p.from-me ~ p.from-me:last-child {
+  margin: 0.25rem 0 0;
   margin-bottom: 0.5rem;
 }
 
@@ -181,7 +199,6 @@ p.user-name.them {
   margin-left: 10px;
   margin-right: 0px;
 }
-
 
 
 /* general styling */

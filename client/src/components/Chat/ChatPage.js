@@ -8,6 +8,7 @@ import {
   limit,
   deleteDoc,
   getDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { db, auth } from "../../config/firebase";
@@ -20,7 +21,6 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 function ChatPage() {
   const [user] = useAuthState(auth);
   const [messages, setMessages] = useState([]);
-  const [mode, setMode] = useState(['send']); // ['edit', msgid]
   const scroll = useRef();
 
   const navigate = useNavigate();
@@ -54,10 +54,14 @@ function ChatPage() {
     navigate(`/rooms/${roomName}`, { state: {roomCode : roomCode}});
   }
 
-  function setEditing(msgId) {
+  async function setEditing(msgId, txt) {
     console.log("Editing");
     console.log(msgId);
-    setMode(['editing', msgId]);
+    console.log(txt);
+    await updateDoc(doc(db, 'rooms', roomCode, 'messages', msgId), {
+      "text" : txt,
+      "updated" : true
+    });
   }
 
   async function setDelete(msgId) {
@@ -76,9 +80,9 @@ function ChatPage() {
             // if there is a change in message sender, add in profile and header
               return (
                 <>
-                  { ((i === 0) || (messages[i - 1].uid !== message.uid)) && 
+                  { ((i === 0) || (messages[i - 1].uid !== message.uid)) &&
                   <SenderInfo message={message} /> }
-                  <MessageBox message={message} endTags={endTags} setEditing={setEditing} setDelete={setDelete} key={message.id}/>
+                  <MessageBox message={message} endTags={endTags} handleEditingUpstream={setEditing} handleDeleteUpstream={setDelete} key={message.id}/>
                 </>
               )
           })
