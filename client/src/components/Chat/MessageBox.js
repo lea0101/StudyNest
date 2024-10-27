@@ -44,7 +44,12 @@ const MessageBox = ({ message, endTags, handleEditingUpstream, handleDeleteUpstr
 
   const handleMsgClick = () => {
     if (messageOwner === "me") {
-      setIsClicked(true);
+      if (isClicked === true && editMessage === "Edit") {
+        setIsClicked(false);
+      } else {
+        setIsClicked(true);
+      }
+
     }
   }
 

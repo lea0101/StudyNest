@@ -7,11 +7,9 @@ import {
   onSnapshot,
   limit,
   deleteDoc,
-  getDoc,
   updateDoc,
 } from "firebase/firestore";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { db, auth } from "../../config/firebase";
+import { db } from "../../config/firebase";
 import ChatBar from "./ChatBar";
 import MessageBox from "./MessageBox"
 import SenderInfo from "./SenderInfo"
@@ -19,7 +17,6 @@ import "./Chat.css";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 function ChatPage() {
-  const [user] = useAuthState(auth);
   const [messages, setMessages] = useState([]);
   const scroll = useRef();
 
@@ -48,7 +45,7 @@ function ChatPage() {
       setMessages(sortedMessages);
     });
     return () => unsubscribe;
-  }, []);
+  }, );
 
   const handleGoBack = () => {
     navigate(`/rooms/${roomName}`, { state: {roomCode : roomCode}});
