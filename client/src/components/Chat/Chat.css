@@ -208,6 +208,12 @@ p.user-name.them {
   text-align: right;
 }
 
+.msgOptions > button {
+  border: none;
+  background: none;
+  color: grey;
+}
+
 
 /* general styling */
 @font-face {

@@ -24,6 +24,10 @@ const MessageBox = ({ message, endTags, handleEditingUpstream, handleDeleteUpstr
     } else {
       if (msgTxt === "") {
         alert("Cannot edit to an empty message");
+      } else if (msgTxt === message.text) {
+        setEditMessage("Edit");
+        setIsEditable(false);
+        setIsClicked(false);
       } else {
         handleEditingUpstream(message.id, msgTxt);
         setEditMessage("Edit");
