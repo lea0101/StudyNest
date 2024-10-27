@@ -17,6 +17,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 function ChatPage() {
   const [user] = useAuthState(auth);
   const [messages, setMessages] = useState([]);
+  const [mode, setMode] = useState(['send']); // ['edit', msgid], ['delete']
   const scroll = useRef();
 
   const navigate = useNavigate();
@@ -26,8 +27,6 @@ function ChatPage() {
   const dbMsgQuery = collection(db, 'rooms', roomCode, 'messages');
   const roomCode_copy = roomCode;
 
-  //const storageRef = ref(storage, `user_icons/${file.name}`);
-  //const uploadTask = uploadBytesResumable(storageRef, file);
 
   useEffect(() => {
     const q = query(
@@ -52,6 +51,16 @@ function ChatPage() {
     navigate(`/rooms/${roomName}`, { state: {roomCode : roomCode}});
   }
 
+  function setEditing(msgId) {
+    console.log("Editing");
+    setMode(['editing', msgId]);
+  }
+
+  function setDelete() {
+    console.log("Del");
+    setMode(['delete']);
+  }
+
   return (
     <main className="chat-box">
       <div className="imessage">
@@ -61,15 +70,13 @@ function ChatPage() {
             const endTags = ((i === messages.length - 1) || message.uid !== messages[i + 1].uid) ? "": "no-tail";
 
             // if there is a change in message sender, add in profile and header
-            if ((i === 0) || (messages[i - 1].uid !== message.uid)) {
               return (
                 <>
-                  <SenderInfo message={message} />
-                  <MessageBox message={message} endTags={endTags} key={message.id}/>
+                  { ((i === 0) || (messages[i - 1].uid !== message.uid)) && 
+                  <SenderInfo message={message} /> }
+                  <MessageBox message={message} endTags={endTags} setEditing={setEditing} setDelete={setDelete} key={message.id}/>
                 </>
               )
-            }
-            return <MessageBox message={message} endTags={endTags} key={message.id}/>
           })
         }
       </div>

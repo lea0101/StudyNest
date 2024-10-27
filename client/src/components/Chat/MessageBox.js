@@ -1,15 +1,30 @@
+import React, { useState } from "react";
 import { auth } from "../../config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+
 import "./Chat.css";
 
-const MessageBox = ({ message, endTags }) => {
+const MessageBox = ({ message, endTags, setEditing, setDelete}) => {
   const [user] = useAuthState(auth);
-            const messageOwner = (message.uid === user.uid) ? "me" : "them";
+  const messageOwner = (message.uid === user.uid) ? "me" : "them";
+  const [isClicked, setIsClicked] = useState(false)
 
-            return <p className={`from-${messageOwner} ${endTags}`}>
+  //function handleClick() {
+
+  //}
+
+    //
+  return (<>
+      <p onClick={()=> {setIsClicked(!isClicked)}} className={`from-${messageOwner} ${endTags}`}>
                       {message.text}
                       { message.imageSrc && <img className="msg_img" src={`${message.imageSrc}`} alt="error rendering"/> }
                    </p>
+    { isClicked && <div>
+      <button onClick={setEditing} > edit </button>
+      <button onClick={setDelete} > delete </button>
+    </div>
+      }
+  </>)
 }
 //  return (
 //    <div 

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { auth, storage } from "../../config/firebase";
 import { addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
@@ -12,6 +12,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const inputFile = useRef(null);
   const { uid, displayName, photoURL } = auth.currentUser;
+
 
   const handleUpload = () => {
     inputFile.current?.click();

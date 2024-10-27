@@ -24,6 +24,7 @@
 }
 
 .imessage p {
+  user-select: none;
   border-radius: 1.15rem;
   line-height: 1.25;
   max-width: 75%;
@@ -237,6 +238,7 @@ h2 {
 
   .imessage p {
     margin: 0.5rem 0;
+    user-select: none;
   }
 }
 
