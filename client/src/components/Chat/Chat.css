@@ -9,6 +9,10 @@
   margin: 0px;
 }
 
+.details.them {
+  padding: 0px 5px;
+}
+
 .details.me {
   padding: 0px 5px;
   text-align: right;
@@ -18,9 +22,8 @@
 .imessage {
   width: 600px;
   height: 100%;
-  height: -moz-available;          /* WebKit-based browsers will ignore this. */
+  max-height: -moz-available;          /* WebKit-based browsers will ignore this. */
   height: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
-  height: stretch;
   overflow: scroll;
   overflow-x: hidden; /* Hide horizontal scrollbar */
   background-color: #fff;
@@ -76,7 +79,7 @@ p.from-me::after {
 }
 
 p[class^="from-"] {
-  margin: 0.5rem 0;
+  margin: 0.25rem 0 0;
   width: fit-content;
 }
 
@@ -158,19 +161,6 @@ p.user-name.them {
  text-align: left;
 }
 
-.namebar:first-child {
-  margin-top:0px;
-}
-
-.namebar {
-  margin-top:20px;
-  display: flex;
-  align-items: center;
-}
-
-.namebar.me {
-  flex-direction: row-reverse;
-}
 
 .no-tail::before {
   display: none;
@@ -198,6 +188,24 @@ p.user-name.them {
 .avatar.me {
   margin-left: 10px;
   margin-right: 0px;
+}
+
+.namebar:first-child {
+  margin-top:0px;
+}
+
+.namebar {
+  margin-top:20px;
+  display: flex;
+  align-items: center;
+}
+
+.namebar.me {
+  flex-direction: row-reverse;
+}
+
+.msgOptions {
+  text-align: right;
 }
 
 

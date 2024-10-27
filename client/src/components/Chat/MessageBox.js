@@ -7,24 +7,25 @@ import "./Chat.css";
 const MessageBox = ({ message, endTags, handleEditingUpstream, handleDeleteUpstream}) => {
   const [user] = useAuthState(auth);
   const messageOwner = (message.uid === user.uid) ? "me" : "them";
+  const [msgTxt, setMsgTxt] = useState(message.text);
   const [isClicked, setIsClicked] = useState(false)
   const [isEditable, setIsEditable] = useState(false)
   const [editMessage, setEditMessage] = useState("Edit")
-  const ref = useRef(null);
-  const msgTxt = useRef(message.text);
+  const msgFocus = useRef(null);
+  //const msgTxt = useRef(message.text);
 
   function handleEdit() {
     if (editMessage === "Edit") {
       setIsEditable(true);
       setEditMessage("Confirm Edit");
       setTimeout(function() {
-            ref.current.focus();
+            msgFocus.current.focus();
       }, 0);
     } else {
-      if (msgTxt.current === "") {
+      if (msgTxt === "") {
         alert("Cannot edit to an empty message");
       } else {
-        handleEditingUpstream(message.id, msgTxt.current);
+        handleEditingUpstream(message.id, msgTxt);
         setEditMessage("Edit");
         setIsEditable(false);
         setIsClicked(false);
@@ -34,7 +35,7 @@ const MessageBox = ({ message, endTags, handleEditingUpstream, handleDeleteUpstr
 
   const editMsg = async (e) => {
     e.preventDefault();
-    msgTxt.current = e.currentTarget.textContent;
+    setMsgTxt(e.currentTarget.textContent);
   }
 
   const handleMsgClick = () => {
@@ -44,23 +45,23 @@ const MessageBox = ({ message, endTags, handleEditingUpstream, handleDeleteUpstr
   }
 
   const handleCancel = () => {
-    message.text = message.text;
+    setMsgTxt(message.text);
     setEditMessage("Edit");
     setIsEditable(false);
     setIsClicked(false);
   }
-    //
+
   return (<>
       <p onClick={handleMsgClick} contentEditable={isEditable}
         className={`from-${messageOwner} ${endTags}`}
         onInput={e => editMsg(e)}
         suppressContentEditableWarning={true}
-        ref={ref} >
-                      {message.text}
-                      { message.imageSrc && <img className="msg_img" src={`${message.imageSrc}`} alt="error rendering"/> }
+        ref={msgFocus} >
+          {msgTxt}
+          {message.imageSrc && <img draggable="false" className="msg_img" src={`${message.imageSrc}`} alt="error rendering"/> }
       </p>
     { message.updated && <p className={`details ${messageOwner}`}> edited </p>}
-    { isClicked && <div>
+    { isClicked && <div className="msgOptions">
       <button onClick={() => {handleEdit()}} > {editMessage} </button>
       <button onClick={() => {handleDeleteUpstream(message.id); setIsClicked(false);}} > Delete </button>
       <button onClick={() => {handleCancel()}}> Cancel </button>

@@ -48,7 +48,7 @@ function ChatPage() {
       setMessages(sortedMessages);
     });
     return () => unsubscribe;
-  }, [dbMsgQuery]);
+  }, []);
 
   const handleGoBack = () => {
     navigate(`/rooms/${roomName}`, { state: {roomCode : roomCode}});
@@ -87,9 +87,9 @@ function ChatPage() {
               )
           })
         }
+      <span ref={scroll}></span>
       </div>
       {/* when a new message enters the chat, the screen scrolls down to the scroll div */}
-      <span ref={scroll}></span>
       <ChatBar scroll={scroll} dbMsgQuery={dbMsgQuery} roomCode={roomCode_copy}/>
       <div className="room-code" onClick={handleGoBack}>
           <p>Go Back</p>

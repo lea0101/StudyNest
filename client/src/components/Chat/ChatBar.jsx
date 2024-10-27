@@ -78,8 +78,6 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
         updateDb();
       }
     }
-
-    scroll.current.scrollIntoView({ behavior: "smooth" });
   };
 
 
@@ -104,6 +102,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
           inputFile.current.type = "file";
       }
       document.querySelector("#file_button").classList.remove('is-loading', 'is-completed');
+      scroll.current.scrollIntoView({ behavior: "smooth" });
       setIsEnabled(true);
     });
   }
@@ -112,7 +111,9 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
 
 
   return (
-    <form className="chat_bar" onSubmit={(event) => sendChat(event)} >
+    <form className="chat_bar"
+      autoComplete="off"
+      onSubmit={(event) => sendChat(event)} >
 
       <div className="button_container">
         <input id='file_upload_button' onChange={() => handleButtonAnimation()}  type='file' accept='image/*,.gif' ref={inputFile} hidden/>

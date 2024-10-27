@@ -8,7 +8,7 @@ const SenderInfo = ({ message }) => {
 
   return (
       <div className={`namebar ${messageOwner}`}>
-        <img className={`avatar ${messageOwner}`} src={message.avatar} alt="user avatar" />
+        <img draggable="false" className={`avatar ${messageOwner}`} src={message.avatar} alt="user avatar" />
         <p className={`user-name ${messageOwner}`}>{message.name}</p>
       </div>
   )
