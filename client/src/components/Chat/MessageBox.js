@@ -20,8 +20,8 @@ const MessageBox = ({ message, endTags, setEditing, setDelete}) => {
                       { message.imageSrc && <img className="msg_img" src={`${message.imageSrc}`} alt="error rendering"/> }
                    </p>
     { isClicked && <div>
-      <button onClick={setEditing} > edit </button>
-      <button onClick={setDelete} > delete </button>
+      <button onClick={() => {setEditing(message.id); setIsClicked(false);}} > edit </button>
+      <button onClick={() => {setDelete(message.id); setIsClicked(false);}} > delete </button>
     </div>
       }
   </>)

@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  doc,
   query,
   collection,
   orderBy,
   onSnapshot,
   limit,
+  deleteDoc,
+  getDoc,
 } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { db, auth } from "../../config/firebase";
@@ -17,7 +20,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 function ChatPage() {
   const [user] = useAuthState(auth);
   const [messages, setMessages] = useState([]);
-  const [mode, setMode] = useState(['send']); // ['edit', msgid], ['delete']
+  const [mode, setMode] = useState(['send']); // ['edit', msgid]
   const scroll = useRef();
 
   const navigate = useNavigate();
@@ -53,12 +56,13 @@ function ChatPage() {
 
   function setEditing(msgId) {
     console.log("Editing");
+    console.log(msgId);
     setMode(['editing', msgId]);
   }
 
-  function setDelete() {
-    console.log("Del");
-    setMode(['delete']);
+  async function setDelete(msgId) {
+    console.log("del");
+    await deleteDoc(doc(db, 'rooms', roomCode, 'messages', msgId));
   }
 
   return (
