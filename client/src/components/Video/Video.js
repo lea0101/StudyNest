@@ -33,7 +33,7 @@ const Video = () => {
             setAnnotations(sortedAnnotations);
         });
         return () => unsubscribe;
-    }, [videoId]);
+    }, []);
 
     async function updateDBTimestamp(newTimestamp) {
         const q = query(

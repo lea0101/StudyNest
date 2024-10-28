@@ -1,11 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import {
+    query,
+    collection,
+    onSnapshot,
+    addDoc,
+    setDoc
+} from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 function VideoQueue({ setCurrentVideo }) {
     
     let [queue, setQueue] = useState([]);
 
     useEffect(() => {
-        // fetch videos in the queue
+        const q = query(
+            collection(db, "video-queue")
+        );
+        const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
+            const newQueue = [];
+            QuerySnapshot.forEach((doc) => {
+                let video = doc.data();
+                newQueue.push(video);
+            });
+            const sortedQueue = newQueue.sort((a, b) => a.idx - b.idx);
+            setQueue(sortedQueue);
+        });
+        return () => unsubscribe;
     }, []);
 
     function addVideo() {
@@ -13,10 +33,12 @@ function VideoQueue({ setCurrentVideo }) {
         document.getElementById('addVideoURLInput').value = '';
         // fetch video information
         let video = {
+            idx: queue.length,
             id: videoURL,
             title: 'Video Title', // TODO: fetch video title
         };
         setQueue([...queue, video]);
+        addDoc(collection(db, "video-queue"), video);
     }
 
     return (
