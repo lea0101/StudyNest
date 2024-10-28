@@ -658,3 +658,62 @@ input {
   color: #004499;
   text-decoration: underline;
 }
+
+.annotation-container {
+  /* width: 350px; */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  overflow-y: auto; /* Scrollable if content exceeds height */
+}
+
+.annotation-container h2 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 12px;
+  position: sticky;
+  top: 0;
+  background-color: #f9f9f9;
+  padding: 8px 0;
+  z-index: 1; /* Keeps title visible while scrolling */
+}
+
+.annotation-container ul {
+  height: 60px; /* Set a fixed height for scrolling */
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.video-annotation {
+  display: flex;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.3s ease;
+}
+
+.video-annotation:hover {
+  background-color: #f0f0f0;
+}
+
+.video-annotation-timestamp {
+  width: 70px;
+  color: #888;
+  font-weight: bold;
+  margin-right: 8px;
+  font-family: monospace; /* For a timestamp look */
+}
+
+.video-annotation-text {
+  flex: 1;
+  color: #0066cc;
+  text-align: left;
+}
+
+.video-annotation-text:hover {
+  color: #004499;
+}

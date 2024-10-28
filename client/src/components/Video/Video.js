@@ -102,7 +102,11 @@ const Video = () => {
                         {
                             annotations.filter((annotation) => Math.abs(timestamp - annotation.timestamp) < 5)
                                         .map((annotation, index) => {
-                                                return <li key={index}>{annotation.timestamp}: {annotation.text}</li>;
+                                                const formattedTimestamp = new Date(annotation.timestamp * 1000).toISOString().substr(11, 8);
+                                                return (<li className="video-annotation"key={index}>
+                                                    <span className="video-annotation-timestamp">{formattedTimestamp}</span>: 
+                                                    <span className="video-annotation-text">{annotation.text}</span>
+                                                </li>);
                                             }
                                         )
                         }
