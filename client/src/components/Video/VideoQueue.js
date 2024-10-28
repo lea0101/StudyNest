@@ -32,13 +32,20 @@ function VideoQueue({ setCurrentVideo }) {
         let videoURL = document.getElementById('addVideoURLInput').value;
         document.getElementById('addVideoURLInput').value = '';
         // fetch video information
-        let video = {
-            idx: queue.length,
-            id: videoURL,
-            title: 'Video Title', // TODO: fetch video title
-        };
-        setQueue([...queue, video]);
-        addDoc(collection(db, "video-queue"), video);
+        const fullURL = `https://www.youtube.com/watch?v=${videoURL}`;
+
+        fetch(`https://noembed.com/embed?dataType=json&url=${fullURL}`)
+        .then(res => res.json())
+        .then(data => {
+            let video = {
+                idx: queue.length,
+                id: videoURL,
+                title: data.title,
+            };
+            setQueue([...queue, video]);
+            addDoc(collection(db, "video-queue"), video);
+        });
+
     }
 
     return (
@@ -47,7 +54,13 @@ function VideoQueue({ setCurrentVideo }) {
             <ol>
                 {
                     queue.map((video) => {
-                        return <li classname='video-queue-item' key={video.id}><a onClick={() => setCurrentVideo(video.id)}>{video.title}</a></li>;
+                        const imgURL = `https://img.youtube.com/vi/${video.id}/0.jpg`;
+                        return (
+                            <li className='video-queue-item' key={video.id}>
+                                <img width="80px" src={imgURL} alt="" />
+                                <a onClick={() => setCurrentVideo(video.id)}>{video.title}</a>
+                            </li>
+                        );
                     })
                 }
             </ol>
