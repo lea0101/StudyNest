@@ -202,7 +202,7 @@ function RoomPage() {
 
     // handle when user wants to go to whiteboard
     const handleEnterWhiteboard = () => {
-        navigate(`/rooms/${roomName}/whiteboard`);
+        navigate(`/rooms/${roomName}/whiteboard`, { state: {roomCode : roomCode}});
     }
 
     const handleEnterFileCollab = () => {
@@ -210,7 +210,7 @@ function RoomPage() {
     }
 
     const handleEnterVideo = () => {
-        navigate(`/rooms/${roomName}/video`);
+        navigate(`/rooms/${roomName}/video`, { state: {roomCode : roomCode}});
     }
 
     // handle role change

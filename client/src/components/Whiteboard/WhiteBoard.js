@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import P5Wrapper from './P5Wrapper';
 import './WhiteBoard.css'
 
+import { useLocation } from 'react-router-dom';
+
 const WhiteBoard = () => {
+    const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
+    const roomCode = state?.roomCode;
+
     let [tool, setTool] = useState('ellipse');
     let [color, setColor] = useState('black');
     let [fill, setFill] = useState(false);
@@ -57,7 +62,7 @@ const WhiteBoard = () => {
                     <button id="blue" onClick={getUpdateColorHandler}></button>
                 </div>
             </div>
-            <P5Wrapper tool={tool} color={color} fill={fill} clearEvent={clearEvent} setClearEvent={setClearEvent}/>
+            <P5Wrapper roomCode={roomCode} tool={tool} color={color} fill={fill} clearEvent={clearEvent} setClearEvent={setClearEvent}/>
         </div>
     );
 }
