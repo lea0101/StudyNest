@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, Fragment, useRef, useState } from "react";
 import {
   doc,
   query,
@@ -18,6 +18,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 function ChatPage() {
   const [messages, setMessages] = useState([]);
+  const [resets, setResets] = useState(0);
   const scroll = useRef();
 
   const navigate = useNavigate();
@@ -51,6 +52,10 @@ function ChatPage() {
     navigate(`/rooms/${roomName}`, { state: {roomCode : roomCode}});
   }
 
+  const handleMsgCancel = () => {
+    setResets(resets + 1);
+  }
+
   async function setEditing(msgId, txt) {
     console.log("Editing");
     console.log(msgId);
@@ -71,16 +76,14 @@ function ChatPage() {
       <div className="imessage">
         {
           messages?.map((message, i) => {
-            // if the message sender changes
-            const endTags = ((i === messages.length - 1) || message.uid !== messages[i + 1].uid) ? "": "no-tail";
-
             // if there is a change in message sender, add in profile and header
+            const endTags = ((i === messages.length - 1) || message.uid !== messages[i + 1].uid) ? "": "no-tail";
               return (
-                <>
+                <Fragment key={i}>
                   { ((i === 0) || (messages[i - 1].uid !== message.uid)) &&
-                  <SenderInfo message={message} /> }
-                  <MessageBox message={message} endTags={endTags} handleEditingUpstream={setEditing} handleDeleteUpstream={setDelete} key={message.id}/>
-                </>
+                  <SenderInfo message={message} key={`Senderinfo-${i}`} /> }
+                  <MessageBox message={message} resets={resets} handleCancelUpstream={handleMsgCancel} endTags={endTags} handleEditingUpstream={setEditing} handleDeleteUpstream={setDelete} key={message.id}/>
+                </Fragment>
               )
           })
         }
