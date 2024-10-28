@@ -8,12 +8,6 @@ function YouTubePlayer({ videoId, timestamp, onTimeUpdate }) {
       setPlayer(event.target);
     }
   
-    // useEffect(() => {
-    //   if (player) {
-    //     player.seekTo(timestamp);
-    //   }
-    // }, [timestamp]);
-  
     const onStateChange = (event) => {
       if (event.data === YouTube.PlayerState.PLAYING) {
         const interval = setInterval(() => {
