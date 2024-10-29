@@ -69,6 +69,7 @@ const FileViewer = (props) => {
                     fileUrl: fileName
                 };
                 thisNote.setID(doc.ref);
+                    console.log("Adding " + thisNote.quote);
 
                 if (thisNote?.fileName === fileName) {
                     fetchedNotes.push(thisNote);
@@ -105,10 +106,10 @@ const FileViewer = (props) => {
         </div>
     );
 
-    async function addNote(note) {
-        const docRef = await addDoc(collection(db, "file_notes"));
+    async function addNewNote(note) {
+        const docRef = await addDoc(collection(db, "file_notes"), note);
         note.setID(docRef);
-        console.log(note);
+        setNotes(notes.concat([note]));
     }
     const renderHighlightContent = (props: RenderHighlightContentProps) => {
         const addNote = () => {
@@ -120,10 +121,10 @@ const FileViewer = (props) => {
                     quote: props.selectedText,
                     fileUrl: fileName
                 };
-                setNotes(notes.concat([note]));
+                //addNewNote(note);
                 props.cancel();
                 // Send note to firestore.
-               addNote(note); 
+               //addNote(note); 
             }
         };
         return (
@@ -199,7 +200,7 @@ const FileViewer = (props) => {
             return (
             <div className="file-viewer-container">
                 <div className="file-viewer">
-                    <Viewer plugins={[highlightPluginInstance]} fileUrl={url}/>
+                    <Viewer fileUrl={url}/>
                 </div>
              </div>
             );
