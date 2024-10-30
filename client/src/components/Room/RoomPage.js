@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NavBar from '../Home/NavBar';
 import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
+import Timer from "../Timer/Timer";
 
 
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -26,8 +27,18 @@ function RoomPage() {
 
     const [userRole, setUserRole] = useState('');
 
-    const [selectedColor, setSelectedColor] = useState("");
-    const [selectedLight, setSelectedLight] = useState("");
+    const [selectedColor, setSelectedColor] = useState("default");
+    const [selectedLight, setSelectedLight] = useState("light");
+    // const colorMapping = {
+    //     default: '#6fb2c5',
+    //     red: 'rgb(217, 91, 91)',
+    //     orange: 'rgb(227, 153, 75)',
+    //     yellow: 'rgb(245, 227, 125)',
+    //     green: 'rgb(93, 156, 105)',
+    //     blue: 'rgb(45, 91, 166)',
+    //     purple: 'rgb(165, 132, 224)',
+    //     pink: 'rgb(242, 170, 213)'
+    // }
 
     /* listening to changes to determine whether a user is authorized to access a specific room */
     useEffect(() => {
@@ -68,7 +79,7 @@ function RoomPage() {
         }
     }, [loading]);
 
-    /* listen to changes in Firestore rooms collection for a specific roomCode, fetch userList from room document, and retreiev each user's username from users collection, and update userList with these usernames */
+    /* listen to changes in Firestore rooms collection for a specific roomCode, fetch userList from room document, and retrieve each user's username from users collection, and update userList with these usernames */
     useEffect(() => {
         console.log("useEffect 2");
 
@@ -144,6 +155,42 @@ function RoomPage() {
             }
         }
     }, [roomCode]);
+
+    useEffect (() => {
+        console.log("useEffect 3");
+
+        const roomRef = doc(db, "rooms", roomCode);
+
+        const unsubscribe = onSnapshot(roomRef, (doc) => {
+            const data = doc.data();
+            if (data && data.settings) {
+                setSelectedColor(data.settings.color || 'default');
+                setSelectedLight(data.settings.light || 'light');
+            }
+        });
+
+        return () => unsubscribe();
+
+    }, [roomCode]);
+
+    useEffect(() => {
+        console.log("useEffect 4");
+
+        const colorMapping = {
+            default: '#6fb2c5',
+            red: 'rgb(217, 91, 91)',
+            orange: 'rgb(204, 131, 53)',
+            yellow: 'rgb(245, 227, 125)',
+            green: 'rgb(118, 153, 93)',
+            blue: 'rgb(59, 124, 150)',
+            purple: 'rgb(165, 132, 224)',
+            pink: 'rgb(242, 170, 213)'
+        }
+
+        const buttonColor = colorMapping[selectedColor];
+        document.documentElement.style.setProperty('--button-color', buttonColor);
+
+    }, [selectedColor]);
 
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [showShare, setShowShare] = useState(false);
@@ -280,16 +327,32 @@ function RoomPage() {
         };
     };
 
-    const handleColorChange = (event) => {
+    const handleColorChange = async (event) => {
         const value = event.target.value;
         setSelectedColor(value);
-        console.log('selectedColor: ', selectedColor);
+
+        try {
+            const roomRef = doc(db, "rooms", roomCode);
+            await updateDoc(roomRef, {
+                "settings.color" : value
+            });
+        } catch (error) {
+            console.error('Error updating color: ', error);
+        }
     };
 
-    const handleLightChange = (event) => {
+    const handleLightChange = async (event) => {
         const value = event.target.value;
         setSelectedLight(value);
-        console.log('selectedLight: ', selectedLight);
+
+        try {
+            const roomRef = doc(db, "rooms", roomCode);
+            await updateDoc(roomRef, {
+                "settings.light" : value
+            });
+        } catch (error) {
+            console.error('Error updating light: ', error);
+        }
     };
 
     if (isAuthorized == 1) {
@@ -299,7 +362,22 @@ function RoomPage() {
     }
 
     return  (
-         <div className="RoomPage">
+         <div className="RoomPage"
+            style={{
+                backgroundColor:
+                    selectedLight === "light"
+                    ? "rgb(255, 253, 248)"
+                    : selectedLight === "dark"
+                    ? "rgb(69, 67, 63)"
+                    : "rgb(255, 253, 248)",
+                color: 
+                    selectedLight === "light"
+                    ? "rgb(0, 0, 0)"
+                    : selectedLight === "dark"
+                    ? "rgb(255, 255, 255)"
+                    : "rgb(0, 0, 0)",
+            }}
+        >
             <button className="room-settings-button" onClick={handleOpenRoomSettings}>Room Settings</button>
             <button className="leave-room-button" onClick={handleLeave}>Leave Study Group</button>
             <NavBar />
@@ -307,7 +385,7 @@ function RoomPage() {
                 <h1>Welcome to Room {roomName}</h1>
             </div>
             <div>
-                <h2>Users in Room</h2>
+                <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Users in Room</h2>
                 <ul>
                     {userList.map((user, i) => (
                         // <li key={i}>{user}</li>
@@ -318,10 +396,11 @@ function RoomPage() {
 
             {/* content in the middle */}
             <p>Explore your virtual study room</p>
-            <button className="a-button" onClick={handleEnterChat}>Chat</button>
-            <button className="a-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
-            <button className="a-button" onClick={handleEnterFileCollab}>File Sharing</button>
-            <button className="a-button" onClick={handleEnterVideo}>Video Streaming</button>
+            <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
+            <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+            <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
+            <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
+            {/* <Timer /> */}
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
@@ -339,13 +418,22 @@ function RoomPage() {
                 >
                     Room Code: {roomCode}
                 </button>
-                <button className="a-button" onClick={() => setShowShare(true)}>Share</button>
+                <button className="dynamic-button" onClick={() => setShowShare(true)}>Share</button>
             </div>
 
+            {/* Share Room Code */}
             {showShare && (
                 <div className="share-overlay">
                     <div className="share">
-                        <div className="share-modal">
+                        <div className="share-modal"
+                        style={{
+                            "background-color":
+                                selectedLight === "light"
+                                ? "white"
+                                : selectedLight === "dark"
+                                ? "rgb(69, 67, 63)"
+                                : "white",                       
+                        }}>
                             <div className="share-content">
                                 <p>Share this room with your friends!</p>
                                 <input type="text" value={`http://localhost:3000/join/${roomCode}`} readOnly />
@@ -370,10 +458,20 @@ function RoomPage() {
                 </div>
             )}
 
+            {/* Leave Study Group */}
             {showConfirmation && (
                 <div className="confirmation-modal">
-                    <div className="confirmation-content">
-                        <p>Are you sure you want to leave the group?</p>
+                    <div className="confirmation-content"
+                        style={{
+                            "background-color":
+                                selectedLight === "light"
+                                ? "white"
+                                : selectedLight === "dark"
+                                ? "rgb(69, 67, 63)"
+                                : "white",                       
+                        }}
+                    >
+                        <p style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Are you sure you want to leave the group?</p>
                         <button className="confirm-leave-button" onClick={handleConfirmLeave}>Leave</button>
                         <button className="cancel-leave-button" onClick={handleCancelLeave}>Cancel</button>
                     </div>
@@ -383,9 +481,18 @@ function RoomPage() {
             {/* Room Settings */}
             {showSettings && (
                 <div className="confirmation-modal">
-                    <div className="confirmation-content">
+                    <div className="confirmation-content"
+                        style={{
+                            backgroundColor:
+                                selectedLight === "light"
+                                ? "rgb(255, 255, 255)"
+                                : selectedLight === "dark"
+                                ? "rgb(69, 67, 63)"
+                                : "rgb(255, 255, 255)"
+                        }}
+                    >
                         <div className="settings-header">
-                            <h2>Room Settings</h2>
+                            <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Room Settings</h2>
                         </div>
 
                         {userRole && userRole === 'viewer' && (
@@ -460,27 +567,32 @@ function RoomPage() {
                                 <ul className="room-color-themes">
                                     <li key="color" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px'}}>
                                         Color Themes
-                                        <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Color Dropdown</span>
+                                        {/* <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Color Dropdown</span> */}
                                         <>
                                             <select
+                                                className="room-dropdown"
                                                 value={selectedColor}
-                                                // onChange={handleColorChange}
+                                                onChange={handleColorChange}
                                             >
-                                                <option value="blue">Blue</option>
+                                                <option value="default">Default</option>
                                                 <option value="red">Red</option>
-                                                <option value="purple">Purple</option>
+                                                <option value="orange">Orange</option>
+                                                <option value="yellow">Yellow</option>
                                                 <option value="green">Green</option>
+                                                <option value="blue">Blue</option>
+                                                <option value="purple">Purple</option>
                                                 <option value="pink">Pink</option>
                                             </select>
                                         </>
                                     </li>
                                     <li key="light" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px'}}>
                                         Light Mode
-                                        <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Light Mode Dropdown</span>
+                                        {/* <span style={{ width: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Light Mode Dropdown</span> */}
                                         <>
                                             <select
-                                                value={selectedColor}
-                                                // onChange={handleLightChange}
+                                                className="room-dropdown"
+                                                value={selectedLight}
+                                                onChange={handleLightChange}
                                             >
                                                 <option value="light">Light Mode</option>
                                                 <option value="dark">Dark Mode</option>
@@ -492,7 +604,7 @@ function RoomPage() {
                         )}
 
                         <div style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
-                            <button className="a-button" onClick={handleCloseRoomSettings}>Save</button>
+                            <button className="dynamic-button" onClick={handleCloseRoomSettings}>Save</button>
                             <button className="b-button" onClick={handleCloseRoomSettings}>Cancel</button>
                         </div>
                         
