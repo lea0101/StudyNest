@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { auth, storage } from "../../config/firebase";
 import { addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
@@ -12,6 +12,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const inputFile = useRef(null);
   const { uid, displayName, photoURL } = auth.currentUser;
+
 
   const handleUpload = () => {
     inputFile.current?.click();
@@ -36,7 +37,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
   const sendChat = async (e) => {
     e.preventDefault();
     setIsEnabled(false);
-    // file handling 
+    // file handling
     const file = inputFile.current.files[0];
     console.log(file)
     if (file) {
@@ -77,8 +78,6 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
         updateDb();
       }
     }
-
-    scroll.current.scrollIntoView({ behavior: "smooth" });
   };
 
 
@@ -103,6 +102,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
           inputFile.current.type = "file";
       }
       document.querySelector("#file_button").classList.remove('is-loading', 'is-completed');
+      scroll.current.scrollIntoView({ behavior: "smooth" });
       setIsEnabled(true);
     });
   }
@@ -111,7 +111,9 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
 
 
   return (
-    <form className="chat_bar" onSubmit={(event) => sendChat(event)} >
+    <form className="chat_bar"
+      autoComplete="off"
+      onSubmit={(event) => sendChat(event)} >
 
       <div className="button_container">
         <input id='file_upload_button' onChange={() => handleButtonAnimation()}  type='file' accept='image/*,.gif' ref={inputFile} hidden/>
