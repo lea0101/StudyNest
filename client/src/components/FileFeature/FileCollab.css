@@ -1,18 +1,48 @@
 .files-sidebar {
     margin-left: 50px;
     align-items: left;
-    padding: 0;
     width: 200px;
     background-color: #f1f1f1;
     height: 100%;
     overflow: auto;
 }
 
-.sidebar-file-selection {
-    display: block;
-    color: black;
-    padding: 16px;
-    text-decoration: none;
+.files-mainviewer {
+    overflow: scroll;
 }
 
+.file-viewer {
+    margin-left: 100px;
+    width: 50vw;
+    flex-grow: 1;
+}
 
+.file-viewer-container {
+    overflow-y: scroll;
+    max-height: 700px;
+}
+
+.file-list-button {
+    width: 100%;
+    border: none;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    border-bottom: 3px solid #DDDDDD;
+}
+
+.file-form-button {
+    border: 2px solid #DDDDDD;
+    border-radius: 5px;
+    background-color: #EEEEEE;
+    width: 75%;
+}
+
+.container {
+    display: flex;
+}
+
+.file-upload-selection {
+    font-size: small;
+    margin-left: 1px;
+    margin-right: 1px;
+}
