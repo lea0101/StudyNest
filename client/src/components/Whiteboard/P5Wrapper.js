@@ -12,14 +12,14 @@ import {
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
+const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent }) => {
     const sketchRef = useRef(null);
     let [strokes, setStrokes] = useState([]);
     let [selection, setSelection] = useState([]);
 
     useEffect(() => {
         const q = query(
-            collection(db, "strokes")
+            collection(db, `strokes-${roomCode}`)
         );
         const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
             const fetchedStrokes = [];
@@ -35,7 +35,7 @@ const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
     }, []);
 
     async function addStroke(stroke) {
-        const docRef = await addDoc(collection(db, "strokes"), {...stroke.toJSON(), createdAt: serverTimestamp()});
+        const docRef = await addDoc(collection(db, `strokes-${roomCode}`), {...stroke.toJSON(), createdAt: serverTimestamp()});
         stroke.setID(docRef);
         strokes.push(stroke);
         setStrokes([...strokes]);
@@ -122,6 +122,7 @@ const P5Wrapper = ({ tool, color, fill, clearEvent, setClearEvent }) => {
                     p.stroke(0);
                     p.strokeWeight(1);
                     p.rect(minX, minY, maxX - minX, maxY - minY);
+                    p.text(`strokes-${roomCode}`, p.width/2, p.height/2);
                 }
             };
 
