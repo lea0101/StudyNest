@@ -95,15 +95,15 @@ const Video = () => {
     return (
         <div className='video-preview-container'>
             <div>
-                <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp}/>
                 <div className='annotation-container'>
-                    <h2>Annotations</h2>
                     <ul>
                         {
                             annotations.filter((annotation) => Math.abs(timestamp - annotation.timestamp) < 5)
                                         .map((annotation, index) => {
                                                 const formattedTimestamp = new Date(annotation.timestamp * 1000).toISOString().substr(11, 8);
-                                                return (<li className="video-annotation"key={index}>
+                                                return (
+                                                <li className="video-annotation"key={index}>
+                                                    <img className="video-annotation-pfp" width="30px" src="https://lh3.googleusercontent.com/a/ACg8ocJ3cmr1ZzLVZ7GHb-Op5LBCDFV2lmCE60THCEnihigz1oh_fQ=s83-c-mo" alt="" />
                                                     <span className="video-annotation-timestamp">{formattedTimestamp}</span>: 
                                                     <span className="video-annotation-text">{annotation.text}</span>
                                                 </li>);
@@ -111,6 +111,7 @@ const Video = () => {
                                         )
                         }
                     </ul>
+                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp}/>
                 </div>
                 <div>
                     <input id="annotationInput" type="text" />

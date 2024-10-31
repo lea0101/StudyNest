@@ -17,8 +17,12 @@ function YouTubePlayer({ videoId, timestamp, onTimeUpdate }) {
         return () => clearInterval(interval);
       }
     }
+    const opts = {
+      height: '500px',
+      width: '1000vw',
+    };
   
-    return <YouTube className="youtube-container" videoId={videoId} onReady={onPlayerReady} onStateChange={onStateChange} />;
+    return <YouTube opts={opts} className="youtube-container" videoId={videoId} onReady={onPlayerReady} onStateChange={onStateChange} />;
 }
 
 export default YouTubePlayer;
