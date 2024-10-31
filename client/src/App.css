@@ -655,7 +655,7 @@ input {
 
 .video-queue-item img {
   border-radius: 4px;
-  margin-right: 12px;
+  /* margin-right: 12px; */
 }
 
 .video-queue-item a {
@@ -740,4 +740,38 @@ input {
   box-sizing: border-box;
   margin-top: 10px;
   transition: background-color 0.3s ease;
+}
+
+.video-thumbnail-holder {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+}
+
+.video-thumbnail-holder img {
+  display: block;
+}
+
+.video-timestamp {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 4px;
+  font-size: 12px;
+  border-radius: 2px;
+}
+
+.add-video-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
