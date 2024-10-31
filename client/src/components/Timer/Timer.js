@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 
-function Timer() {
+function Timer({ roomCode, selectedLight, selectedColor }) {
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
@@ -70,9 +70,18 @@ function Timer() {
     }
 
     return (
-        <div className="timer">
-            <div className="timer-container">
-                <h3 style={{color: "rgb(0, 0, 0)"}}>Study Timer</h3>
+        <div className="timer"
+        style={{
+            "background-color":
+                selectedLight === "light"
+                ? "white"
+                : selectedLight === "dark"
+                ? "rgb(100, 100, 100)"
+                : "white",                       
+        }}>
+            <div className="timer-container"
+            >
+                <h3>Study Timer</h3>
 
                 <div style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
                     <input type="number" placeholder='Hours' value={hoursInput} onChange={(e) => setHoursInput(Number(e.target.value))}></input>
@@ -84,7 +93,7 @@ function Timer() {
                     <button className="dynamic-button" style={{width: "70px"}} onClick={handleRestart}>Restart</button>
                 </div>
 
-                <h1 style={{color: "rgb(0, 0, 0)"}}>{String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</h1>
+                <h1>{String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</h1>
 
             </div>
         </div>
