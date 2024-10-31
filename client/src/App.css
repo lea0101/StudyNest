@@ -786,3 +786,7 @@ input {
   align-items: center;
   z-index: 1000;
 }
+
+#annotationInput {
+  margin-right: 10px;
+}
