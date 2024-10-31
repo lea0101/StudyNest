@@ -717,7 +717,7 @@ input {
   align-items: center;
   background-color: rgba(50, 50, 50, 0.8);
   color: white;
-  border-radius: 20px;
+  border-radius: 30px;
   padding: 10px 15px;
   margin: 5px 0;
   font-size: 14px;
@@ -736,7 +736,7 @@ input {
 }
 
 .video-annotation-text {
-  margin-left: 4px;
+  margin-right: 4px;
 }
 
 .dynamic-button {
