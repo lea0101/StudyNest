@@ -4,12 +4,26 @@
   height: 100vh;
 }
 
+.details {
+  font-size: small;
+  margin: 0px;
+}
+
+.details.them {
+  padding: 0px 5px;
+}
+
+.details.me {
+  padding: 0px 5px;
+  text-align: right;
+  align-self: flex-end;
+}
+
 .imessage {
   width: 600px;
   height: 100%;
-  height: -moz-available;          /* WebKit-based browsers will ignore this. */
+  max-height: -moz-available;          /* WebKit-based browsers will ignore this. */
   height: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
-  height: fill-available;
   overflow: scroll;
   overflow-x: hidden; /* Hide horizontal scrollbar */
   background-color: #fff;
@@ -18,12 +32,14 @@
   display: flex;
   flex-direction: column;
   font-family: "SanFrancisco";
+  padding: 0px;
   font-size: 1.25rem;
   margin: 1rem auto .2rem;
   padding: 0.5rem 1.5rem;
 }
 
 .imessage p {
+  user-select: none;
   border-radius: 1.15rem;
   line-height: 1.25;
   max-width: 75%;
@@ -63,7 +79,7 @@ p.from-me::after {
 }
 
 p[class^="from-"] {
-  margin: 0.5rem 0;
+  margin: 0.25rem 0 0;
   width: fit-content;
 }
 
@@ -76,6 +92,7 @@ p.from-them ~ p.from-them:not(:last-child) {
 }
 
 p.from-them ~ p.from-them:last-child {
+  margin: 0.25rem 0 0;
   margin-bottom: 0.5rem;
 }
 
@@ -83,11 +100,16 @@ p.from-them ~ p.from-them {
   margin: 0.25rem 0 0;
 }
 
+p.from-me:first-child {
+  margin: 0 0 0.25rem;
+}
+
 p.from-me ~ p.from-me:not(:last-child) {
   margin: 0.25rem 0 0;
 }
 
 p.from-me ~ p.from-me:last-child {
+  margin: 0.25rem 0 0;
   margin-bottom: 0.5rem;
 }
 
@@ -139,19 +161,6 @@ p.user-name.them {
  text-align: left;
 }
 
-.namebar:first-child {
-  margin-top:0px;
-}
-
-.namebar {
-  margin-top:20px;
-  display: flex;
-  align-items: center;
-}
-
-.namebar.me {
-  flex-direction: row-reverse;
-}
 
 .no-tail::before {
   display: none;
@@ -181,6 +190,29 @@ p.user-name.them {
   margin-right: 0px;
 }
 
+.namebar:first-child {
+  margin-top:0px;
+}
+
+.namebar {
+  margin-top:20px;
+  display: flex;
+  align-items: center;
+}
+
+.namebar.me {
+  flex-direction: row-reverse;
+}
+
+.msgOptions {
+  text-align: right;
+}
+
+.msgOptions > button {
+  border: none;
+  background: none;
+  color: grey;
+}
 
 
 /* general styling */
@@ -237,6 +269,7 @@ h2 {
 
   .imessage p {
     margin: 0.5rem 0;
+    user-select: none;
   }
 }
 

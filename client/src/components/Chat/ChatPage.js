@@ -1,21 +1,24 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, Fragment, useRef, useState } from "react";
 import {
+  doc,
   query,
   collection,
   orderBy,
   onSnapshot,
   limit,
+  deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { db, auth } from "../../config/firebase";
+import { db } from "../../config/firebase";
 import ChatBar from "./ChatBar";
-//import MessageBox from "./MessageBox"
+import MessageBox from "./MessageBox"
+import SenderInfo from "./SenderInfo"
 import "./Chat.css";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 function ChatPage() {
-  const [user] = useAuthState(auth);
   const [messages, setMessages] = useState([]);
+  const [resets, setResets] = useState(0);
   const scroll = useRef();
 
   const navigate = useNavigate();
@@ -25,8 +28,6 @@ function ChatPage() {
   const dbMsgQuery = collection(db, 'rooms', roomCode, 'messages');
   const roomCode_copy = roomCode;
 
-  //const storageRef = ref(storage, `user_icons/${file.name}`);
-  //const uploadTask = uploadBytesResumable(storageRef, file);
 
   useEffect(() => {
     const q = query(
@@ -45,10 +46,29 @@ function ChatPage() {
       setMessages(sortedMessages);
     });
     return () => unsubscribe;
-  }, [dbMsgQuery]);
+  }, );
 
   const handleGoBack = () => {
     navigate(`/rooms/${roomName}`, { state: {roomCode : roomCode}});
+  }
+
+  const handleMsgCancel = () => {
+    setResets(resets + 1);
+  }
+
+  async function setEditing(msgId, txt) {
+    console.log("Editing");
+    console.log(msgId);
+    console.log(txt);
+    await updateDoc(doc(db, 'rooms', roomCode, 'messages', msgId), {
+      "text" : txt,
+      "updated" : true
+    });
+  }
+
+  async function setDelete(msgId) {
+    console.log("del");
+    await deleteDoc(doc(db, 'rooms', roomCode, 'messages', msgId));
   }
 
   return (
@@ -56,35 +76,20 @@ function ChatPage() {
       <div className="imessage">
         {
           messages?.map((message, i) => {
-            // if the message sender changes
-            const endTags = ((i === messages.length - 1) || message.uid !== messages[i + 1].uid) ? "": "no-tail";
-            const messageOwner = (message.uid === user.uid) ? "me" : "them";
-            const imageSrc = message.imageSrc;
-
             // if there is a change in message sender, add in profile and header
-            if ((i === 0) || (messages[i - 1].uid !== message.uid)) {
+            const endTags = ((i === messages.length - 1) || message.uid !== messages[i + 1].uid) ? "": "no-tail";
               return (
-                <>
-                  <div className={`namebar ${messageOwner}`}>
-                    <img className={`avatar ${messageOwner}`} src={message.avatar} alt="user avatar" />
-                    <p className={`user-name ${messageOwner}`}>{message.name}</p>
-                  </div>
-                  <p key={message.id} className={`from-${messageOwner} ${endTags}`}>
-                    {message.text}
-                    { imageSrc  && <img className="msg_img" src={`${imageSrc}`} alt="error rendering"/> }
-                  </p>
-                </>
+                <Fragment key={i}>
+                  { ((i === 0) || (messages[i - 1].uid !== message.uid)) &&
+                  <SenderInfo message={message} key={`Senderinfo-${i}`} /> }
+                  <MessageBox message={message} resets={resets} handleCancelUpstream={handleMsgCancel} endTags={endTags} handleEditingUpstream={setEditing} handleDeleteUpstream={setDelete} key={message.id}/>
+                </Fragment>
               )
-            }
-            return <p key={message.id} className={`from-${messageOwner} ${endTags}`}>
-                      {message.text}
-                      { imageSrc  && <img className="msg_img" src={`${imageSrc}`} alt="error rendering"/> }
-                   </p>
           })
         }
+      <span ref={scroll}></span>
       </div>
       {/* when a new message enters the chat, the screen scrolls down to the scroll div */}
-      <span ref={scroll}></span>
       <ChatBar scroll={scroll} dbMsgQuery={dbMsgQuery} roomCode={roomCode_copy}/>
       <div className="room-code" onClick={handleGoBack}>
           <p>Go Back</p>

@@ -1,12 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import P5Wrapper from './P5Wrapper';
 import './WhiteBoard.css'
 
+import { useAuthState } from "react-firebase-hooks/auth";
+import { getAuth } from "firebase/auth";
+
+import { db } from "../../config/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
+
+import { useLocation } from 'react-router-dom';
+
 const WhiteBoard = () => {
+    const auth = getAuth();
+    const [user, loading] = useAuthState(auth);
+    
+    const [isAuthorized, setAuthorized] = useState(2);
+
+    const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
+    const roomCode = state?.roomCode;
+
     let [tool, setTool] = useState('ellipse');
     let [color, setColor] = useState('black');
     let [fill, setFill] = useState(false);
     let [clearEvent, setClearEvent] = useState(false);
+
+    useEffect(() => {
+        console.log("useEffect 1");
+
+        if (loading) {
+            return;
+        }
+
+        if (roomCode == undefined) {
+            setAuthorized(1);
+            return;
+        }
+        
+        if (user) {
+            if (roomCode == undefined) {
+                setAuthorized(1);
+                return;
+            }
+            const roomDocRef = doc(db, 'rooms', roomCode);
+            getDoc(roomDocRef).then(doc => {
+                 if (doc.exists()) {
+                    const userList = doc.data().userList || {};
+                    const userInList = Object.values(userList).some(userObj => userObj.uid === user.uid);
+
+                    if (userInList) {
+                        setAuthorized(0); // set authorized if user is in userList
+                    } else {
+                        setAuthorized(1);
+                    }
+                 } else {
+                    setAuthorized(1);
+                 }
+            }).catch(error => {
+                console.error("Error fetching room: ", error);
+                setAuthorized(1);
+            })
+        }
+    }, [loading]);
 
     function getUpdateToolHandler(event) {
         setTool(event.target.id);
@@ -28,6 +83,12 @@ const WhiteBoard = () => {
             }
         }
         event.target.classList.add('selected');
+    }
+
+    if (isAuthorized == 1) {
+        return <NotAuthorizedPage/>
+    } else if (isAuthorized == 2){
+        return <div> Loading... </div>
     }
 
     return (
@@ -57,7 +118,7 @@ const WhiteBoard = () => {
                     <button id="blue" onClick={getUpdateColorHandler}></button>
                 </div>
             </div>
-            <P5Wrapper tool={tool} color={color} fill={fill} clearEvent={clearEvent} setClearEvent={setClearEvent}/>
+            <P5Wrapper roomCode={roomCode} tool={tool} color={color} fill={fill} clearEvent={clearEvent} setClearEvent={setClearEvent}/>
         </div>
     );
 }
