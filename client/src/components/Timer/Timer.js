@@ -7,9 +7,9 @@ function Timer({ roomCode, selectedLight, selectedColor }) {
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
-    const [hoursInput, setHoursInput] = useState(0);
-    const [minutesInput, setMinutesInput] = useState(0);
-    const [secondsInput, setSecondsInput] = useState(0);
+    const [hoursInput, setHoursInput] = useState("");
+    const [minutesInput, setMinutesInput] = useState("");
+    const [secondsInput, setSecondsInput] = useState("");
     const [countdownTime, setCountdownTime] = useState(null);
     const [isActive, setIsActive] = useState(false);
     const [paused, setPaused] = useState(false);
@@ -100,9 +100,9 @@ function Timer({ roomCode, selectedLight, selectedColor }) {
                     clearInterval(intervalRef.current);
                     intervalRef.current = null;
                     resetTimer();
+                    handleComplete();
 
                     console.log("STUDY BREAK TIME!!!");
-                    alert("STUDY BREAK TIME !!!");
                 }
             };
 
@@ -178,6 +178,21 @@ function Timer({ roomCode, selectedLight, selectedColor }) {
             }
         });
     };
+
+    const handleComplete = async () => {
+        // setIsActive(false);
+        // setPaused(false);
+        resetTimer();
+
+        alert("STUDY BREAK TIME !!!");
+    
+        await updateDoc(timerRef, {
+            'timer.timerComplete': true, // Set flag in Firestore
+            'timer.isActive': false,
+            'timer.remainingTime': 0
+        });
+    };
+    
 
     const updateDisplay = (timeLeft) => {
         const newTimeLeft = timeLeft + 1000;
