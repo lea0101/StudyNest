@@ -1,5 +1,7 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { db } from '../../config/firebase';
+import { doc, setDoc, getDoc, count, updateDoc, onSnapshot } from 'firebase/firestore';
 
 function Timer({ roomCode, selectedLight, selectedColor }) {
     const [hours, setHours] = useState(0);
@@ -13,53 +15,145 @@ function Timer({ roomCode, selectedLight, selectedColor }) {
     const [paused, setPaused] = useState(false);
     const [remainingTime, setRemainingTime] = useState(0);
 
+    // firestore reference for timer document
+    const timerRef = doc(db, 'rooms', roomCode);
+    const intervalRef = useRef(null); // store interval reference
+
+    // load timer state from firestore
+    useEffect(() => {
+        const unsubscribe = onSnapshot(timerRef, (doc) => {
+            if (doc.exists) {
+                try {
+                    const timerData = doc.data().timer;
+                    
+                    if (timerData) {
+                        const { countdownTime, remainingTime, isActive, paused } = timerData;
+
+                        if (isActive && countdownTime) {
+                            const adjustedCountdownTime = countdownTime - Date.now();
+                            setCountdownTime(countdownTime);
+                            setIsActive(true);
+                            setPaused(false);
+                            setRemainingTime(adjustedCountdownTime);
+                            updateDisplay(adjustedCountdownTime);
+                        } else if (paused) {
+                            setRemainingTime(remainingTime);
+                            setIsActive(false);
+                            setPaused(true);
+                        } else {
+                            setRemainingTime(remainingTime);
+                            setIsActive(false);
+                            setPaused(false);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error loading timer data: ", error);
+                }
+            }
+        });
+
+        return () => unsubscribe;
+
+        // const loadTimerData = async () => {
+        //     try {
+        //         const timerDoc = await getDoc(timerRef);
+        //         if (timerDoc.exists()) {
+        //             const timerData = timerDoc.data().timer;
+        //             if (timerData) {
+        //                 const { countdownTime, remainingTime, isActive, paused } = timerData;
+
+        //                 if (isActive && countdownTime) {
+        //                     const adjustedCountdownTime = countdownTime - Date.now();
+        //                     setCountdownTime(countdownTime);
+        //                     setIsActive(true);
+        //                     setPaused(paused);
+        //                     setRemainingTime(adjustedCountdownTime);
+        //                     updateDisplay(adjustedCountdownTime);
+        //                 } else {
+        //                     setRemainingTime(remainingTime);
+        //                 }
+        //             }
+        //         }
+        //     } catch (error) {
+        //         console.error("Error loading timer data: ", error);
+        //     }
+        // };
+        // loadTimerData();
+
+    }, [roomCode]);
+
+    // handle countdown timer interval
     useEffect(() => {
         if (isActive && countdownTime) {
-            const interval = setInterval(() => {
-                const now = new Date().getTime();
-                const remainingTime = countdownTime - now;
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
 
-                if (remainingTime > 0) {
-                    setHours(Math.floor(remainingTime / (1000 * 60 * 60)));
-                    setMinutes(Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60)));
-                    setSeconds(Math.floor((remainingTime % (1000 * 60)) / 1000));
-                    setRemainingTime(remainingTime);
+            const tick = () => {
+                const now = Date.now();
+                const timeLeft = countdownTime - now;
+
+                if (timeLeft > 0) {
+                    updateDisplay(timeLeft);
+                    setRemainingTime(timeLeft);
                 } else {
-                    alert("Break time!");
-                    clearInterval(interval);
-                    setIsActive(false);
-                    setPaused(false);
-                    setHours(0);
-                    setMinutes(0);
-                    setSeconds(0);
+                    clearInterval(intervalRef.current);
+                    intervalRef.current = null;
+                    resetTimer();
+
+                    console.log("STUDY BREAK TIME!!!");
+                    alert("STUDY BREAK TIME !!!");
                 }
-            }, 1000);
+            };
 
-            return () => clearInterval(interval);
+            tick();
+            intervalRef.current = setInterval(tick, 1000);
+
+            return () => clearInterval(intervalRef.current);
         }
-    }, [isActive, paused, countdownTime]);
+    }, [isActive, countdownTime]);
 
-    const handleStart = () => {
+    const handleStart = async () => {
         if (isActive && !paused) {
             // pause timer
             setPaused(true);
             setIsActive(false); // stops interval without clearing remaining time
+
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+
+            await updateTimerInFirestore({ paused: true, isActive: false, remainingTime });
         } else if (paused) {
             // resume timer
-            setCountdownTime(Date.now() + remainingTime); // set new target time
+            const newCountdownTime = Date.now() + remainingTime;
+
+            setCountdownTime(newCountdownTime); // set new target time
             setPaused(false);
             setIsActive(true);
+
+            await updateTimerInFirestore({ countdownTime: newCountdownTime, paused: false, isActive: true });
         } else {
             // start timer for the first time
-            const totalSeconds = (hoursInput * 3600) + (minutesInput * 60) + (secondsInput) + 2;
-            setCountdownTime(Date.now() + totalSeconds * 1000);
+            const totalMilliseconds = (hoursInput * 3600 + minutesInput * 60 + secondsInput) * 1000;
+            const endTimestamp = Date.now() + totalMilliseconds;
+
+            setCountdownTime(endTimestamp);
+            setRemainingTime(totalMilliseconds);
+            setPaused(false);
             setIsActive(true);
+
+            // initialize display immediately
+            updateDisplay(totalMilliseconds);
+
+            await updateTimerInFirestore({ countdownTime: endTimestamp, remainingTime: totalMilliseconds, isActive: true, paused: false });
         }
         
     }
 
-    const handleRestart = () => {
+    const resetTimer = () => {
         setIsActive(false);
+        setPaused(false);
         setHours(0);
         setMinutes(0);
         setSeconds(0);
@@ -67,6 +161,37 @@ function Timer({ roomCode, selectedLight, selectedColor }) {
         setMinutesInput("");
         setSecondsInput("");
         setCountdownTime(null);
+        setRemainingTime(0);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+
+    const handleRestart = () => {
+        resetTimer();
+
+        updateDoc(timerRef, {
+            timer: {
+                countdownTime: null,
+                remainingTime: 0,
+                isActive: false,
+                paused: false,
+                initialDuration: 0
+            }
+        });
+    };
+
+    const updateDisplay = (timeLeft) => {
+        const newTimeLeft = timeLeft + 1000;
+        setHours(Math.floor(newTimeLeft / (1000 * 60 * 60)));
+        setMinutes(Math.floor((newTimeLeft % (1000 * 60 * 60)) / (1000 * 60)));
+        setSeconds(Math.floor((newTimeLeft % (1000 * 60)) / 1000));
+    }
+
+    const updateTimerInFirestore = async (timerData) => {
+        try {
+            await updateDoc(timerRef, { timer: timerData });
+        } catch (error) {
+            console.error("Error updating timer in Firestore: ", error);
+        }
     }
 
     return (
@@ -88,7 +213,7 @@ function Timer({ roomCode, selectedLight, selectedColor }) {
                     <input type="number" placeholder='Minutes' value={minutesInput} onChange={(e) => setMinutesInput(Number(e.target.value))}></input>
                     <input type="number" placeholder='Seconds' value={secondsInput} onChange={(e) => setSecondsInput(Number(e.target.value))}></input>
                     <button className="dynamic-button" style={{width: "70px"}} onClick={handleStart}>
-                        {isActive && !paused ? "Pause" : "Start"}
+                        {isActive && !paused ? "Pause" : paused ? "Resume" : "Start"}
                     </button>
                     <button className="dynamic-button" style={{width: "70px"}} onClick={handleRestart}>Restart</button>
                 </div>
