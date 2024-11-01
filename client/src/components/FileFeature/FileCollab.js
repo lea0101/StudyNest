@@ -38,7 +38,7 @@ const FileCollab = () => {
                 <div className="files-sidebar">
                     <h3>Files in this Room</h3>
                     {files.map((val) => (
-                        <button className="file-list-button" onClick={() => setSelectedFile(`file_uploads/${roomName}/${val}`)}>{val}</button>
+                        <button className="file-list-button" onClick={() => setSelectedFile(`file_uploads/${roomName}/${val}`)}>{val.substr(37)}</button>
                     ))}
                     <FileUploader/>
                 </div>

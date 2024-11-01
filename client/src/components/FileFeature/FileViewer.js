@@ -21,7 +21,8 @@ import {
     addDoc,
     doc,
     deleteDoc,
-    serverTimestamp
+    where,
+    getDocs
 } from "firebase/firestore";
 
 interface RenderHighlightProp {
@@ -55,32 +56,26 @@ const FileViewer = (props) => {
                 setURL(url);
                 setInterval(() => setIsLoading(false), 500);
             }).catch(() => setIsLoading(false));
-        const q = query(
-            collection(db, "pdf_notes")
-        );
-        const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
-            const fetchedNotes = [];
+        // Now get the notes already in the file, if existing.
+        const q = query(collection(db, "file_notes"), where("fileUrl", "==", fileName));
+        const querySnapshot = onSnapshot(q, (QuerySnapshot) => {
+            let fetchedNotes = [];
             QuerySnapshot.forEach((doc) => {
                 let thisNote: Note = {
-                    id: ++noteId,
+                    id: doc.data().id,
                     content: doc.data().content,
                     highlightAreas: doc.data().highlightAreas,
                     quote: doc.data().quote,
-                    fileUrl: fileName
+                    fileUrl: doc.data().fileUrl
                 };
-                thisNote.setID(doc.ref);
-                    console.log("Adding " + thisNote.quote);
-
-                if (thisNote?.fileName === fileName) {
-                    fetchedNotes.push(thisNote);
-                }
+                fetchedNotes.push(thisNote);
             });
             setNotes(fetchedNotes);
         });
-        return () => unsubscribe;
+
+        return ()  => q;
     }, []);
 
-    // Handling highlights and notes
     const renderHighlightTarget = (props: RenderHighlightTargetProps) => (
         <div
             style={{
@@ -107,10 +102,12 @@ const FileViewer = (props) => {
     );
 
     async function addNewNote(note) {
+        console.log("adding new note");
+        console.log(note);
         const docRef = await addDoc(collection(db, "file_notes"), note);
-        note.setID(docRef);
         setNotes(notes.concat([note]));
     }
+
     const renderHighlightContent = (props: RenderHighlightContentProps) => {
         const addNote = () => {
             if (message !== '') {
@@ -121,10 +118,8 @@ const FileViewer = (props) => {
                     quote: props.selectedText,
                     fileUrl: fileName
                 };
-                //addNewNote(note);
+                addNewNote(note);
                 props.cancel();
-                // Send note to firestore.
-               //addNote(note); 
             }
         };
         return (
@@ -163,6 +158,8 @@ const FileViewer = (props) => {
             </div>
         );
     };
+    
+    
     const renderHighlights = (props: RenderHighlightsProps) => (
         <div>
             {notes.map((note) => (
@@ -180,16 +177,23 @@ const FileViewer = (props) => {
                                     },
                                     props.getCssProperties(area, props.rotation)
                                 )}
+                                data-tooltip-id={`tooltip-${note.id}`}
+                                data-tooltip-content={note.content}
                             />
                         ))}
+               <Tooltip
+                position={Position.TopCenter}
+                offset={{ left: 0, top: -8 }}
+                key={`tooltip-${note.id}`}
+                id={`tooltip-${note.id}`}
+                />
                 </React.Fragment>
+
             ))}
         </div>
     );
 
     const highlightPluginInstance = highlightPlugin({renderHighlightTarget, renderHighlightContent, renderHighlights});
-
-
 
     if (isLoading) return <p>Loading...</p>;
     else {
@@ -200,7 +204,7 @@ const FileViewer = (props) => {
             return (
             <div className="file-viewer-container">
                 <div className="file-viewer">
-                    <Viewer fileUrl={url}/>
+                    <Viewer fileUrl={url} plugins={[highlightPluginInstance]}/>
                 </div>
              </div>
             );
