@@ -6,6 +6,8 @@ import { db } from "../../config/firebase";
 import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot } from "firebase/firestore";
 import "./UserList.css";
 
+//TODO add clear checkboxes upon sending pinged message
+
 const UserList = ({addPing, removePing, roomCode}) => {
     const [userList, setUserList] = useState([]);
     const auth = getAuth();
@@ -74,7 +76,7 @@ const UserList = ({addPing, removePing, roomCode}) => {
                 displayName: fetchedUsers[index][1]
             }));
 
-            setUserList(updatedUserList);
+            setUserList(updatedUserList.filter(u => u.uid != user.uid));
         });
     });
 
@@ -94,8 +96,8 @@ const UserList = ({addPing, removePing, roomCode}) => {
             {userList.map((user, i) => (
                 // <li key={i}>{user}</li>
                 <label className="listLabel" key={i}>
-                    <input type="checkbox" onChange={e => onCheck(e)} email={user.email} key={i}/>
-                    {user.displayName}
+                    <input className="checkbox" type="checkbox" onChange={e => onCheck(e)} email={user.email} key={i}/>
+                    <p className="name"> {user.displayName} </p>
                 </label>
             ))}
         </div>

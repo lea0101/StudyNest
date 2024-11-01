@@ -5,15 +5,22 @@ import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faPaperPlane, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { v4 as uuidv4 } from "uuid";
+import Emaill from "./Emaill"
+import UserList from "./UserList";
 import "./ChatBar.css";
 
-const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
+const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
   const [message, setMessage] = useState("");
   const [isEnabled, setIsEnabled] = useState(true);
+  const [pingEnabled, setPingEnabled] = useState(true);
+  const [pingList, setPingList] = useState([]);
   const inputFile = useRef(null);
-  const { uid, displayName, photoURL } = auth.currentUser;
+  const { uid, displayName, photoURL, email } = auth.currentUser;
 
 
+  /*
+   * UPLOAD FUNCTIONS
+   */
   const handleUpload = () => {
     inputFile.current?.click();
     return
@@ -34,9 +41,17 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
   }
 
 
-  const sendChat = async (e) => {
+  /*
+   * CHAT FUNCTIONS
+   */
+  const sendChatEvent = async (e) => {
     e.preventDefault();
+    sendChat();
+  }
+
+  function sendChat() {
     setIsEnabled(false);
+    setPingEnabled(false);
     // file handling
     const file = inputFile.current.files[0];
     console.log(file)
@@ -44,11 +59,13 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
       if (file.type.substring(0, 6) !== 'image/' && file.type !== '.gif') {
         alert("File must be of gif or image.");
         setIsEnabled(true);
+        setPingEnabled(true);
         return;
       }
       if (file.size > 10000000) {
         alert("File size must not exceed 10MB.");
         setIsEnabled(true);
+        setPingEnabled(true);
         return;
       }
       const storageRef = ref(storage, `message_data/${roomCode}/${uuidv4()}-${file.name}`);
@@ -72,6 +89,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
       if (message.trim() === "" && !file) {
         alert("Error cannot send empty message");
         setIsEnabled(true);
+        setPingEnabled(true);
         return;
       } else {
         console.log("sending normally")
@@ -81,11 +99,11 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
   };
 
 
-  async function updateDb(url) {
+  function updateDb(url) {
     //document.querySelector("#airplane").classList.add('fly');
     url = url ? url : "";
     console.log("updating DB with the following: " + url)
-    await addDoc(dbMsgQuery, { // TODO make new collection per group
+    addDoc(dbMsgQuery, { // TODO make new collection per group
       text: message,
       name: displayName,
       avatar: photoURL,
@@ -103,17 +121,39 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
       }
       document.querySelector("#file_button").classList.remove('is-loading', 'is-completed');
       scroll.current.scrollIntoView({ behavior: "smooth" });
+      setPingEnabled(true);
       setIsEnabled(true);
     });
   }
 
+  /*
+   * PING FUNCTIONS
+   */
+
+  function addPing(email) {
+    setPingList([...pingList, email]);
+    console.log(auth.currentUser);
+    console.log(pingList);
+  }
+
+  function removePing(email) {
+    setPingList(pingList.filter(e => e != email));
+    console.log(pingList);
+  }
+
+  function sendPingHandler() {
+    sendChat();
+  }
 
 
 
+  /*
+   * RETURN
+   */
   return (
     <form className="chat_bar"
       autoComplete="off"
-      onSubmit={(event) => sendChat(event)} >
+      onSubmit={(event) => sendChatEvent(event)} >
 
       <div className="button_container">
         <input id='file_upload_button' onChange={() => handleButtonAnimation()}  type='file' accept='image/*,.gif' ref={inputFile} hidden/>
@@ -139,6 +179,8 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode }) => {
       <button className="send_button button" type="submit" disabled={!isEnabled}>
         <FontAwesomeIcon icon={faPaperPlane} id='airplane' className={`plane ${isEnabled ? "" : "is-sent"}`}/>
       </button>
+      <UserList addPing={addPing} removePing={removePing} roomCode={roomCode}/>
+      <Emaill isEnabled={pingEnabled} message={message} roomName={roomName} recipients={pingList} sendPingHandler={sendPingHandler}/>
     </form>
   );
 };
