@@ -13,6 +13,12 @@ import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import { HighlightArea, SelectionData, highlightPlugin, RenderHighlightTargetProps, RenderHighlightContentProps, MessageIcon, RenderHighlightsProps } from '@react-pdf-viewer/highlight';
 import '@react-pdf-viewer/highlight/lib/styles/index.css';
 import { TiMessage } from "react-icons/ti";
+import { Tooltip as ReactTooltip } from "react-tooltip";
+import 'react-tooltip/dist/react-tooltip.css';
+import { SelectionMode } from '@react-pdf-viewer/selection-mode';
+
+import { toolbarPlugin } from '@react-pdf-viewer/toolbar';
+
 
 import {
     query,
@@ -35,9 +41,12 @@ interface Note {
     highlightAreas: HighlightArea[];
     quote: string;
     fileUrl: string;
+    posterDisplayName: string;
 }
 
 const FileViewer = (props) => {
+    var [user] = useAuthState(auth);
+    var userDisplayName = user.displayName;
     // Get the file url from firebase
     const [ numPages, setNumPages ] = useState(null);
     const [ pageNumber, setPageNumber ] = useState(1);
@@ -47,8 +56,10 @@ const FileViewer = (props) => {
 
     const [ message, setMessage ] = useState('');
     const [ notes, setNotes ] = useState([]);
+    const [ sidebarNotes, setSidebarNotes ] = useState([]);
     let noteId = notes.length;
     const fileName = props.file;
+
 
     useEffect(() => {
         getDownloadURL(ref(storage, fileName))
@@ -66,7 +77,8 @@ const FileViewer = (props) => {
                     content: doc.data().content,
                     highlightAreas: doc.data().highlightAreas,
                     quote: doc.data().quote,
-                    fileUrl: doc.data().fileUrl
+                    fileUrl: doc.data().fileUrl,
+                    posterDisplayName: doc.data().posterDisplayName
                 };
                 fetchedNotes.push(thisNote);
             });
@@ -102,10 +114,10 @@ const FileViewer = (props) => {
     );
 
     async function addNewNote(note) {
-        console.log("adding new note");
         console.log(note);
         const docRef = await addDoc(collection(db, "file_notes"), note);
         setNotes(notes.concat([note]));
+        setSidebarNotes(sidebarNotes.concat([note.content]));
     }
 
     const renderHighlightContent = (props: RenderHighlightContentProps) => {
@@ -116,7 +128,8 @@ const FileViewer = (props) => {
                     content: message,
                     highlightAreas: props.highlightAreas,
                     quote: props.selectedText,
-                    fileUrl: fileName
+                    fileUrl: fileName,
+                    posterDisplayName: userDisplayName,
                 };
                 addNewNote(note);
                 props.cancel();
@@ -159,34 +172,47 @@ const FileViewer = (props) => {
         );
     };
     
-    
     const renderHighlights = (props: RenderHighlightsProps) => (
         <div>
             {notes.map((note) => (
-                <React.Fragment key={note.id}>
-                    {note.highlightAreas
+                <React.Fragment key={note.id} >
+                    <div key={`${note.id}-tooltipContainer`} className='tooltip-container'>
+                        {note.highlightAreas
                         .filter((area) => area.pageIndex === props.pageIndex)
-                        .map((area, idx) => (
-                            <div
-                                key={idx}
-                                style={Object.assign(
-                                    {},
-                                    {
-                                        background: 'yellow',
-                                        opacity: 0.4,
-                                    },
-                                    props.getCssProperties(area, props.rotation)
-                                )}
-                                data-tooltip-id={`tooltip-${note.id}`}
-                                data-tooltip-content={note.content}
-                            />
-                        ))}
-               <Tooltip
-                position={Position.TopCenter}
-                offset={{ left: 0, top: -8 }}
-                key={`tooltip-${note.id}`}
-                id={`tooltip-${note.id}`}
-                />
+                        .map((area, idx) => {
+                            if (idx === 0) {
+                                return (
+                                    <React.Fragment key={`${idx}-frag`}>
+                                    <div key={idx} style={Object.assign( {},
+                                            props.getCssProperties(area, props.rotation)
+                                            )}
+                                            className="highlight-block"
+                                    />
+                                        <div  key={`${idx}-floatingbox`} style={Object.assign( {}, 
+                                            props.getCssProperties(area, props.rotation)
+                                            )}
+                                        >
+                                            <div className="note-info-tooltip" >
+                                                <p>
+                                                <strong>{note.posterDisplayName}:</strong> {note.content}</p>
+                                            </div>
+                                        </div>
+
+                                    </React.Fragment>
+                                );
+                            }
+                                return (
+                                    <React.Fragment key={`${idx}-frag`}>
+                                    <div key={idx} style={Object.assign( {},
+                                            props.getCssProperties(area, props.rotation)
+                                            )}
+                                            className="highlight-block">
+                                    </div>
+                                    </React.Fragment>
+                                );
+                        }
+                        )}
+                    </div>
                 </React.Fragment>
 
             ))}
@@ -194,7 +220,6 @@ const FileViewer = (props) => {
     );
 
     const highlightPluginInstance = highlightPlugin({renderHighlightTarget, renderHighlightContent, renderHighlights});
-
     if (isLoading) return <p>Loading...</p>;
     else {
         if (!url) {

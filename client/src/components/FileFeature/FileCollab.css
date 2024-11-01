@@ -47,3 +47,45 @@
     margin-right: 1px;
 }
 
+.note-info-tooltip {
+    visibility: hidden;
+    min-width: 50px;
+    min-height: 50px;
+    width: fit-content;
+    height: fit-content;
+    background-color: rgba(42, 130, 218,1 );
+    border: 1px solid #fbc02d;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    opacity: 100%;
+    float: right;
+    p {
+        color: black;
+        font-size: 9px;
+        text-align: left;
+        float: left;
+        margin: 10px;
+        z-index: 50;
+    }
+    position: relative;
+    z-index: 15;
+}
+
+.highlight-block {
+    z-index: 5;
+    background-color: rgba(255, 255, 0, .4);
+    margin: 0 auto;
+}
+
+.tooltip-container:hover .note-info-tooltip {
+    visibility: visible;
+}
+
+.poster-name {
+    font-weight: bold;
+}
+

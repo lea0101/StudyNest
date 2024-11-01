@@ -25,7 +25,6 @@ const FileCollab = () => {
         const urls = await getFileList();
         setFiles(urls);
     };
-
     loadFiles();
     return (
         <div className="module">
@@ -38,7 +37,7 @@ const FileCollab = () => {
                 <div className="files-sidebar">
                     <h3>Files in this Room</h3>
                     {files.map((val) => (
-                        <button className="file-list-button" onClick={() => setSelectedFile(`file_uploads/${roomName}/${val}`)}>{val.substr(37)}</button>
+                        <button className="file-list-button" key={val.substr(0,37)} onClick={() => setSelectedFile(`file_uploads/${roomName}/${val}`)}>{val.substr(37)}</button>
                     ))}
                     <FileUploader/>
                 </div>
