@@ -655,7 +655,7 @@ input {
 
 .video-queue-item img {
   border-radius: 4px;
-  margin-right: 12px;
+  /* margin-right: 12px; */
 }
 
 .video-queue-item a {
@@ -672,12 +672,14 @@ input {
 
 .annotation-container {
   /* width: 350px; */
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
+  /* border: 1px solid #ddd; */
+  /* border-radius: 8px; */
+  /* padding: 16px; */
   font-family: Arial, sans-serif;
   background-color: #f9f9f9;
-  overflow-y: auto; /* Scrollable if content exceeds height */
+  position: relative; /* Make the container a positioned ancestor */
+    height: 100%; /* Set to the height you need */
+
 }
 
 .annotation-container h2 {
@@ -692,42 +694,51 @@ input {
 }
 
 .annotation-container ul {
-  height: 60px; /* Set a fixed height for scrolling */
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
+  position: absolute; /* Positioning to overlap */
+  bottom: 10%; /* Adjust this value to move the ul higher or lower */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Center the ul by offsetting its width */
+  border-radius: 20px; /* Rounded corners */
+  color: white; /* Text color */
+  padding: 10px; /* Padding for spacing */
+  max-height: 30%; /* Optional: max height for scrolling */
+  overflow-y: auto; /* Enable vertical scrolling if needed */
+  width: 100%; /* Set width as needed */
+  z-index: 10; /* Ensure it appears above the YouTube player */
+  list-style-type: none; /* Remove bullet points */
+  margin: 0; /* Remove margin */
+  display: flex; /* Enable flexbox for items inside */
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center items horizontally */
 }
 
 .video-annotation {
   display: flex;
-  padding: 8px 0;
-  border-bottom: 1px solid #ddd;
+  align-items: center;
+  background-color: rgba(50, 50, 50, 0.8);
+  color: white;
+  border-radius: 30px;
+  padding: 10px 15px;
+  margin: 5px 0;
   font-size: 14px;
-  color: #333;
-  transition: background-color 0.3s ease;
 }
 
-.video-annotation:hover {
-  background-color: #f0f0f0;
+.video-annotation-pfp {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
 }
 
 .video-annotation-timestamp {
-  width: 70px;
-  color: #888;
-  font-weight: bold;
-  margin-right: 8px;
-  font-family: monospace; /* For a timestamp look */
+  color: #cccccc;
+  margin-right: 5px;
 }
 
 .video-annotation-text {
-  flex: 1;
-  color: #0066cc;
-  text-align: left;
+  margin-right: 4px;
 }
 
-.video-annotation-text:hover {
-  color: #004499;
-}
 .dynamic-button {
   background-color: var(--button-color, #6fb2c5);
   color: black;
@@ -740,4 +751,42 @@ input {
   box-sizing: border-box;
   margin-top: 10px;
   transition: background-color 0.3s ease;
+}
+
+.video-thumbnail-holder {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+}
+
+.video-thumbnail-holder img {
+  display: block;
+}
+
+.video-timestamp {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 4px;
+  font-size: 12px;
+  border-radius: 2px;
+}
+
+.add-video-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#annotationInput {
+  margin-right: 10px;
 }

@@ -9,12 +9,26 @@ import {
     setDoc
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { getAuth } from "firebase/auth";
+import { useAuthState } from "react-firebase-hooks/auth";
+
 
 const Video = () => {
-    
+    const auth = getAuth();
+    const [user, loading] = useAuthState(auth);
     let [timestamp, setTimestamp] = useState(0);
     let [annotations, setAnnotations] = useState([]);
     let [videoId, setVideoId] = useState('');
+    let [displayName, setDisplayName] = useState('');
+    let [photoURL, setPhotoURL] = useState('');
+
+    useEffect(() => {
+        if (user) {
+            setDisplayName(user.displayName);
+            setPhotoURL(user.photoURL);
+        }
+    }
+    , [loading, user]);
 
     useEffect(() => {
         // fetch annotations for the video
@@ -69,7 +83,12 @@ const Video = () => {
         console.log(annotations);
         let annotationText = document.getElementById('annotationInput').value;
         document.getElementById('annotationInput').value = '';
+        if (annotationText === '') {
+            return;
+        }
         let annotation = {
+            displayName: displayName,
+            photoURL: photoURL,
             timestamp: timestamp,
             text: annotationText
         };
@@ -95,22 +114,24 @@ const Video = () => {
     return (
         <div className='video-preview-container'>
             <div>
-                <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp}/>
                 <div className='annotation-container'>
-                    <h2>Annotations</h2>
                     <ul>
                         {
-                            annotations.filter((annotation) => Math.abs(timestamp - annotation.timestamp) < 5)
+                            annotations.filter((annotation) => Math.abs(timestamp - annotation.timestamp) < 3)
                                         .map((annotation, index) => {
                                                 const formattedTimestamp = new Date(annotation.timestamp * 1000).toISOString().substr(11, 8);
-                                                return (<li className="video-annotation"key={index}>
-                                                    <span className="video-annotation-timestamp">{formattedTimestamp}</span>: 
+                                                return (
+                                                <li className="video-annotation"key={index}>
+                                                    <img className="video-annotation-pfp" width="30px" src={annotation.photoURL} alt="" />
+                                                    <span className='video-annotation-text'>{annotation.displayName}</span>
+                                                    <span className="video-annotation-timestamp">{formattedTimestamp}</span> 
                                                     <span className="video-annotation-text">{annotation.text}</span>
                                                 </li>);
                                             }
                                         )
                         }
                     </ul>
+                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp}/>
                 </div>
                 <div>
                     <input id="annotationInput" type="text" />

@@ -11,6 +11,7 @@ import { db } from "../../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
 import { useDropzone } from 'react-dropzone';
+import { v4 as uuidv4 } from 'uuid';
 
 const baseStyle = {
   flex: 1,
@@ -93,7 +94,7 @@ function FileUploader() {
             alert(`File size must not exceed ${maxFileSizeMB} MB.`);
             return;
         }
-        const storageRef = ref(storage, `file_uploads/${roomName}/${file.name}`);
+        const storageRef = ref(storage, `file_uploads/${roomName}/${uuidv4()}-${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
         uploadTask.on("state_changed",
             (snapshot) => {},
