@@ -78,7 +78,7 @@ const UserList = ({addPing, removePing, roomCode}) => {
 
             setUserList(updatedUserList.filter(u => u.uid != user.uid));
         });
-    });
+    }, []);
 
     function onCheck (e) {
         let isChecked = e.target.checked;
