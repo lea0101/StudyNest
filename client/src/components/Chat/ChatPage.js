@@ -32,7 +32,6 @@ function ChatPage() {
   const dbMsgQuery = collection(db, 'rooms', roomCode, 'messages');
   const roomCode_copy = roomCode;
 
-
   useEffect(() => {
     const q = query(
       dbMsgQuery,
