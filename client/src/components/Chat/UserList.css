@@ -17,7 +17,8 @@
 
 .name{
   padding: 2px;
-  width: -webkit-fill-available;
+  width: -moz-available;          /* WebKit-based browsers will ignore this. */
+  width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
   margin: auto;
 }
 

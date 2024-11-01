@@ -27,8 +27,8 @@ const Emaill = ({message, roomName, recipients, sendPingHandler, isEnabled}) => 
       alert("Cannot send a ping to nobody!");
     } else {
       sendPingHandler();
-    console.log(params);
-    return
+    //console.log(params);
+    //return
 
       emailjs.send('service_StudyNe3st', 'template_StudyNe3st', params, {
         publicKey: '_I8OBU3d80WJA-Nb3',
@@ -50,13 +50,6 @@ const Emaill = ({message, roomName, recipients, sendPingHandler, isEnabled}) => 
     <button disabled={!isEnabled} className="send_button button" onClick={sendEmail}> 
       <FontAwesomeIcon icon={faBell} fixedWidth /> 
     </button>
-    //<form ref={form} onSubmit={sendEmail} user_name={displayName}>
-    //  <label>Email</label>
-    //  <input type="email" name="user_email" />
-    //  <label>Message</label>
-    //  <textarea name="message"/>
-    //  <input type="submit" value="Send" />
-    //</form>
   );
 };
 

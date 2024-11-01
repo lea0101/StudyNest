@@ -15,7 +15,7 @@ import MessageBox from "./MessageBox"
 import SenderInfo from "./SenderInfo"
 import "./Chat.css";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Resend } from 'resend';
+//import { Resend } from 'resend';
 
 
 //const resend = new Resend('re_2vVpeYrf_4Dt6JDWhoohHqCXezSFgyj7J');
@@ -61,39 +61,39 @@ function ChatPage() {
   }
 
 
-const sendMail = async () => {
-  //console.log('cr')
-//    // Simple POST request with a JSON body using fetch
-//    const requestOptions = {
+//const sendMail = async () => {
+//  //console.log('cr')
+////    // Simple POST request with a JSON body using fetch
+////    const requestOptions = {
+////        method: 'POST',
+////        headers: { 'Content-Type': 'application/json' },
+////        body: JSON.stringify({ title: 'React POST Request Example' })
+////    };
+////    fetch('https://reqres.in/api/posts', requestOptions)
+////        .then(response => response.json())
+////        .then(data =>console.log({ postId: data.id }));
+////}
+//  //
+//  //
+//  //
+//    const res = await fetch('https://api.resend.com/emails', {
 //        method: 'POST',
-//        headers: { 'Content-Type': 'application/json' },
-//        body: JSON.stringify({ title: 'React POST Request Example' })
-//    };
-//    fetch('https://reqres.in/api/posts', requestOptions)
-//        .then(response => response.json())
-//        .then(data =>console.log({ postId: data.id }));
-//}
-  //
-  //
-  //
-    const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer re_2vVpeYrf_4Dt6JDWhoohHqCXezSFgyj7J`
-        },
-        body: JSON.stringify({
-            from: 'Test <kaleagin1@gmail.com>',
-            to: ['dungeonstag@gmail.com'],
-            subject: 'yo, hello world',
-            html: '<b>Important message...</b>',
-        })
-    });
+//        headers: {
+//            'Content-Type': 'application/json',
+//            'Authorization': `Bearer re_2vVpeYrf_4Dt6JDWhoohHqCXezSFgyj7J`
+//        },
+//        body: JSON.stringify({
+//            from: 'Test <kaleagin1@gmail.com>',
+//            to: ['dungeonstag@gmail.com'],
+//            subject: 'yo, hello world',
+//            html: '<b>Important message...</b>',
+//        })
+//    });
 
-   const data = await res.json();
-   return data;
-   // Don't forget to check status and error handling
-};
+//   const data = await res.json();
+//   return data;
+//   // Don't forget to check status and error handling
+//};
 
 
 
