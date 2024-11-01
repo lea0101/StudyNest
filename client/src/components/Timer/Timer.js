@@ -180,8 +180,6 @@ function Timer({ roomCode, selectedLight, selectedColor }) {
     };
 
     const handleComplete = async () => {
-        // setIsActive(false);
-        // setPaused(false);
         resetTimer();
 
         alert("STUDY BREAK TIME !!!");
