@@ -22,7 +22,7 @@ const Emaill = ({message, roomName, recipients, sendPingHandler, isEnabled}) => 
     console.log("EMAIL")
     console.log(recipients)
     if (message === "" ) {
-      alert("Cannot send empty message!");
+      alert("Cannot send empty ping!");
     } else if (recipients.length === 0) {
       alert("Cannot send a ping to nobody!");
     } else {
