@@ -1,0 +1,13 @@
+.listContainer {
+  top: 10px;
+  left: 10px;
+  position: absolute;
+  text-align: center;
+  font-size:20px;
+}
+
+.listLabel {
+  width: auto;
+  text-align: center;
+  font-size: 12px;
+}
