@@ -124,6 +124,17 @@ body, html {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+.timer {
+  background-color: rgb(255, 255, 255);
+  width: 100%;
+  max-width: 500px;
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
 .google-signin-button, .guest-signin-button, .go-to-login-button, .go-to-signup-button, .cancel-button, .b-button {
   background-color: #f0f0f0;
   border: 1px solid #ccc;

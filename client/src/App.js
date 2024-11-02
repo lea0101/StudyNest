@@ -18,8 +18,12 @@ import UserSettings from "./components/Settings/UserSettings";
 import NotFoundPage from './Pages/NotFoundPage';
 import NotAuthorizedPage from "./Pages/NotAuthorizedPage";
 
+import { TimerProvider } from './components/Timer/TimerContext';
+
 function App() {
   const [user] = useAuthState(auth);
+
+  const roomCode = "7wa39o";
 
   return (
     <div className="App">
@@ -41,6 +45,7 @@ function App() {
           <Route path="/rooms/:roomName/filecollab" element={<ProtectedRoute><FileCollab /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/video" element={<ProtectedRoute><Video /></ProtectedRoute>} />
           <Route path="/join/:roomCode" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
+
           {/* catch-all route for undefined paths */}
           <Route path="/not-authorized" element={<NotAuthorizedPage />} />
           <Route path="*" element={< NotFoundPage />} />

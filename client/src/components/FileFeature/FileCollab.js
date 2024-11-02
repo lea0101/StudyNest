@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { storage, auth } from '../../config/firebase';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, listAll, getDownloadURL, uploadBytesResumable } from "firebase/storage";
@@ -21,11 +21,15 @@ const FileCollab = () => {
         return Promise.all(urlPromises);
     };
 
-    const loadFiles = async () => {
+    const loadFilesHandler = async () => {
         const urls = await getFileList();
         setFiles(urls);
     };
-    loadFiles();
+
+    useEffect(() => {
+      loadFilesHandler();
+     }, []);
+
     return (
         <div className="module">
             <NavBar />
@@ -39,7 +43,7 @@ const FileCollab = () => {
                     {files.map((val) => (
                         <button className="file-list-button" key={val.substr(0,37)} onClick={() => setSelectedFile(`file_uploads/${roomName}/${val}`)}>{val.substr(37)}</button>
                     ))}
-                    <FileUploader/>
+                    <FileUploader loadFilesHandler={loadFilesHandler}/>
                 </div>
         <br/>
                 <div className="files-mainviewer">

@@ -41,7 +41,7 @@ const rejectStyle = {
   borderColor: '#ff1744'
 };
 
-function FileUploader() {
+function FileUploader({loadFilesHandler}) {
   const maxFileSizeMB = 3;
   const { state } = useLocation(); 
   const roomName = state?.roomCode;
@@ -109,6 +109,7 @@ function FileUploader() {
                     {
                     });
             });
+       loadFilesHandler();
   }
   return (
     <div className="FileUploader">

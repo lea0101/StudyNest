@@ -11,10 +11,11 @@
   width: 100%;
   width: -moz-available;          /* WebKit-based browsers will ignore this. */
   width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
-  width: stretch;
 }
 
-
+input:focus {
+    outline: none;
+}
 
 .chat_bar {
     display: flex;
@@ -51,6 +52,10 @@
 	 overflow: hidden;
 	 transition: all 0.4s ease-out;
 }
+.button:hover {
+	background-color: #F8F8F8;
+}
+
  .button__success {
 	 font-size: 24px;
 	 display: block;

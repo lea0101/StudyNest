@@ -29,16 +29,6 @@ function RoomPage() {
 
     const [selectedColor, setSelectedColor] = useState("default");
     const [selectedLight, setSelectedLight] = useState("light");
-    // const colorMapping = {
-    //     default: '#6fb2c5',
-    //     red: 'rgb(217, 91, 91)',
-    //     orange: 'rgb(227, 153, 75)',
-    //     yellow: 'rgb(245, 227, 125)',
-    //     green: 'rgb(93, 156, 105)',
-    //     blue: 'rgb(45, 91, 166)',
-    //     purple: 'rgb(165, 132, 224)',
-    //     pink: 'rgb(242, 170, 213)'
-    // }
 
     /* listening to changes to determine whether a user is authorized to access a specific room */
     useEffect(() => {
@@ -400,7 +390,7 @@ function RoomPage() {
             <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
             <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
             <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
-            {/* <Timer /> */}
+            <Timer roomCode={roomCode} selectedLight={selectedLight} selectedColor={selectedColor} />
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
