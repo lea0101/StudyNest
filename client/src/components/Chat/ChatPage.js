@@ -49,7 +49,7 @@ function ChatPage() {
       setMessages(sortedMessages);
     });
     return () => unsubscribe;
-  }, );
+  }, []);
 
   const handleGoBack = () => {
     navigate(`/rooms/${roomName}`, { state: {roomCode : roomCode}});
