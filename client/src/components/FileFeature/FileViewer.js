@@ -13,12 +13,13 @@ import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import { HighlightArea, SelectionData, highlightPlugin, RenderHighlightTargetProps, RenderHighlightContentProps, MessageIcon, RenderHighlightsProps } from '@react-pdf-viewer/highlight';
 import '@react-pdf-viewer/highlight/lib/styles/index.css';
 import { TiMessage } from "react-icons/ti";
+import { FaHighlighter } from "react-icons/fa";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import 'react-tooltip/dist/react-tooltip.css';
 import { SelectionMode } from '@react-pdf-viewer/selection-mode';
+import { v4 as uuidv4 } from 'uuid';
 
 import { toolbarPlugin } from '@react-pdf-viewer/toolbar';
-
 
 import {
     query,
@@ -110,11 +111,32 @@ const FileViewer = (props) => {
                 content={() => <div style={{ width: '100px' }}>Add a note</div>}
                 offset={{ left: 0, top: -8 }}
             />
+            <Tooltip
+                position={Position.TopCenter}
+                target={
+                    <Button onClick={(event) => addHighlight(props)}>
+                        <FaHighlighter />
+                    </Button>
+                }
+                content={() => <div style={{ width: '100px' }}>Highlight selection</div>}
+                offset={{ left: 0, top: -8 }}
+            />
         </div>
     );
 
+    function addHighlight(props) {
+        const note: Note = {
+            id: ++noteId,
+            content: "",
+            highlightAreas: props.highlightAreas,
+            quote: props.selectedText,
+            fileUrl: fileName,
+            posterDisplayName: userDisplayName,
+        };
+        addNewNote(note);
+    }
+
     async function addNewNote(note) {
-        console.log(note);
         const docRef = await addDoc(collection(db, "file_notes"), note);
         setNotes(notes.concat([note]));
         setSidebarNotes(sidebarNotes.concat([note.content]));
@@ -175,15 +197,16 @@ const FileViewer = (props) => {
     const renderHighlights = (props: RenderHighlightsProps) => (
         <div>
             {notes.map((note) => (
-                <React.Fragment key={note.id} >
+                <React.Fragment key={`${uuidv4()}${note.id}`} >
                     <div key={`${note.id}-tooltipContainer`} className='tooltip-container'>
                         {note.highlightAreas
                         .filter((area) => area.pageIndex === props.pageIndex)
                         .map((area, idx) => {
                             if (idx === 0) {
+                                if (note.content !== '') {
                                 return (
-                                    <React.Fragment key={`${idx}-frag`}>
-                                    <div key={idx} style={Object.assign( {},
+                                    <React.Fragment key={`${idx}-fragment`}>
+                                    <div key={`${idx}-highlight`} style={Object.assign( {},
                                             props.getCssProperties(area, props.rotation)
                                             )}
                                             className="highlight-block"
@@ -200,10 +223,11 @@ const FileViewer = (props) => {
 
                                     </React.Fragment>
                                 );
+                                }
                             }
                                 return (
                                     <React.Fragment key={`${idx}-frag`}>
-                                    <div key={idx} style={Object.assign( {},
+                                    <div key={`${idx}-highlightBlock`} style={Object.assign( {},
                                             props.getCssProperties(area, props.rotation)
                                             )}
                                             className="highlight-block">
