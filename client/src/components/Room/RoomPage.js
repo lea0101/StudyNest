@@ -3,6 +3,11 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NavBar from '../Home/NavBar';
 import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 import Timer from "../Timer/Timer";
+import BrainBreakPage from "../BrainBreak/BrainBreakPage";
+
+import { useRoomSettings } from "./RoomSettingsContext";
+
+import '../BrainBreak/BrainBreak.css'
 
 
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -27,8 +32,9 @@ function RoomPage() {
 
     const [userRole, setUserRole] = useState('');
 
-    const [selectedColor, setSelectedColor] = useState("default");
-    const [selectedLight, setSelectedLight] = useState("light");
+    // const [selectedColor, setSelectedColor] = useState("default");
+    // const [selectedLight, setSelectedLight] = useState("light");
+    const { selectedColor, setSelectedColor, selectedLight, setSelectedLight }  = useRoomSettings();
 
     /* listening to changes to determine whether a user is authorized to access a specific room */
     useEffect(() => {
@@ -294,6 +300,10 @@ function RoomPage() {
         navigate(`/rooms/${roomName}/video`, { state: {roomCode : roomCode}});
     }
 
+    const handleEnterBrainBreak = () => {
+        navigate(`/rooms/${roomName}/brainbreak`, { state: {roomCode : roomCode}});
+    }
+
     // handle role change
     const handleRoleChange = async (userItem, newRole) => {
         const roomRef = doc(db, 'rooms', roomCode);
@@ -491,6 +501,11 @@ function RoomPage() {
                     </div>
                 </div>
             )}
+
+            {/* Brain Break Activities */}
+            <div>
+                <button className="brain-break-button" onClick={handleEnterBrainBreak}>Brain Break</button>
+            </div>
 
             {/* Leave Study Group */}
             {showConfirmation && (

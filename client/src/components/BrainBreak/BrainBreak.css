@@ -1,0 +1,39 @@
+.brain-break {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.brain-break-button {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    width: 140px;
+    background-color: var(--button-color, #6fb2c5);
+    color: black;
+    width: 100%;
+    max-width: 200px;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+    position: absolute;
+}
+
+.activity-button {
+    background-color: var(--button-color, #6fb2c5);
+    color: black;
+    width: 100%;
+    max-width: 200px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
