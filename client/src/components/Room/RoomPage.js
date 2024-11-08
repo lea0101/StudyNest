@@ -10,7 +10,7 @@ import { getAuth } from "firebase/auth";
 
 
 import { db } from "../../config/firebase";
-import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot } from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot, snapshotEqual } from "firebase/firestore";
 
 function RoomPage() {
     const auth = getAuth();
@@ -146,6 +146,7 @@ function RoomPage() {
         }
     }, [roomCode]);
 
+    {/* listen to what the selectedColor and selectedLight is */}
     useEffect (() => {
         console.log("useEffect 3");
 
@@ -163,6 +164,7 @@ function RoomPage() {
 
     }, [roomCode]);
 
+    {/* listen to what the chosen color is */}
     useEffect(() => {
         console.log("useEffect 4");
 
@@ -192,31 +194,73 @@ function RoomPage() {
     }
 
     // for this user, remove the room from their user data and then navigate to home
+    // const handleConfirmLeave = () => {
+    //     // remove the room from the rooms list and update local storage
+    //     const updatedRooms = rooms.filter(r => r.name !== roomName || r.code !== roomCode);
+    //     localStorage.setItem('rooms', JSON.stringify(updatedRooms));
+
+    //     setShowConfirmation(false);
+    //     const userDocRef = doc(db, 'users', user.uid);
+    //     getDoc(userDocRef).then(snapshot => {
+    //         if (typeof snapshot.data() !== 'undefined') {
+    //             const updatedRooms = snapshot.data().rooms.filter(room => room.name !== roomName || room.code !== roomCode);
+    //             updateDoc(userDocRef, {rooms: updatedRooms});
+    //         }
+    //     }).then(() => {
+    //         const roomDocRef = doc(db, 'rooms', roomCode);
+    //         getDoc(roomDocRef).then(snapshot => {
+    //             if (typeof snapshot.data() !== 'undefined') {
+    //                 const priorUserList = snapshot.data().userList;
+    //                 const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
+    //                 updateDoc(roomDocRef, {userList: newUserList});
+    //             }
+    //         })
+    //     }).then(() => {
+    //         navigate('/home');
+    //     });
+    // }
     const handleConfirmLeave = () => {
         // remove the room from the rooms list and update local storage
         const updatedRooms = rooms.filter(r => r.name !== roomName || r.code !== roomCode);
         localStorage.setItem('rooms', JSON.stringify(updatedRooms));
 
         setShowConfirmation(false);
+
         const userDocRef = doc(db, 'users', user.uid);
-        getDoc(userDocRef).then(snapshot => {
-            if (typeof snapshot.data() !== 'undefined') {
-                const updatedRooms = snapshot.data().rooms.filter(room => room.name !== roomName || room.code !== roomCode);
-                updateDoc(userDocRef, {rooms: updatedRooms});
-            }
-        }).then(() => {
-            const roomDocRef = doc(db, 'rooms', roomCode);
-            getDoc(roomDocRef).then(snapshot => {
-                if (typeof snapshot.data() !== 'undefined') {
-                    const priorUserList = snapshot.data().userList;
-                    const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
-                    updateDoc(roomDocRef, {userList: newUserList});
+        const roomDocRef = doc(db, 'rooms', roomCode);
+
+        // step 1: update user's document to remove room from their data
+        getDoc(userDocRef)
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    const userRooms = snapshot.data().rooms || [];
+                    const updatedUserRooms = userRooms.filter(room => room.name !== roomName || room.code !== roomCode);
+                    return updateDoc(userDocRef, { rooms: updatedUserRooms });
+                } else {
+                    console.error("User document not found.")
                 }
             })
-        }).then(() => {
-            navigate('/home');
-        });
-    }
+            .then(() => {
+                // step 2: update room's userlist to remove current user
+                return getDoc(roomDocRef);
+            })
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const priorUserList = snapshot.data().userList || [];
+                    const newUserList = priorUserList.filter(userObj => userObj.uid !== user.uid);
+                    return updateDoc(roomDocRef, { userList: newUserList });
+                } else {
+                    console.error("Room document not found.")
+                }
+            })
+            .then(() => {
+                // step 3: navigate back to home page
+                navigate('/home');
+            })
+            .catch((error) => {
+                console.error("Error while leaving room: ", error);
+            });
+    };
 
     // toggle for cancel leave
     const handleCancelLeave = () => {
