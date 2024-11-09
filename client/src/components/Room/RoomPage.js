@@ -449,7 +449,7 @@ function RoomPage() {
             <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
             <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
             <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
-            <Timer roomCode={roomCode} selectedLight={selectedLight} selectedColor={selectedColor} />
+            <Timer />
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">

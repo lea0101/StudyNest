@@ -3,7 +3,11 @@ import { useState, useEffect, useRef } from 'react';
 import { db } from '../../config/firebase';
 import { doc, setDoc, getDoc, count, updateDoc, onSnapshot } from 'firebase/firestore';
 
-function Timer({ roomCode, selectedLight, selectedColor }) {
+import { useRoomSettings } from '../Room/RoomSettingsContext';
+
+function Timer() {
+    const { roomCode, selectedLight, selectedColor } = useRoomSettings();
+
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
