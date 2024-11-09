@@ -13,7 +13,7 @@ function BrainBreakPage() {
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
 
-    const { selectedColor, selectedLight } = useRoomSettings(); // access color and light settings
+    const { selectedColor, selectedLight, contextUserRole } = useRoomSettings(); // access color and light settings
 
     const backgroundColor = selectedLight === "light" ? "rgb(255, 253, 248)" : "rgb(69, 67, 63)";
     const colorMapping = {
@@ -52,14 +52,25 @@ function BrainBreakPage() {
             <NavBar />
             
             <h1>Brain Break Activities</h1>
-            <p>Choose an activity!</p>
 
-            <button className="activity-button" onClick={handleEnterMeditation} style={{backgroundColor: buttonColor}}>
-                Meditation
-            </button>
-            <button className="activity-button" onClick={handleEnterHangman} style={{backgroundColor: buttonColor}}>
-                Hangman
-            </button>
+            {contextUserRole && contextUserRole === 'viewer' && (
+                <div>
+                    <p>You do not have access to Brain Break Activities.</p>
+                </div>
+            )}
+
+            {contextUserRole && (contextUserRole === 'host' || contextUserRole === 'editor') && (
+                <div>
+                    <p>Choose an activity!</p>
+
+                    <button className="activity-button" onClick={handleEnterMeditation} style={{backgroundColor: buttonColor}}>
+                        Meditation
+                    </button>
+                    <button className="activity-button" onClick={handleEnterHangman} style={{backgroundColor: buttonColor}}>
+                        Hangman
+                    </button>
+                </div>
+            )}
 
             <div className="room-code" onClick={handleGoBack}>
                 <p>Go Back</p>

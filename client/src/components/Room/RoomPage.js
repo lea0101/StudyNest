@@ -30,11 +30,12 @@ function RoomPage() {
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     // const roomCode = state?.roomCode; // ORIGINAL DO NOT DELETE
 
-    const [userRole, setUserRole] = useState('');
+    const [userRole, setUserRole] = useState(''); // ORIGINAL
 
-    // const [selectedColor, setSelectedColor] = useState("default");
-    // const [selectedLight, setSelectedLight] = useState("light");
-    const { roomCode, selectedColor, setSelectedColor, selectedLight, setSelectedLight }  = useRoomSettings();
+    // const [selectedColor, setSelectedColor] = useState("default"); // ORIGINAL
+    // const [selectedLight, setSelectedLight] = useState("light"); // ORIGINAL
+
+    const { roomCode, selectedColor, setSelectedColor, selectedLight, setSelectedLight, contextUserRole }  = useRoomSettings();
 
     if (!roomCode) {
         console.log("RoomPage roomCode DOES NOT EXIST!!!")
