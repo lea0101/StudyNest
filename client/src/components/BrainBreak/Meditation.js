@@ -7,7 +7,7 @@ import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 import './BrainBreak.css'
 import { useRoomSettings } from "../Room/RoomSettingsContext";
 
-function Hangman() {
+function Meditation() {
     const navigate = useNavigate();
     const { roomName } = useParams(); // get room name from url params
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
@@ -37,7 +37,7 @@ function Hangman() {
                     : "white"                       
             }}>
                 
-                <h1>Hangman</h1>
+                <h1>Meditation</h1>
 
                 <div className="room-code" onClick={handleGoBack}>
                     <p>Go Back</p>
@@ -48,4 +48,4 @@ function Hangman() {
     )
 }
 
-export default Hangman;
+export default Meditation;

@@ -28,13 +28,17 @@ function RoomPage() {
 
     const { roomName } = useParams(); // get room name from url params
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
-    const roomCode = state?.roomCode;
+    // const roomCode = state?.roomCode; // ORIGINAL DO NOT DELETE
 
     const [userRole, setUserRole] = useState('');
 
     // const [selectedColor, setSelectedColor] = useState("default");
     // const [selectedLight, setSelectedLight] = useState("light");
-    const { selectedColor, setSelectedColor, selectedLight, setSelectedLight }  = useRoomSettings();
+    const { roomCode, selectedColor, setSelectedColor, selectedLight, setSelectedLight }  = useRoomSettings();
+
+    if (!roomCode) {
+        console.log("RoomPage roomCode DOES NOT EXIST!!!")
+    }
 
     /* listening to changes to determine whether a user is authorized to access a specific room */
     useEffect(() => {
