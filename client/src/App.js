@@ -14,16 +14,15 @@ import WhiteBoard from './components/Whiteboard/WhiteBoard';
 import JoinPage from './components/Home/JoinPage';
 import Video from './components/Video/Video';
 import BrainBreakPage from './components/BrainBreak/BrainBreakPage';
-import Hangman from './components/BrainBreak/Hangman';
+import Hangman from './components/BrainBreak/Hangman/Hangman';
+import Meditation from './components/BrainBreak/Meditation/Meditation';
 
 import UserSettings from "./components/Settings/UserSettings";
 import NotFoundPage from './Pages/NotFoundPage';
 import NotAuthorizedPage from "./Pages/NotAuthorizedPage";
 
 import { TimerProvider } from './components/Timer/TimerContext';
-// import { RoomSettingsProvider } from './components/Room/RoomSettingsContext';
 import RoomWrapper from './components/Room/RoomWrapper';
-import Meditation from './components/BrainBreak/Meditation';
 
 function App() {
   const [user] = useAuthState(auth);
@@ -49,8 +48,6 @@ function App() {
           <Route path="/rooms/:roomName/video" element={<ProtectedRoute><Video /></ProtectedRoute>} /> */}
           <Route path="/join/:roomCode" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
 
-          {/* <Route path="/rooms/:roomName/brainbreak" element={<ProtectedRoute><RoomWrapper><BrainBreakPage /></RoomWrapper></ProtectedRoute>} />
-          <Route path="/rooms/:roomName/brainbreak/hangman" element={<ProtectedRoute><RoomWrapper><Hangman /></RoomWrapper></ProtectedRoute>} /> */}
           <Route
             path="/rooms/:roomName/*"
             element={

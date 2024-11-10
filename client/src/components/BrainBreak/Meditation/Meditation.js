@@ -1,29 +1,19 @@
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
-import NavBar from '../Home/NavBar';
-import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
+import NavBar from '../../Home/NavBar';
+import NotAuthorizedPage from "../../../Pages/NotAuthorizedPage";
 
-import './BrainBreak.css'
-import { useRoomSettings } from "../Room/RoomSettingsContext";
-import { useTimer } from "../Timer/TimerContext";
+import '../BrainBreak.css'
+import { useRoomSettings } from "../../Room/RoomSettingsContext";
 
-function Hangman() {
+function Meditation() {
     const navigate = useNavigate();
     const { roomName } = useParams(); // get room name from url params
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
 
     const { selectedColor, selectedLight } = useRoomSettings(); // access color and light settings
-    const { isTimerDone, isActive, resetTimerStatus } = useTimer(); // access timer
-
-    useEffect(() => {
-        if (isTimerDone && !isActive) {
-            alert("STUDY BREAK TIME !!!");
-            resetTimerStatus();
-        }
-    }, [isTimerDone, resetTimerStatus]);
-
 
     const handleGoBack = () => {
         navigate(`/rooms/${roomName}/brainbreak`, { state: {roomCode : roomCode}});
@@ -47,7 +37,7 @@ function Hangman() {
                     : "white"                       
             }}>
                 
-                <h1>Hangman</h1>
+                <h1>Meditation</h1>
 
                 <div className="room-code" onClick={handleGoBack}>
                     <p>Go Back</p>
@@ -58,4 +48,4 @@ function Hangman() {
     )
 }
 
-export default Hangman;
+export default Meditation;
