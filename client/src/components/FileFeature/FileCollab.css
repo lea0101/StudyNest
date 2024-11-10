@@ -72,7 +72,7 @@
         z-index: 50;
     }
     position: relative;
-    z-index: 15;
+    z-index: 6;
 }
 
 .highlight-block {
@@ -89,3 +89,6 @@
     font-weight: bold;
 }
 
+.add-note-dialog {
+    z-index: 6;
+}

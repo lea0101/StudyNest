@@ -158,3 +158,20 @@ As a user, I would like to make notes on the file that everyone else in the room
 # Expected Results
 1) The annotated notes should appear when hovering over the highlighted text portions.
 
+
+# Test Case 311
+Sprint 3
+
+User Story 1
+As a user, I would like to make highlights on the file that everyone else in the room can also see.
+# Instructions
+1) Log into StudyNest
+2) Enter an existing group that has files uploaded to it.
+3) Navigate to the File Sharing page.
+4) Open a file.
+5) Select some text on the page,
+6) Press the highlight icon.
+# Expected Results
+1) The selected text should be highlighted
+2) The user should not be prompted to add a note
+3) Other users in the same group should be able to see the highlight

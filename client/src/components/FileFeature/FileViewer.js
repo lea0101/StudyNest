@@ -18,7 +18,10 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 import 'react-tooltip/dist/react-tooltip.css';
 import { SelectionMode } from '@react-pdf-viewer/selection-mode';
 import { v4 as uuidv4 } from 'uuid';
-
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { BookmarkIcon, FileIcon, ThumbnailIcon } from '@react-pdf-viewer/default-layout';
+import { SidebarTab } from '@react-pdf-viewer/default-layout';
 import { toolbarPlugin } from '@react-pdf-viewer/toolbar';
 
 import {
@@ -169,6 +172,7 @@ const FileViewer = (props) => {
                     top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
                     zIndex: 1,
                 }}
+                className="add-note-dialog"
             >
                 <div>
                     <textarea
@@ -243,6 +247,17 @@ const FileViewer = (props) => {
         </div>
     );
 
+    const defaultLayoutPluginInstance = defaultLayoutPlugin({
+        sidebarTabs: (defaultTabs) =>
+            defaultTabs.concat({
+                content: sidebarNotes,
+                icon: <MessageIcon />,
+                title: 'Notes',
+            }),
+    });
+    const { activateTab } = defaultLayoutPluginInstance;
+
+
     const highlightPluginInstance = highlightPlugin({renderHighlightTarget, renderHighlightContent, renderHighlights});
     if (isLoading) return <p>Loading...</p>;
     else {
@@ -253,7 +268,7 @@ const FileViewer = (props) => {
             return (
             <div className="file-viewer-container">
                 <div className="file-viewer">
-                    <Viewer fileUrl={url} plugins={[highlightPluginInstance]}/>
+                    <Viewer fileUrl={url} plugins={[highlightPluginInstance, defaultLayoutPluginInstance]}/>
                 </div>
              </div>
             );
