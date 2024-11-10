@@ -20,7 +20,7 @@ function LoginPage() {
   }
 
   const handleForgot = () => {
-    navigate('/forgotPassword');
+    navigate('/password');
   }
 
   return (
@@ -33,7 +33,7 @@ function LoginPage() {
         <Login />
         {/* <button className="guest-signin-button" type="submit">Sign in as Guest</button> */} {/* guest sign in button, add later */}
         <button className="go-to-signup-button" onClick={handleSignup}>Don't have an account? Sign Up</button>
-        <button className="guest-signin-button" onClick={hangleForgot}">Forgot Password </button> {/* guest sign in button, add later */}
+        <button className="guest-signin-button" onClick={handleForgot}>Forgot Password </button> {/* guest sign in button, add later */}
       </form>
     </div>
   );
