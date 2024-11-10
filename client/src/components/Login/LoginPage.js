@@ -6,18 +6,22 @@ import Signup from "./Signup.js";
 import Signin from "./Signin.js";
 
 function LoginPage() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-    }
+  const handleLogin = (e) => {
+      e.preventDefault();
+  }
 
-    const handleSignup = () => {
-      navigate('/signup');
-    }
+  const handleSignup = () => {
+    navigate('/signup');
+  }
+
+  const handleForgot = () => {
+    navigate('/forgotPassword');
+  }
 
   return (
     <div className="LoginPage">
