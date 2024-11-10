@@ -4,9 +4,11 @@ import { db } from '../../config/firebase';
 import { doc, setDoc, getDoc, count, updateDoc, onSnapshot } from 'firebase/firestore';
 
 import { useRoomSettings } from '../Room/RoomSettingsContext';
+import { useTimer } from './TimerContext';
 
 function Timer() {
     const { roomCode, selectedLight, selectedColor } = useRoomSettings();
+    const { isTimerDone, notifyTimerDone, resetTimerStatus } = useTimer();
 
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
@@ -186,13 +188,18 @@ function Timer() {
     const handleComplete = async () => {
         resetTimer();
 
-        alert("STUDY BREAK TIME !!!");
+        alert("STUDY BREAK TIME!!");
     
         await updateDoc(timerRef, {
             'timer.timerComplete': true, // Set flag in Firestore
             'timer.isActive': false,
             'timer.remainingTime': 0
         });
+
+        // wait briefly before resetting completion status
+        setTimeout(() => {
+            resetTimerStatus();
+        }, 1000); // 1 second delay
     };
     
 

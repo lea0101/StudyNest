@@ -6,6 +6,7 @@ import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 
 import './BrainBreak.css'
 import { useRoomSettings } from "../Room/RoomSettingsContext";
+import { useTimer } from "../Timer/TimerContext";
 
 function Hangman() {
     const navigate = useNavigate();
@@ -14,6 +15,15 @@ function Hangman() {
     const roomCode = state?.roomCode;
 
     const { selectedColor, selectedLight } = useRoomSettings(); // access color and light settings
+    const { isTimerDone, isActive, resetTimerStatus } = useTimer(); // access timer
+
+    useEffect(() => {
+        if (isTimerDone && !isActive) {
+            alert("STUDY BREAK TIME !!!");
+            resetTimerStatus();
+        }
+    }, [isTimerDone, resetTimerStatus]);
+
 
     const handleGoBack = () => {
         navigate(`/rooms/${roomName}/brainbreak`, { state: {roomCode : roomCode}});

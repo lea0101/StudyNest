@@ -6,6 +6,7 @@ import Timer from "../Timer/Timer";
 import BrainBreakPage from "../BrainBreak/BrainBreakPage";
 
 import { useRoomSettings } from "./RoomSettingsContext";
+import { useTimer } from "../Timer/TimerContext";
 
 import '../BrainBreak/BrainBreak.css'
 

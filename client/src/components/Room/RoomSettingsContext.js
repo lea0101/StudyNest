@@ -19,13 +19,13 @@ export const RoomSettingsProvider = ({ children, roomCode }) => {
 
     useEffect(() => {
         if (!roomCode || !currentUser) {
-            console.log("No room code provided to RoomSettingsProvider OR user is missing")
+            // console.log("No room code provided to RoomSettingsProvider OR user is missing")
             return;
         }
 
         const roomRef = doc(db, 'rooms', roomCode);
 
-        console.log("RoomSettingsContext initialized with roomCode: ", roomCode);
+        // console.log("RoomSettingsContext initialized with roomCode: ", roomCode);
 
         // listen for real-time updates to the room settings
         const unsubscribe = onSnapshot(roomRef, (doc) => {

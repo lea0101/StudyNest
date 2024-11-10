@@ -6,6 +6,7 @@ import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 
 import './BrainBreak.css'
 import { useRoomSettings } from "../Room/RoomSettingsContext";
+import { useTimer } from "../Timer/TimerContext";
 
 function BrainBreakPage() {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ function BrainBreakPage() {
     const roomCode = state?.roomCode;
 
     const { selectedColor, selectedLight, contextUserRole } = useRoomSettings(); // access color and light settings
+    const { isTimerDone, isActive, resetTimerStatus } = useTimer();
 
     const backgroundColor = selectedLight === "light" ? "rgb(255, 253, 248)" : "rgb(69, 67, 63)";
     const colorMapping = {
@@ -28,8 +30,12 @@ function BrainBreakPage() {
     };
     const buttonColor = colorMapping[selectedColor || colorMapping.default];
 
-    console.log("selectedLight: ", selectedLight);
-    console.log("selectedColor:", selectedColor);
+    useEffect(() => {
+        if (isTimerDone && !isActive) {
+            alert("STUDY BREAK TIME !!!");
+            resetTimerStatus();
+        }
+    }, [isTimerDone, resetTimerStatus]);
 
     const handleGoBack = () => {
         navigate(`/rooms/${roomName}`, { state: {roomCode : roomCode}});

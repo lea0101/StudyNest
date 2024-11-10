@@ -21,7 +21,7 @@ import NotFoundPage from './Pages/NotFoundPage';
 import NotAuthorizedPage from "./Pages/NotAuthorizedPage";
 
 import { TimerProvider } from './components/Timer/TimerContext';
-import { RoomSettingsProvider } from './components/Room/RoomSettingsContext';
+// import { RoomSettingsProvider } from './components/Room/RoomSettingsContext';
 import RoomWrapper from './components/Room/RoomWrapper';
 import Meditation from './components/BrainBreak/Meditation';
 
@@ -42,11 +42,11 @@ function App() {
           <Route path="/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
           
           {/* Room-related routes with room authorization */}
-          <Route path="/rooms/:roomName" element={<ProtectedRoute><RoomWrapper><RoomPage /></RoomWrapper></ProtectedRoute>} />
-          <Route path="/rooms/:roomName/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+          {/* <Route path="/rooms/:roomName" element={<ProtectedRoute><RoomWrapper><RoomPage /></RoomWrapper></ProtectedRoute>} /> */}
+          {/* <Route path="/rooms/:roomName/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/whiteboard" element={<ProtectedRoute><WhiteBoard /></ProtectedRoute>} />
           <Route path="/rooms/:roomName/filecollab" element={<ProtectedRoute><FileCollab /></ProtectedRoute>} />
-          <Route path="/rooms/:roomName/video" element={<ProtectedRoute><Video /></ProtectedRoute>} />
+          <Route path="/rooms/:roomName/video" element={<ProtectedRoute><Video /></ProtectedRoute>} /> */}
           <Route path="/join/:roomCode" element={<ProtectedRoute><JoinPage /></ProtectedRoute>} />
 
           {/* <Route path="/rooms/:roomName/brainbreak" element={<ProtectedRoute><RoomWrapper><BrainBreakPage /></RoomWrapper></ProtectedRoute>} />
@@ -56,11 +56,18 @@ function App() {
             element={
               <ProtectedRoute>
                 <RoomWrapper>
-                  <Routes>
-                    <Route path="brainbreak" element={<BrainBreakPage />} />
-                    <Route path="brainbreak/hangman" element={<Hangman />} />
-                    <Route path="brainbreak/meditation" element={< Meditation/>} />
-                  </Routes>
+                  <TimerProvider>
+                    <Routes>
+                      <Route path="" element={<RoomPage />} />
+                      <Route path="chat" element={<ChatPage />} />
+                      <Route path="whiteboard" element={<WhiteBoard />} />
+                      <Route path="filecollab" element={<FileCollab />} />
+                      <Route path="video" element={<Video />} />
+                      <Route path="brainbreak" element={<BrainBreakPage />} />
+                      <Route path="brainbreak/hangman" element={<Hangman />} />
+                      <Route path="brainbreak/meditation" element={< Meditation/>} />
+                    </Routes>
+                  </TimerProvider>
                 </RoomWrapper>
               </ProtectedRoute>
             }

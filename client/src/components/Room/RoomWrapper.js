@@ -12,8 +12,8 @@ const RoomWrapper = ({ children }) => {
   const { state } = useLocation();
   const roomCode = state?.roomCode;
 
-  console.log("RoomWrapper roomName: ", roomName);
-  console.log("RoomWrapper roomCode: ", roomCode);
+//   console.log("RoomWrapper roomName: ", roomName);
+//   console.log("RoomWrapper roomCode: ", roomCode);
 
   return (
     (<RoomSettingsProvider roomCode={roomCode}>
