@@ -77,7 +77,7 @@ function Hangman() {
                 )}
 
                 <HangmanFigure wrongGuesses={wrongGuesses}/>
- 
+                
                 <WordDisplay word={word} guessedLetters={guessedLetters}/>
 
                 <Keybord onLetterClick={handleLetterClick} guessedLetters={guessedLetters} incorrectLetters={incorrectLetters}/>

@@ -1,18 +1,21 @@
 .hangman {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     background: linear-gradient(180deg, #c5f2ff, #dfcaff);
     height: 100vh;
     width: 100vw;
     color: black;
+    padding: 20px;
 }
 
 .hangman-figure {
     position: relative;
     width: 200px;
     height: 300px;
+    margin-top: 100px;
+    margin-bottom: 5px;
 }
 
 .base {
@@ -108,8 +111,8 @@
 .word-display {
     display: flex;
     justify-content: center;
-    font-size: 50px;
-    margin-top: 20px;
+    margin: 5px 0;
+    font-size: 4vw;
 }
 
 .letter-container {
@@ -117,8 +120,7 @@
     flex-direction: column;
     align-items: center;
     width: 50px;
-    margin: 0 5px;
-    margin-bottom: 30px;
+    margin: 0 2px;
 }
 
 .underscore {
@@ -155,7 +157,6 @@
 }
 
 .letter-button.correct {
-    /* color: white; */
     background-color: #97d5e7;
 }
 
@@ -167,17 +168,22 @@
 }
 
 .keyboard {
-    position: absolute;
-    bottom: 40px;
-    width: 800px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+    max-width: 800px;
+    padding: 5px;
+    margin-top: -100px;
 }
 
 .message {
     position: absolute;
-    top: 50px;
+    top: 20px;
     background-color: rgb(255, 254, 251);
     padding: 20px;
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1;
 }
