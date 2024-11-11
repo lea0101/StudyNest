@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { auth } from "../../config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+import Microlink from "@microlink/react";
 
 import "./Chat.css";
 
@@ -13,9 +14,30 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
   const msgFocus = useRef(null);
   const msgTxt = useRef(message.text);
 
+  const richMessageText = (messageText) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urls = messageText.match(urlRegex);
+    if (urls) {
+      urls.forEach(url => {
+        messageText = messageText.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
+      });
+    }
+    return messageText;
+  }
+
+  const embedsFromText = (messageText) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const urls = messageText.match(urlRegex);
+    if (urls) {
+      return urls.map((url, index)=> {
+        return <Microlink url={url} key={index} />;
+      });
+    }
+  }
+
   useEffect(() => {
     const text = document.getElementById(`msg-${message.id}`);
-    text.childNodes[0].nodeValue = message.text;
+    text.children[0].innerHTML = richMessageText(message.text);
   }, [resets]);
 
   function handleEdit() {
@@ -72,8 +94,9 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
         suppressContentEditableWarning={true}
         ref={msgFocus}
         id={`msg-${message.id}`} >
-          {message.text}
+          <span>{message.text}</span>
           {message.imageSrc && <img draggable="false" className="msg_img" src={`${message.imageSrc}`} alt="error rendering"/> }
+          {embedsFromText(message.text)}
       </p>
     { message.updated && <p className={`details ${messageOwner}`}> edited </p>}
     { isClicked && <div className="msgOptions">
