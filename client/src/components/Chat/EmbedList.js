@@ -46,25 +46,27 @@ const EmbedList = ({ messageText }) => {
       const urls = messageText.match(urlRegex);
       if (urls) {
         const embedPromises = urls.map(async (url, index) => {
+          if (url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png") || url.endsWith(".gif")) {
+            return <img src={url} alt="error rendering" key={index} style={{ width: "-webkit-fill-available"}} />;
+          }
           if (!url.includes("youtube.com") && !url.includes("youtu.be")) {
             return <Microlink url={url} key={index} />;
-          } else {
-            const video = await getVideoDetails(url.split("v=")[1].split('&')[0], index);
-            return (
-              // <div key={index}>
-              //   <img src={video.thumbnail} alt="error rendering" />
-              //   <p>{video.title}</p>
-              //   <p>{video.duration}</p>
-              // </div>
-              <a className='video-queue-item' key={index} href={url} target="_blank">
-                <div className='video-thumbnail-holder'>
-                    <img width="100px" src={video.thumbnail} alt="" />
-                    {video.duration && <span className='video-timestamp'>{video.duration}</span>}
-                  </div>
-                  <span style={{ marginLeft: "10px"}}>{video.title}</span>
-              </a>
-            );
           }
+          const video = await getVideoDetails(url.split("v=")[1].split('&')[0], index);
+          return (
+            // <div key={index}>
+            //   <img src={video.thumbnail} alt="error rendering" />
+            //   <p>{video.title}</p>
+            //   <p>{video.duration}</p>
+            // </div>
+            <a className='video-queue-item' key={index} href={url} target="_blank">
+              <div className='video-thumbnail-holder'>
+                  <img width="100px" src={video.thumbnail} alt="" />
+                  {video.duration && <span className='video-timestamp'>{video.duration}</span>}
+                </div>
+                <span style={{ marginLeft: "10px"}}>{video.title}</span>
+            </a>
+          );
         });
 
         // Wait for all async operations to complete
