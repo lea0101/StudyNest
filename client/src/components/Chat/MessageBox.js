@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { auth } from "../../config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
-import Microlink from "@microlink/react";
+import YouTubeAPIKey from "../../config/youtube";
+import EmbedList from "./EmbedList";
 
 import "./Chat.css";
 
@@ -14,26 +15,20 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
   const msgFocus = useRef(null);
   const msgTxt = useRef(message.text);
 
-  const richMessageText = (messageText) => {
+  const extractUrls = (text) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const urls = messageText.match(urlRegex);
+    return text.match(urlRegex);
+  }
+
+  const richMessageText = (messageText) => {
+    const urls = extractUrls(messageText);
     if (urls) {
       urls.forEach(url => {
         messageText = messageText.replace(url, `<a href="${url}" target="_blank">${url}</a>`);
       });
     }
     return messageText;
-  }
-
-  const embedsFromText = (messageText) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const urls = messageText.match(urlRegex);
-    if (urls) {
-      return urls.map((url, index)=> {
-        return <Microlink url={url} key={index} />;
-      });
-    }
-  }
+  }  
 
   useEffect(() => {
     const text = document.getElementById(`msg-${message.id}`);
@@ -96,7 +91,7 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
         id={`msg-${message.id}`} >
           <span>{message.text}</span>
           {message.imageSrc && <img draggable="false" className="msg_img" src={`${message.imageSrc}`} alt="error rendering"/> }
-          {embedsFromText(message.text)}
+          <EmbedList messageText={message.text}/>
       </p>
     { message.updated && <p className={`details ${messageOwner}`}> edited </p>}
     { isClicked && <div className="msgOptions">
