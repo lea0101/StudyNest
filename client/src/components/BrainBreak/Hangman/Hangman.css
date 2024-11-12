@@ -1,0 +1,189 @@
+.hangman {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, #c5f2ff, #dfcaff);
+    height: 100vh;
+    width: 100vw;
+    color: black;
+    padding: 20px;
+}
+
+.hangman-figure {
+    position: relative;
+    width: 200px;
+    height: 300px;
+    margin-top: 100px;
+    margin-bottom: 5px;
+}
+
+.base {
+    width: 100%;
+    height: 10px;
+    background-color: black;
+    position: absolute;
+    bottom: 0;
+}
+
+.pole {
+    width: 10px;
+    height: 300px;
+    background-color: black;
+    position: absolute;
+    bottom: 0;
+    left: 50px;
+}
+
+.beam {
+    width: 100px;
+    height: 10px;
+    background-color: black;
+    position: absolute;
+    bottom: 300px;
+    left: 50px;
+}
+
+.rope {
+    width: 10px;
+    height: 40px;
+    background-color: black;
+    position: absolute;
+    bottom: 270px;
+    left: 150px;
+}
+
+.head {
+    width: 50px;
+    height: 50px;
+    background-color: black;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 225px;
+    left: 130px;
+}
+
+.body {
+    width: 7px;
+    height: 100px;
+    background-color: black;
+    position: absolute;
+    bottom: 130px;
+    left: 150px;
+}
+
+.left-arm, .right-arm {
+    width: 50px;
+    height: 7px;
+    background-color: black;
+    position: absolute;
+    bottom: 190px;
+}
+
+.left-arm {
+    left: 108px;
+    transform: rotate(30deg);
+}
+
+.right-arm {
+    left: 148px;
+    transform: rotate(150deg);
+}
+
+.left-leg, .right-leg {
+    width: 70px;
+    height: 7px;
+    background-color: black;
+    position: absolute;
+    bottom: 100px;
+}
+
+.left-leg {
+    left: 100px;
+    transform: rotate(-60deg);
+}
+
+.right-leg {
+    left: 135px;
+    transform: rotate(-120deg);
+}
+
+.word-display {
+    display: flex;
+    justify-content: center;
+    margin: 5px 0;
+    font-size: 4vw;
+}
+
+.letter-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50px;
+    margin: 0 2px;
+}
+
+.underscore {
+    color: black;
+    font-size: 80px;
+}
+
+.letter {
+    color: #000;
+    font-weight: bold;
+    font-size: 50px;
+    margin-bottom: -80px;
+    visibility: hidden;
+}
+
+.letter.correct {
+    visibility: visible;
+}
+
+.letter-button {
+    position: relative;
+    background-color: #f1fcff;
+    font-weight: bold;
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    border: 2px solid #648e9a;
+    margin: 5px;
+}
+
+.letter-button:hover {
+    cursor: pointer;
+    background-color: #6fb2c5;
+}
+
+.letter-button.correct {
+    background-color: #97d5e7;
+}
+
+.letter-button.incorrect {
+    position: relative;
+    color: black;
+    background-color: transparent;
+    border: 2px solid #5ca2b5;
+}
+
+.keyboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+    max-width: 800px;
+    padding: 5px;
+    margin-top: -100px;
+}
+
+.message {
+    position: absolute;
+    top: 20px;
+    background-color: rgb(255, 254, 251);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}

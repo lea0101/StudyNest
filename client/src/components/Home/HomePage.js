@@ -159,7 +159,8 @@ function HomePage() {
       updateDoc(roomDocRef, { userList: newUserList })
         .then(() => {
           const newList = rooms.filter(room => room.code !== roomToDelete.code);
-          setRoomName(newList);
+          setRooms(newList); // update rooms list
+          // setRoomName(newList);
           const userDocRef = doc(db, 'users', user.uid);
           updateDoc(userDocRef, { rooms: newList }, {merge: true});
         })

@@ -3,6 +3,12 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NavBar from '../Home/NavBar';
 import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 import Timer from "../Timer/Timer";
+import BrainBreakPage from "../BrainBreak/BrainBreakPage";
+
+import { useRoomSettings } from "./RoomSettingsContext";
+import { useTimer } from "../Timer/TimerContext";
+
+import '../BrainBreak/BrainBreak.css'
 
 
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -10,7 +16,7 @@ import { getAuth } from "firebase/auth";
 
 
 import { db } from "../../config/firebase";
-import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot } from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot, snapshotEqual } from "firebase/firestore";
 
 function RoomPage() {
     const auth = getAuth();
@@ -23,12 +29,18 @@ function RoomPage() {
 
     const { roomName } = useParams(); // get room name from url params
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
-    const roomCode = state?.roomCode;
+    // const roomCode = state?.roomCode; // ORIGINAL DO NOT DELETE
 
-    const [userRole, setUserRole] = useState('');
+    const [userRole, setUserRole] = useState(''); // ORIGINAL
 
-    const [selectedColor, setSelectedColor] = useState("default");
-    const [selectedLight, setSelectedLight] = useState("light");
+    // const [selectedColor, setSelectedColor] = useState("default"); // ORIGINAL
+    // const [selectedLight, setSelectedLight] = useState("light"); // ORIGINAL
+
+    const { roomCode, selectedColor, setSelectedColor, selectedLight, setSelectedLight, contextUserRole }  = useRoomSettings();
+
+    if (!roomCode) {
+        console.log("RoomPage roomCode DOES NOT EXIST!!!")
+    }
 
     /* listening to changes to determine whether a user is authorized to access a specific room */
     useEffect(() => {
@@ -146,6 +158,7 @@ function RoomPage() {
         }
     }, [roomCode]);
 
+    {/* listen to what the selectedColor and selectedLight is */}
     useEffect (() => {
         console.log("useEffect 3");
 
@@ -163,6 +176,7 @@ function RoomPage() {
 
     }, [roomCode]);
 
+    {/* listen to what the chosen color is */}
     useEffect(() => {
         console.log("useEffect 4");
 
@@ -192,31 +206,73 @@ function RoomPage() {
     }
 
     // for this user, remove the room from their user data and then navigate to home
+    // const handleConfirmLeave = () => {
+    //     // remove the room from the rooms list and update local storage
+    //     const updatedRooms = rooms.filter(r => r.name !== roomName || r.code !== roomCode);
+    //     localStorage.setItem('rooms', JSON.stringify(updatedRooms));
+
+    //     setShowConfirmation(false);
+    //     const userDocRef = doc(db, 'users', user.uid);
+    //     getDoc(userDocRef).then(snapshot => {
+    //         if (typeof snapshot.data() !== 'undefined') {
+    //             const updatedRooms = snapshot.data().rooms.filter(room => room.name !== roomName || room.code !== roomCode);
+    //             updateDoc(userDocRef, {rooms: updatedRooms});
+    //         }
+    //     }).then(() => {
+    //         const roomDocRef = doc(db, 'rooms', roomCode);
+    //         getDoc(roomDocRef).then(snapshot => {
+    //             if (typeof snapshot.data() !== 'undefined') {
+    //                 const priorUserList = snapshot.data().userList;
+    //                 const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
+    //                 updateDoc(roomDocRef, {userList: newUserList});
+    //             }
+    //         })
+    //     }).then(() => {
+    //         navigate('/home');
+    //     });
+    // }
     const handleConfirmLeave = () => {
         // remove the room from the rooms list and update local storage
         const updatedRooms = rooms.filter(r => r.name !== roomName || r.code !== roomCode);
         localStorage.setItem('rooms', JSON.stringify(updatedRooms));
 
         setShowConfirmation(false);
+
         const userDocRef = doc(db, 'users', user.uid);
-        getDoc(userDocRef).then(snapshot => {
-            if (typeof snapshot.data() !== 'undefined') {
-                const updatedRooms = snapshot.data().rooms.filter(room => room.name !== roomName || room.code !== roomCode);
-                updateDoc(userDocRef, {rooms: updatedRooms});
-            }
-        }).then(() => {
-            const roomDocRef = doc(db, 'rooms', roomCode);
-            getDoc(roomDocRef).then(snapshot => {
-                if (typeof snapshot.data() !== 'undefined') {
-                    const priorUserList = snapshot.data().userList;
-                    const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
-                    updateDoc(roomDocRef, {userList: newUserList});
+        const roomDocRef = doc(db, 'rooms', roomCode);
+
+        // step 1: update user's document to remove room from their data
+        getDoc(userDocRef)
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    const userRooms = snapshot.data().rooms || [];
+                    const updatedUserRooms = userRooms.filter(room => room.name !== roomName || room.code !== roomCode);
+                    return updateDoc(userDocRef, { rooms: updatedUserRooms });
+                } else {
+                    console.error("User document not found.")
                 }
             })
-        }).then(() => {
-            navigate('/home');
-        });
-    }
+            .then(() => {
+                // step 2: update room's userlist to remove current user
+                return getDoc(roomDocRef);
+            })
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const priorUserList = snapshot.data().userList || [];
+                    const newUserList = priorUserList.filter(userObj => userObj.uid !== user.uid);
+                    return updateDoc(roomDocRef, { userList: newUserList });
+                } else {
+                    console.error("Room document not found.")
+                }
+            })
+            .then(() => {
+                // step 3: navigate back to home page
+                navigate('/home');
+            })
+            .catch((error) => {
+                console.error("Error while leaving room: ", error);
+            });
+    };
 
     // toggle for cancel leave
     const handleCancelLeave = () => {
@@ -248,6 +304,10 @@ function RoomPage() {
 
     const handleEnterVideo = () => {
         navigate(`/rooms/${roomName}/video`, { state: {roomCode : roomCode}});
+    }
+
+    const handleEnterBrainBreak = () => {
+        navigate(`/rooms/${roomName}/brainbreak`, { state: {roomCode : roomCode}});
     }
 
     // handle role change
@@ -390,7 +450,7 @@ function RoomPage() {
             <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
             <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
             <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
-            <Timer roomCode={roomCode} selectedLight={selectedLight} selectedColor={selectedColor} />
+            <Timer />
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
@@ -447,6 +507,11 @@ function RoomPage() {
                     </div>
                 </div>
             )}
+
+            {/* Brain Break Activities */}
+            <div>
+                <button className="brain-break-button" onClick={handleEnterBrainBreak}>Brain Break</button>
+            </div>
 
             {/* Leave Study Group */}
             {showConfirmation && (
