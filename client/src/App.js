@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css';
 import LoginPage from './components/Login/LoginPage';
+import ResetPassword from './components/Login/ResetPassword';
 import SignupPage from './components/Login/SignupPage';
 import Home from './components/Home/HomePage';
 import RoomPage from './components/Room/RoomPage';
@@ -32,6 +33,7 @@ function App() {
           {/* login and signup */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/password" element={<ResetPassword/>} />
 
           {/* Protect the home and room routes */}
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
