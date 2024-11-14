@@ -32,7 +32,8 @@ import {
     doc,
     deleteDoc,
     where,
-    getDocs
+    getDocs,
+    updateDoc
 } from "firebase/firestore";
 
 interface RenderHighlightProp {
@@ -46,6 +47,8 @@ interface Note {
     quote: string;
     fileUrl: string;
     posterDisplayName: string;
+    posterID: string;
+    docID: string;
 }
 
 const FileViewer = (props) => {
@@ -63,6 +66,7 @@ const FileViewer = (props) => {
     const [ sidebarNotes, setSidebarNotes ] = useState([]);
     let noteId = notes.length;
     const fileName = props.file;
+    const currentUID = user.uid;
 
 
     useEffect(() => {
@@ -82,11 +86,14 @@ const FileViewer = (props) => {
                     highlightAreas: doc.data().highlightAreas,
                     quote: doc.data().quote,
                     fileUrl: doc.data().fileUrl,
-                    posterDisplayName: doc.data().posterDisplayName
+                    posterDisplayName: doc.data().posterDisplayName,
+                    posterID: doc.data().posterID,
+                    docID: doc.data().docID,
                 };
                 fetchedNotes.push(thisNote);
             });
             setNotes(fetchedNotes);
+            setSidebarNotes(fetchedNotes);
         });
 
         return ()  => q;
@@ -128,21 +135,40 @@ const FileViewer = (props) => {
     );
 
     function addHighlight(props) {
-        const note: Note = {
+        var note: Note = {
             id: ++noteId,
             content: "",
             highlightAreas: props.highlightAreas,
             quote: props.selectedText,
             fileUrl: fileName,
             posterDisplayName: userDisplayName,
+            posterID: user.uid,
         };
         addNewNote(note);
     }
 
     async function addNewNote(note) {
         const docRef = await addDoc(collection(db, "file_notes"), note);
+        note.docID = docRef.id;
+        await updateDoc(docRef, {docID: docRef.id});
         setNotes(notes.concat([note]));
         setSidebarNotes(sidebarNotes.concat([note.content]));
+    }
+    
+    const removeNote = (note) =>  {
+        console.log(note.docID);
+        deleteNote(note.docID);
+    }
+
+    async function deleteNote(noteID) {
+        const docRef = doc(db, "file_notes", noteID);
+        deleteDoc(docRef)
+        .then(() => {
+            console.log("Deleted successfully.");
+        })
+        .catch(error => {
+            console.log(error);
+        });
     }
 
     const renderHighlightContent = (props: RenderHighlightContentProps) => {
@@ -155,6 +181,7 @@ const FileViewer = (props) => {
                     quote: props.selectedText,
                     fileUrl: fileName,
                     posterDisplayName: userDisplayName,
+                    posterID: user.uid
                 };
                 addNewNote(note);
                 props.cancel();
@@ -248,17 +275,43 @@ const FileViewer = (props) => {
     );
 
     const defaultLayoutPluginInstance = defaultLayoutPlugin({
-        sidebarTabs: (defaultTabs) =>
-            defaultTabs.concat({
-                content: sidebarNotes,
+        sidebarTabs: (defaultTabs) =>  [
+            {
+                content: <div className="sidebar-note-link"> 
+                {sidebarNotes.map((note) => {
+                    if (note.posterID === currentUID)
+                    {
+                        return  (
+                            <React.Fragment key={`fragment-${uuidv4()}${note.id}`}>
+                                <button key={`${uuidv4()}${note.id}`}  >{note.content}</button>
+                                <div key={`${uuidv4()}--${note.id}`} className="delete-note">
+                                    <button key={`${uuidv4()}${note.id}`} onClick={() => removeNote(note)}>Delete</button>
+                                </div>
+                                   
+                            <p key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                            
+                            </React.Fragment>
+                        );
+                    }
+                    else
+                    {
+                        return  (
+                            <>
+                                <button key={`${uuidv4()}${note.id}`}  >{note.content}</button>
+                                <p>By {note.posterDisplayName}</p>                            
+                            </>
+                        );
+                    }
+                })}
+                </div>,
                 icon: <MessageIcon />,
                 title: 'Notes',
-            }),
+            },
+            defaultTabs[1],
+        ],
     });
     const { activateTab } = defaultLayoutPluginInstance;
 
-
-    const highlightPluginInstance = highlightPlugin({renderHighlightTarget, renderHighlightContent, renderHighlights});
+   const highlightPluginInstance = highlightPlugin({renderHighlightTarget, renderHighlightContent, renderHighlights});
     if (isLoading) return <p>Loading...</p>;
     else {
         if (!url) {
