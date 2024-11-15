@@ -4,6 +4,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import NavBar from '../../Home/NavBar';
 import NotAuthorizedPage from "../../../Pages/NotAuthorizedPage";
 import MeditationTimer from "./MeditationTimer";
+import ProgressBar from "./ProgressBar";
 
 import '../BrainBreak.css'
 import './Meditation.css'
@@ -100,11 +101,6 @@ function Meditation() {
         }}>
             <div className="meditation">
 
-                {/* Progress Bar */}
-                <div className="progress-bar">
-
-                </div>
-
                 {/* Start or Current Step */}
                 {currStep === 0 ? (
                     <div>
@@ -131,6 +127,11 @@ function Meditation() {
                                 </div>
                             </div>
 
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="progress-bar">
+                            <ProgressBar bgcolor={buttonColor} completed={Math.floor((currStep / (steps.length - 1)) * 100)}/>
                         </div>
                     </div>
                     
