@@ -28,7 +28,7 @@
     object-fit: contain;
 }
 
-.step-instructions {
+.step-guide {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -36,6 +36,25 @@
     align-items: flex-start;
     gap: 20px;
     max-width: 60%;
+}
+.step-instructions {
+    display: flex;
+    justify-content: center;
+    border: 1px solid #ddd; /* Subtle border */
+    border-radius: 10px; /* Rounded corners */
+    padding: 10px; /* Inner spacing */
+    padding-bottom: 20px;
+    line-height: 1.6; /* Improve line spacing */
+    font-size: 16px; /* Adjust font size */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    text-align: left;
+    width: 600px;
+    height: 250px;
+    overflow: auto;
+}
+
+.step-instructions p {
+    margin-bottom: 20px;
 }
 
 .step-timer {
@@ -67,4 +86,12 @@
     transition: background-color 0.3s ease;
     width: 150px;
     margin: 5px;
+}
+
+.back-button {
+    position: absolute;
+    bottom: 5px;
+    left: 20px;
+    font-size: 14px;
+    color: gray;
 }
