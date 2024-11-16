@@ -5,244 +5,232 @@ import { doc, setDoc, getDoc, count, updateDoc, onSnapshot } from 'firebase/fire
 
 import { useRoomSettings } from '../../Room/RoomSettingsContext';
 import { useTimer } from '../../Timer/TimerContext';
+import './Meditation.css'
 
-function MeditationTimer() {
+function MeditationTimer( {stepId} ) {
     const { roomCode, selectedLight, selectedColor } = useRoomSettings();
-    const { isTimerDone, notifyTimerDone, resetTimerStatus } = useTimer();
 
-    const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
-    const [hoursInput, setHoursInput] = useState("");
     const [minutesInput, setMinutesInput] = useState("");
     const [secondsInput, setSecondsInput] = useState("");
-    const [countdownTime, setCountdownTime] = useState(null);
     const [isActive, setIsActive] = useState(false);
     const [paused, setPaused] = useState(false);
     const [remainingTime, setRemainingTime] = useState(0);
 
-    // firestore reference for timer document
-    const timerRef = doc(db, 'rooms', roomCode);
     const intervalRef = useRef(null); // store interval reference
+    const completedRef = useRef(false);
 
-    // load timer state from firestore
+    const backgroundColor = selectedLight === "light" ? "rgb(255, 253, 248)" : "rgb(69, 67, 63)";
+    const colorMapping = {
+        default: "#6fb2c5",
+        red: "rgb(217, 91, 91)",
+        orange: "rgb(204, 131, 53)",
+        yellow: "rgb(245, 227, 125)",
+        green: "rgb(118, 153, 93)",
+        blue: "rgb(59, 124, 150)",
+        purple: "rgb(165, 132, 224)",
+        pink: "rgb(242, 170, 213)"  
+    };
+    const buttonColor = colorMapping[selectedColor || colorMapping.default];
+
+    // reset timer statet when step changes
     useEffect(() => {
-        const unsubscribe = onSnapshot(timerRef, (doc) => {
-            if (doc.exists) {
-                try {
-                    const timerData = doc.data().timer;
-                    
-                    if (timerData) {
-                        const { countdownTime, remainingTime, isActive, paused } = timerData;
+        resetTimer();
+    }, [stepId]);
+    
+    // load timer state from localStorage
+    useEffect(() => {
+        const savedTime = parseInt(localStorage.getItem('meditationTimerRemainingTime'), 10);
+        const savedState = JSON.parse(localStorage.getItem("meditationTmerIsActive"));
+        const savedPaused = JSON.parse(localStorage.getItem("meditationTimerPaused"));
 
-                        if (isActive && countdownTime) {
-                            const adjustedCountdownTime = countdownTime - Date.now();
-                            setCountdownTime(countdownTime);
-                            setIsActive(true);
-                            setPaused(false);
-                            setRemainingTime(adjustedCountdownTime);
-                            updateDisplay(adjustedCountdownTime);
-                        } else if (paused) {
-                            setRemainingTime(remainingTime);
-                            setIsActive(false);
-                            setPaused(true);
-                        } else {
-                            setRemainingTime(remainingTime);
-                            setIsActive(false);
-                            setPaused(false);
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error loading timer data: ", error);
-                }
-            }
-        });
+        if (!isNaN(savedTime)) {
+            setRemainingTime(savedTime);
+            updateDisplay(savedTime);
+        }
 
-        return () => unsubscribe;
+        if (savedState) {
+            setIsActive(true);
+        } 
 
-        // const loadTimerData = async () => {
-        //     try {
-        //         const timerDoc = await getDoc(timerRef);
-        //         if (timerDoc.exists()) {
-        //             const timerData = timerDoc.data().timer;
-        //             if (timerData) {
-        //                 const { countdownTime, remainingTime, isActive, paused } = timerData;
+        if (savedPaused) {
+            setPaused(true);
+        }
+    }, []);
 
-        //                 if (isActive && countdownTime) {
-        //                     const adjustedCountdownTime = countdownTime - Date.now();
-        //                     setCountdownTime(countdownTime);
-        //                     setIsActive(true);
-        //                     setPaused(paused);
-        //                     setRemainingTime(adjustedCountdownTime);
-        //                     updateDisplay(adjustedCountdownTime);
-        //                 } else {
-        //                     setRemainingTime(remainingTime);
-        //                 }
-        //             }
-        //         }
-        //     } catch (error) {
-        //         console.error("Error loading timer data: ", error);
-        //     }
-        // };
-        // loadTimerData();
-
-    }, [roomCode]);
+    // save timer state to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem("meditationTimerRemainingTime", remainingTime);
+        localStorage.setItem("meditationTimerIsActive", isActive);
+        localStorage.setItem("meditationTimerPaused", paused);
+    }, [remainingTime, isActive, paused]);
 
     // handle countdown timer interval
     useEffect(() => {
-        if (isActive && countdownTime) {
+        if (isActive && !paused) {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
             }
 
-            const tick = () => {
-                const now = Date.now();
-                const timeLeft = countdownTime - now;
+            completedRef.current = false;
 
-                if (timeLeft > 0) {
-                    updateDisplay(timeLeft);
-                    setRemainingTime(timeLeft);
-                } else {
-                    clearInterval(intervalRef.current);
-                    intervalRef.current = null;
-                    resetTimer();
-                    handleComplete();
-
-                    console.log("STUDY BREAK TIME!!!");
-                }
-            };
-
-            tick();
-            intervalRef.current = setInterval(tick, 1000);
+            // start and resume the timer
+            intervalRef.current = setInterval(() => {
+                setRemainingTime((prev) => {
+                    if (prev <= 1000) {
+                        clearInterval(intervalRef.current);
+                        handleComplete();
+                        return 0;
+                    } else {
+                        const updatedTime = prev - 1000;
+                        updateDisplay(updatedTime);
+                        return updatedTime;
+                    }
+                    
+                });
+            }, 1000);
 
             return () => clearInterval(intervalRef.current);
+
+            // const tick = () => {
+            //     setRemainingTime((prev) => {
+            //         if (prev <= 1000) {
+            //             clearInterval(intervalRef.current);
+            //             // intervalRef.current = null;
+            //             handleComplete();
+            //             return 0;
+            //         } else {
+            //             const updatedTime = prev - 1000;
+            //             updateDisplay(updatedTime);
+            //             return updatedTime;
+            //         }
+            //     })
+            // };
+
+            // intervalRef.current = setInterval(tick, 1000);
+
+            // return () => clearInterval(intervalRef.current);
+        } else if (paused && intervalRef.current) {
+            clearInterval(intervalRef.current);
         }
-    }, [isActive, countdownTime]);
+    }, [isActive, paused]);
 
     const handleStart = async () => {
-        if (isActive && !paused) {
-            // pause timer
-            setPaused(true);
-            setIsActive(false); // stops interval without clearing remaining time
-
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-
-            await updateTimerInFirestore({ paused: true, isActive: false, remainingTime });
-        } else if (paused) {
-            // resume timer
-            const newCountdownTime = Date.now() + remainingTime;
-
-            setCountdownTime(newCountdownTime); // set new target time
-            setPaused(false);
-            setIsActive(true);
-
-            await updateTimerInFirestore({ countdownTime: newCountdownTime, paused: false, isActive: true });
-        } else {
-            // start timer for the first time
-            const totalMilliseconds = (hoursInput * 3600 + minutesInput * 60 + secondsInput) * 1000;
-            const endTimestamp = Date.now() + totalMilliseconds;
-
-            setCountdownTime(endTimestamp);
-            setRemainingTime(totalMilliseconds);
-            setPaused(false);
-            setIsActive(true);
-
-            // initialize display immediately
-            updateDisplay(totalMilliseconds);
-
-            await updateTimerInFirestore({ countdownTime: endTimestamp, remainingTime: totalMilliseconds, isActive: true, paused: false });
-        }
+        if (!isActive) {
+            const totalMilliseconds = (minutesInput * 60 + secondsInput) * 1000;
         
+            if (totalMilliseconds > 0) {
+                setRemainingTime(totalMilliseconds);
+                setIsActive(true);
+                setPaused(false);
+                updateDisplay(totalMilliseconds);
+            } else {
+                alert("Time cannot be negative! Please enter a valid time.");
+            }
+        }
+    }
+
+    const handlePause = () => {
+        if (isActive) {
+            setPaused((prev) => !prev);
+        }
     }
 
     const resetTimer = () => {
         setIsActive(false);
         setPaused(false);
-        setHours(0);
+        setRemainingTime(0);
         setMinutes(0);
         setSeconds(0);
-        setHoursInput("");
         setMinutesInput("");
         setSecondsInput("");
-        setCountdownTime(null);
-        setRemainingTime(0);
-        if (intervalRef.current) clearInterval(intervalRef.current);
+        
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+
+        localStorage.removeItem("meditationTimerRemainingTime");
+        localStorage.removeItem("meditationTimerIsActive");
+        localStorage.removeItem("meditationTimerPaused");
     };
 
     const handleRestart = () => {
         resetTimer();
-
-        updateDoc(timerRef, {
-            timer: {
-                countdownTime: null,
-                remainingTime: 0,
-                isActive: false,
-                paused: false,
-                initialDuration: 0
-            }
-        });
     };
 
     const handleComplete = async () => {
+        if (completedRef.current) {
+            return;
+        }
+
+        completedRef.current = true;
+
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+
+        alert('Meditation Step Completed!');
         resetTimer();
-
-        alert("STUDY BREAK TIME!!");
-    
-        await updateDoc(timerRef, {
-            'timer.timerComplete': true, // Set flag in Firestore
-            'timer.isActive': false,
-            'timer.remainingTime': 0
-        });
-
-        // wait briefly before resetting completion status
-        setTimeout(() => {
-            resetTimerStatus();
-        }, 1000); // 1 second delay
     };
     
 
     const updateDisplay = (timeLeft) => {
-        const newTimeLeft = timeLeft + 1000;
-        setHours(Math.floor(newTimeLeft / (1000 * 60 * 60)));
-        setMinutes(Math.floor((newTimeLeft % (1000 * 60 * 60)) / (1000 * 60)));
-        setSeconds(Math.floor((newTimeLeft % (1000 * 60)) / 1000));
-    }
-
-    const updateTimerInFirestore = async (timerData) => {
-        try {
-            await updateDoc(timerRef, { timer: timerData });
-        } catch (error) {
-            console.error("Error updating timer in Firestore: ", error);
-        }
+        const mins = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((timeLeft % (1000 * 60)) / (1000));
+        setMinutes(mins);
+        setSeconds(secs);
     }
 
     return (
         <div className="timer"
         style={{
-            "background-color":
+            "backgroundColor":
                 selectedLight === "light"
                 ? "white"
                 : selectedLight === "dark"
                 ? "rgb(100, 100, 100)"
                 : "white",                       
         }}>
-            <div className="timer-container"
-            >
+            <div className="timer-container">
                 <h3>Meditation Timer</h3>
 
                 <div style={{display: 'flex', justifyContent: 'center', gap: '10px'}}>
-                    <input type="number" placeholder='Hours' value={hoursInput} onChange={(e) => setHoursInput(Number(e.target.value))}></input>
-                    <input type="number" placeholder='Minutes' value={minutesInput} onChange={(e) => setMinutesInput(Number(e.target.value))}></input>
-                    <input type="number" placeholder='Seconds' value={secondsInput} onChange={(e) => setSecondsInput(Number(e.target.value))}></input>
-                    <button className="dynamic-button" style={{width: "70px"}} onClick={handleStart}>
+                    <input
+                        type="number"
+                        placeholder='Minutes'
+                        value={minutesInput}
+                        onChange={(e) => setMinutesInput(Number(e.target.value))}
+                        disabled={isActive}
+                    />
+
+                    <input
+                        type="number"
+                        placeholder='Seconds'
+                        value={secondsInput}
+                        onChange={(e) => setSecondsInput(Number(e.target.value))} 
+                        disabled={isActive}
+                    />
+
+                    <button
+                        className="navigation-button"
+                        style={{backgroundColor: buttonColor, width: "70px", borderRadius: "10px", padding: "10px"}}
+                        onClick={isActive && !paused ? handlePause : handleStart}>
                         {isActive && !paused ? "Pause" : paused ? "Resume" : "Start"}
                     </button>
-                    <button className="dynamic-button" style={{width: "70px"}} onClick={handleRestart}>Restart</button>
+
+                    <button
+                        className="navigation-button"
+                        style={{backgroundColor: buttonColor, width: "70px", borderRadius: "10px", padding: "10px"}}
+                        onClick={handleRestart}
+                    >
+                        Restart
+                    </button>
+
                 </div>
 
-                <h1>{String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</h1>
+                <h1>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</h1>
 
             </div>
         </div>

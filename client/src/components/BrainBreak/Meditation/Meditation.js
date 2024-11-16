@@ -13,7 +13,7 @@ import { useTimer } from "../../Timer/TimerContext";
 
 import breathingExercisesImage from './images/breathing-exercise.png';
 import muscleRelaxationImage from './images/muscle-relaxation.jpg';
-import positiveAffirmationsImage from './images/positive-affirmations.png';
+import positiveAffirmationsImage from './images/self-love.png';
 
 const steps = [
     {
@@ -49,9 +49,11 @@ function Meditation() {
     const roomCode = state?.roomCode;
 
     const { selectedColor, selectedLight, contextUserRole } = useRoomSettings(); // access color and light settings
-    const { isTimerDone, isActive, resetTimerStatus } = useTimer();
 
-    const [currStep, setCurrStep] = useState(0);
+    const [currStep, setCurrStep] = useState(() => {
+        const savedStep = parseInt(localStorage.getItem("meditationCurrStep"), 10);
+        return isNaN(savedStep) || savedStep < 0 || savedStep >= steps.length ? 0 : savedStep;
+    });
 
     const backgroundColor = selectedLight === "light" ? "rgb(255, 253, 248)" : "rgb(69, 67, 63)";
     const colorMapping = {
@@ -66,12 +68,10 @@ function Meditation() {
     };
     const buttonColor = colorMapping[selectedColor || colorMapping.default];
 
+    // save current step to localStorage whenever it changes
     useEffect(() => {
-        if (isTimerDone && !isActive) {
-            alert("STUDY BREAK TIME !!!");
-            resetTimerStatus();
-        }
-    }, [isTimerDone, resetTimerStatus]);
+        localStorage.setItem("meditationCurrStep", currStep);
+    }, [currStep]);
 
     const handleBegin = () => {
         setCurrStep(1);
@@ -87,6 +87,12 @@ function Meditation() {
         if (currStep < steps.length - 1) {
             setCurrStep(currStep + 1);
         }
+    }
+
+    const handleComplete = () => {
+        setCurrStep(0);
+        localStorage.setItem("meditationCurrStep", 0);
+        navigate(`/rooms/${roomName}/brainbreak`, { state: {roomCode : roomCode}});
     }
 
     const handleGoBack = () => {
@@ -123,7 +129,7 @@ function Meditation() {
                             <div className="step-instructions">
                                 <p>{steps[currStep].instructions}</p>
                                 <div className="step-timer"> 
-                                    <MeditationTimer />
+                                    <MeditationTimer key={currStep} stepId={currStep} />
                                 </div>
                             </div>
 
@@ -131,7 +137,10 @@ function Meditation() {
 
                         {/* Progress Bar */}
                         <div className="progress-bar">
-                            <ProgressBar bgcolor={buttonColor} completed={Math.floor((currStep / (steps.length - 1)) * 100)}/>
+                            <ProgressBar
+                                bgcolor={buttonColor}
+                                completed={Math.floor((currStep / (steps.length - 1)) * 100)}
+                            />
                         </div>
                     </div>
                     
@@ -165,7 +174,7 @@ function Meditation() {
                         <button
                         className="navigation-button"
                         style={{backgroundColor: buttonColor}}
-                        onClick={handleGoBack}
+                        onClick={handleComplete}
                     >
                         Complete
                     </button>
