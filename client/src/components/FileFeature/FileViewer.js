@@ -6,7 +6,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import FileUploader from "./FileUploader";
 import NavBar from "../Home/NavBar";
 import "./FileCollab.css";
-import { Button, Position, PrimaryButton, Worker, Viewer, Tooltip } from '@react-pdf-viewer/core';
+import { Button, Position, PrimaryButton, Worker, Viewer, Tooltip, SpecialZoomLevel } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import { Document, Page, pdfjs } from "react-pdf";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
@@ -23,6 +23,8 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { BookmarkIcon, FileIcon, ThumbnailIcon } from '@react-pdf-viewer/default-layout';
 import { SidebarTab } from '@react-pdf-viewer/default-layout';
 import { toolbarPlugin } from '@react-pdf-viewer/toolbar';
+import { bookmarkPlugin } from '@react-pdf-viewer/bookmark';
+import '@react-pdf-viewer/bookmark/lib/styles/index.css';
 
 import {
     query,
@@ -51,6 +53,14 @@ interface Note {
     docID: string;
 }
 
+interface Bookmark {
+    id: number;
+    pageNumber: number;
+    fileUrl: string;
+    userID: string;
+    docID: string;
+}
+
 const FileViewer = (props) => {
     var [user] = useAuthState(auth);
     var userDisplayName = user.displayName;
@@ -58,6 +68,7 @@ const FileViewer = (props) => {
     const [ numPages, setNumPages ] = useState(null);
     const [ pageNumber, setPageNumber ] = useState(1);
     const [ isLoading, setIsLoading ] = useState(true);
+    const [ bookmarks, setBookmarks ] = useState([]);
     const [ url, setURL ] = useState(null);
     const { state } = useLocation();
 
@@ -68,6 +79,7 @@ const FileViewer = (props) => {
     const fileName = props.file;
     const currentUID = user.uid;
 
+    const noteEles: Map<number, HTMLElement> = new Map();
 
     useEffect(() => {
         getDownloadURL(ref(storage, fileName))
@@ -152,7 +164,7 @@ const FileViewer = (props) => {
         note.docID = docRef.id;
         await updateDoc(docRef, {docID: docRef.id});
         setNotes(notes.concat([note]));
-        setSidebarNotes(sidebarNotes.concat([note.content]));
+        setSidebarNotes(sidebarNotes.concat([note]));
     }
     
     const removeNote = (note) =>  {
@@ -225,6 +237,12 @@ const FileViewer = (props) => {
         );
     };
     
+    const jumpToNote = (note: Note) => {
+        if (noteEles.has(note.id)) {
+            noteEles.get(note.id).scrollIntoView();
+        }
+    }
+
     const renderHighlights = (props: RenderHighlightsProps) => (
         <div>
             {notes.map((note) => (
@@ -257,11 +275,15 @@ const FileViewer = (props) => {
                                 }
                             }
                                 return (
-                                    <React.Fragment key={`${idx}-frag`}>
+                                    <React.Fragment key={`${idx}-frag`}
+                                    >
                                     <div key={`${idx}-highlightBlock`} style={Object.assign( {},
                                             props.getCssProperties(area, props.rotation)
                                             )}
-                                            className="highlight-block">
+                                            className="highlight-block"
+                                            ref={(ref): void => {
+                                            noteEles.set(note.id, ((ref): HTMLElement));
+                                        }}>
                                     </div>
                                     </React.Fragment>
                                 );
@@ -274,6 +296,11 @@ const FileViewer = (props) => {
         </div>
     );
 
+    // Configure Toolbar Plugin
+    const toolbarPluginInstance = toolbarPlugin();
+    const { Toolbar } = toolbarPluginInstance;
+
+    // Configure Default Layout Plugin
     const defaultLayoutPluginInstance = defaultLayoutPlugin({
         sidebarTabs: (defaultTabs) =>  [
             {
@@ -281,9 +308,30 @@ const FileViewer = (props) => {
                 {sidebarNotes.map((note) => {
                     if (note.posterID === currentUID)
                     {
+                        if (note.content === "") {
+                            var str = note.quote + "...";
+                            const maxLen = 30;
+                            if (str.length > maxLen) {
+                                str = note.quote.substring(0, Math.min(note.quote.length, maxLen)) + "...";
+                            }
+                            return (
+                            <React.Fragment key={`fragment-${uuidv4()}${note.id}`}>
+                                <button key={`${uuidv4()}${note.id}`} 
+                                    onClick={() => jumpToNote(note)}
+                                >Highlighted: {str}</button>
+                                <div key={`${uuidv4()}--${note.id}`} className="delete-note">
+                                    <button key={`${uuidv4()}${note.id}`} onClick={() => removeNote(note)}>Delete</button>
+                                </div>
+                                   
+                            <p key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                            
+                            </React.Fragment>
+                            );
+                        }
                         return  (
                             <React.Fragment key={`fragment-${uuidv4()}${note.id}`}>
-                                <button key={`${uuidv4()}${note.id}`}  >{note.content}</button>
+                                <button key={`${uuidv4()}${note.id}`} 
+                                    onClick={() => jumpToNote(note)}
+                                >{note.content}</button>
                                 <div key={`${uuidv4()}--${note.id}`} className="delete-note">
                                     <button key={`${uuidv4()}${note.id}`} onClick={() => removeNote(note)}>Delete</button>
                                 </div>
@@ -308,8 +356,16 @@ const FileViewer = (props) => {
             },
             defaultTabs[1],
         ],
+        toolbarPlugin: (ToolbarPluginProps) => [
+            // TODO: Put stuff here to remove the stuff from the default toolbar that we don't want
+        ]
     });
+
     const { activateTab } = defaultLayoutPluginInstance;
+
+    // Configure Bookmark Plugin
+    const bookmarkPluginInstance = bookmarkPlugin();
+    const { Bookmarks } = bookmarkPluginInstance;
 
    const highlightPluginInstance = highlightPlugin({renderHighlightTarget, renderHighlightContent, renderHighlights});
     if (isLoading) return <p>Loading...</p>;
@@ -319,11 +375,7 @@ const FileViewer = (props) => {
         }
         else {
             return (
-            <div className="file-viewer-container">
-                <div className="file-viewer">
-                    <Viewer fileUrl={url} plugins={[highlightPluginInstance, defaultLayoutPluginInstance]}/>
-                </div>
-             </div>
+            <Viewer className="file-viewer" fileUrl={url} plugins={[highlightPluginInstance, defaultLayoutPluginInstance, bookmarkPluginInstance]}/>
             );
         }
     }

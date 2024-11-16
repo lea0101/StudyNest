@@ -4,22 +4,30 @@
     width: 200px;
     background-color: #f1f1f1;
     height: 100%;
-    overflow: auto;
 }
 
 .files-mainviewer {
-    overflow: scroll;
+    width: 80%;
+    height: 80vh;
+    overflow: auto;
+    justify-content: center; 
+    align-items: center;
 }
+
+/*
+.rpv-default-layout__toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+*/
 
 .file-viewer {
     margin-left: 100px;
-    width: 50vw;
+    width: 60vw;
     flex-grow: 1;
-}
-
-.file-viewer-container {
-    overflow-y: scroll;
-    max-height: 700px;
+    
 }
 
 .file-list-button {
