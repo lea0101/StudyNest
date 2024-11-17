@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"
+import { useNavigate } from 'react-router-dom';
 import Select from "react-select";
 import '../../App.css';
 import { storage, auth } from '../../config/firebase';
@@ -14,6 +15,8 @@ import defaultIcon4 from '../../img/default_icon_4.png'
 import defaultIcon5 from '../../img/default_icon_5.png'
 import defaultIcon6 from '../../img/default_icon_6.png'
 import iconPlaceholder from '../../img/icon_placeholder.png'
+
+import "./UserSettings.css"
 
 import { db } from "../../config/firebase";
 import { doc, setDoc } from "firebase/firestore";
@@ -37,6 +40,9 @@ function UserSettings() {
   const [displayName, setDisplayName] = useState(userDisplayName);
   const [profileIcon, setProfileIcon] = useState(icon);
   const [imgURL, setImgURL] = useState(icon); 
+
+  const navigate = useNavigate();
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     // update the user's document in firestore
@@ -90,53 +96,95 @@ function UserSettings() {
       }
   }
 
+  const handleDeleteAccount = () => {
+    setShowConfirmation(true);
+
+    // other code to delete account (can't log in, not shown in rooms anymore)
+  }
+
+  const handleCancelConfirm = () => {
+    setShowConfirmation(false);
+  }
+
+  const handleDeleteConfirm = () => {
+    navigate("/signup");
+  }
+
   return (
     <div className="Settings">
       <NavBar />
-     <h1>User Settings</h1>
-     <div className="settings-form-container">
-	<h4>Update Preferences</h4>
-	<form onSubmit={submitPrefs} className='prefs-form'>
-      <label>Username<br/> 
-        <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)}/>
-      </label>
-      <br/>
-	  <label>Display Name<br/>
-	  	<input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)}/>
-	  </label>
-	  <br/>
-	  <label>Profile Icon</label>
-	  <div className="profile-icon-selection">
-	  	<div>
-	  	  <Select name="profileIconSelection" 
-	  	  placeholder="Choose From the List"
-	  	  className="profile-icon-dropdown"
-	  	  onChange={(e) => setProfileIcon(e.image)}
-	  	  value={profileIcon?.image}
-                  options={defaultIcons}
-                  formatOptionLabel={icon => (
-                      <div className="profile-icon-option">
-                          <img src={icon.image} alt={icon.label} class="profile-icon-option"/>
-                      </div>
-                  )} />
-	  	</div>
-        <br/>
-	  	<div>
-            <label>Or, upload your own...</label>
-            <input id='file_upload_button' type='file' accept='image/*' />
-	  	</div>
-	  <br/>
-      <div>
-      <label>Preview</label>
-      { (imgURL && <img src={imgURL} alt='' height={150} />) 
-        || (profileIcon && <img src={profileIcon} alt='' height={150} />) }
-      </div>
-      </div>
-      <br/>
-	   <button type="submit" class='save-button'>Save Changes</button>
-	</form>
 
-     </div>
+      <h1>User Settings</h1>
+
+      <div className="settings-form-container">
+        {/* <h4>Update Preferences</h4> */}
+
+        <form onSubmit={submitPrefs} className='prefs-form'>          
+          <label>Username<br/> 
+          <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)}/>
+          </label>
+          <br/>
+
+          <label>Display Name<br/>
+          <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)}/>
+          </label>
+          <br/>
+
+          <label>Profile Icon</label>
+          <div className="profile-icon-selection">
+            <div>
+              <Select name="profileIconSelection" 
+              placeholder="Choose From the List"
+              className="profile-icon-dropdown"
+              onChange={(e) => setProfileIcon(e.image)}
+              value={profileIcon?.image}
+              options={defaultIcons}
+              formatOptionLabel={icon => (
+                <div className="profile-icon-option">
+                  <img src={icon.image} alt={icon.label} class="profile-icon-option"/>
+                </div>
+              )} />
+            </div>
+            <br/>
+
+            <div>
+              <label>Or, upload your own...</label>
+              <input id='file_upload_button' type='file' accept='image/*' />
+            </div>
+            <br/>
+
+            <div>
+              <label>Preview</label>
+              { (imgURL && <img src={imgURL} alt='' height={150} />) 
+              || (profileIcon && <img src={profileIcon} alt='' height={150} />) }
+            </div>
+          </div>
+          <br/>
+
+          <div className="button-group">
+            <button type="submit" class='save-button'>Save Changes</button>
+            <button class='delete-account-button' onClick={handleDeleteAccount}>Delete Account</button>
+          </div>
+        </form>
+
+      </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmation && (
+        <div>
+          <div className="delete-modal">
+              <div className="delete-content">
+                <h3>!! Delete Account !!</h3>
+                <p>Are you sure you want to delete your account? This action CANNOT be undone.</p>
+                <div className="delete-modal-buttons">
+                  <button className="cancel-leave-button" onClick={handleCancelConfirm}>Cancel</button>
+                  <button className="confirm-leave-button" onClick={handleDeleteConfirm}>Yes</button>
+                </div>
+              </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
