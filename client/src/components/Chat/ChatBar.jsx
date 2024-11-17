@@ -7,6 +7,7 @@ import { faCheck, faPaperPlane, faUpload } from '@fortawesome/free-solid-svg-ico
 import { v4 as uuidv4 } from "uuid";
 import Emaill from "./Emaill"
 import UserList from "./UserList";
+import StickerPopup from "./StickerPopup";
 import "./ChatBar.css";
 
 const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
@@ -145,6 +146,11 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
     sendChat();
   }
 
+  function sendStickerHandler(url) {
+    console.log(`pretend sending ${url}`)
+  }
+
+
 
 
   /*
@@ -155,6 +161,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
       autoComplete="off"
       onSubmit={(event) => sendChatEvent(event)} >
 
+      <StickerPopup sendStickerHandler={sendStickerHandler}/>
       <div className="button_container">
         <input id='file_upload_button' onChange={() => handleButtonAnimation()}  type='file' accept='image/*,.gif' ref={inputFile} hidden/>
         <div id='file_button' className="upload_button button" data-button onClick={handleUpload}>
