@@ -104,7 +104,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
     //document.querySelector("#airplane").classList.add('fly');
     url = url ? url : "";
     console.log("updating DB with the following: " + url)
-    addDoc(dbMsgQuery, { // TODO make new collection per group
+    addDoc(dbMsgQuery, {
       text: message,
       name: displayName,
       avatar: photoURL,
@@ -146,8 +146,23 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
     sendChat();
   }
 
-  function sendStickerHandler(url) {
-    console.log(`pretend sending ${url}`)
+  function sendStickerHandler(sticker_url) {
+    console.log(`pretend sending ${sticker_url}`)
+    //document.querySelector("#airplane").classList.add('fly');
+    addDoc(dbMsgQuery, {
+      text: "",
+      name: displayName,
+      avatar: photoURL,
+      createdAt: serverTimestamp(),
+      imageSrc: sticker_url,
+      uid,
+    }).catch((err) => {
+      alert("Error sending message");
+    }).then(() => {
+      scroll.current.scrollIntoView({ behavior: "smooth" });
+      setPingEnabled(true);
+      setIsEnabled(true);
+    });
   }
 
 
