@@ -14,14 +14,14 @@
     align-items: center;
 }
 
-/*
-.rpv-default-layout__toolbar {
-    position: fixed;
-    top: 0;
-    left: 0;
+.toolbar {
     width: 100%;
 }
-*/
+
+.bookmark-button {
+    float: right;
+    margin-right: 2%;
+}
 
 .file-viewer {
     margin-left: 100px;
@@ -131,4 +131,21 @@
     border: none;
     width: 100%;
     font-style: italic;
+}
+
+.sidebar-note-link {
+    width: 100%;
+    button {
+        border: none;
+        width: 100%;
+        text-align: left;
+        border-bottom: 3px dotted #CCCCCC;
+        font-style: italic;
+    }
+    p {
+        width: 100%;
+        text-align: left;
+        border-bottom: 3px solid #DDDDDD;
+        font-size: small;
+    }
 }

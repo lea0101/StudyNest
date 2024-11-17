@@ -25,6 +25,7 @@ import { SidebarTab } from '@react-pdf-viewer/default-layout';
 import { toolbarPlugin } from '@react-pdf-viewer/toolbar';
 import { bookmarkPlugin } from '@react-pdf-viewer/bookmark';
 import '@react-pdf-viewer/bookmark/lib/styles/index.css';
+import { FaRegBookmark, FaBookmark } from "react-icons/fa6";
 
 import {
     query,
@@ -54,8 +55,7 @@ interface Note {
 }
 
 interface Bookmark {
-    id: number;
-    pageNumber: number;
+    pageID: number;
     fileUrl: string;
     userID: string;
     docID: string;
@@ -66,9 +66,9 @@ const FileViewer = (props) => {
     var userDisplayName = user.displayName;
     // Get the file url from firebase
     const [ numPages, setNumPages ] = useState(null);
-    const [ pageNumber, setPageNumber ] = useState(1);
     const [ isLoading, setIsLoading ] = useState(true);
     const [ bookmarks, setBookmarks ] = useState([]);
+    var shouldUpdateBookmarks = false;
     const [ url, setURL ] = useState(null);
     const { state } = useLocation();
 
@@ -78,6 +78,7 @@ const FileViewer = (props) => {
     let noteId = notes.length;
     const fileName = props.file;
     const currentUID = user.uid;
+    const [ currentPage, setCurrentPage ] = useState(1); 
 
     const noteEles: Map<number, HTMLElement> = new Map();
 
@@ -110,6 +111,26 @@ const FileViewer = (props) => {
 
         return ()  => q;
     }, []);
+
+    useEffect(() => {
+        setBookmarks([]);
+        const q = query(collection(db, "file_bookmarks"), where ("fileUrl", "==", fileName));
+        const querySnapshot = onSnapshot(q, (QuerySnapshot) => {
+            QuerySnapshot.forEach((doc) => {
+                if (doc.data().userID === currentUID) {
+                    let thisBookmark: Bookmark = {
+                        pageID: doc.data().pageID,
+                        fileUrl: fileName,
+                        userID: doc.data().userID,
+                        docID: doc.data().docID
+                    };
+                    setBookmarks(bookmarks.concat(thisBookmark));
+                }
+            });
+        });
+    }, [shouldUpdateBookmarks]);
+
+    shouldUpdateBookmarks = !shouldUpdateBookmarks;
 
     const renderHighlightTarget = (props: RenderHighlightTargetProps) => (
         <div
@@ -154,7 +175,7 @@ const FileViewer = (props) => {
             quote: props.selectedText,
             fileUrl: fileName,
             posterDisplayName: userDisplayName,
-            posterID: user.uid,
+            posterID: currentUID,
         };
         addNewNote(note);
     }
@@ -168,7 +189,6 @@ const FileViewer = (props) => {
     }
     
     const removeNote = (note) =>  {
-        console.log(note.docID);
         deleteNote(note.docID);
     }
 
@@ -193,7 +213,7 @@ const FileViewer = (props) => {
                     quote: props.selectedText,
                     fileUrl: fileName,
                     posterDisplayName: userDisplayName,
-                    posterID: user.uid
+                    posterID: currentUID
                 };
                 addNewNote(note);
                 props.cancel();
@@ -296,6 +316,9 @@ const FileViewer = (props) => {
         </div>
     );
 
+    const handlePageChange = (e) => {
+        setCurrentPage(e);
+    };
     // Configure Toolbar Plugin
     const toolbarPluginInstance = toolbarPlugin();
     const { Toolbar } = toolbarPluginInstance;
@@ -354,18 +377,66 @@ const FileViewer = (props) => {
                 icon: <MessageIcon />,
                 title: 'Notes',
             },
-            defaultTabs[1],
+            {
+                content: <div className="sidebar-bookmark-link"> 
+                {bookmarks.map((bmark) => {
+                            return (
+                            <React.Fragment key={`fragment-${uuidv4()}${bmark.id}`}>
+                                <button key={`${uuidv4()}${bmark.id}`}>Page {bmark.pageID+1}</button>
+                            </React.Fragment>
+                            );
+                })}
+                </div>,
+                icon: <FaBookmark/>,
+                title: "Bookmarks"
+            },
         ],
-        toolbarPlugin: (ToolbarPluginProps) => [
-            // TODO: Put stuff here to remove the stuff from the default toolbar that we don't want
-        ]
+        renderToolbar: (props) => {
+            return (
+            <div className="toolbar">
+                <button className="bookmark-button" onClick={() => addBookmark(props)} style={{ padding: '5px 10px' }}>
+                   <FaRegBookmark/> 
+                </button>
+            </div>
+        );
+        }
     });
 
     const { activateTab } = defaultLayoutPluginInstance;
 
-    // Configure Bookmark Plugin
-    const bookmarkPluginInstance = bookmarkPlugin();
-    const { Bookmarks } = bookmarkPluginInstance;
+    const addBookmark = (props) => {
+        const bookmarkRef = bookmarks.filter(e => e.pageID === currentPage.currentPage);
+        if (bookmarkRef.length === 0) {
+            const bookmark : Bookmark = {
+                pageID: currentPage.currentPage,
+                fileUrl: fileName,
+                userID: currentUID,
+            }
+            uploadBookmarkToDb(bookmark);
+            shouldUpdateBookmarks = !shouldUpdateBookmarks;
+        }
+        else {
+            // Delete the bookmark if they click the icon again on the same page
+            deleteBookmarkDb(bookmarkRef[0].docID);
+        }
+    };
+    
+    async function uploadBookmarkToDb(bookmark) {
+        const docRef = await addDoc(collection(db, "file_bookmarks"), bookmark);
+        bookmark.docID = docRef.id;
+        await updateDoc(docRef, {docID: docRef.id});
+        setBookmarks(bookmarks.concat([bookmark]));
+    }
+    async function deleteBookmarkDb(bookmarkID) {
+        const docRef = doc(db, "file_bookmarks", bookmarkID);
+        deleteDoc(docRef)
+        .then(() => {
+            shouldUpdateBookmarks = !shouldUpdateBookmarks;
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    }
 
    const highlightPluginInstance = highlightPlugin({renderHighlightTarget, renderHighlightContent, renderHighlights});
     if (isLoading) return <p>Loading...</p>;
@@ -375,7 +446,7 @@ const FileViewer = (props) => {
         }
         else {
             return (
-            <Viewer className="file-viewer" fileUrl={url} plugins={[highlightPluginInstance, defaultLayoutPluginInstance, bookmarkPluginInstance]}/>
+            <Viewer className="file-viewer" onPageChange={handlePageChange} fileUrl={url} plugins={[highlightPluginInstance, defaultLayoutPluginInstance]}/>
             );
         }
     }
