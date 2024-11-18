@@ -118,6 +118,12 @@ const Video = () => {
         });
     }, [videoSync]);
 
+    useEffect(() => {
+        if (videoSync) {
+            setDoc(doc(db, 'yt-time', roomCode), { videoId: videoId, timestamp: timestamp });
+        }
+    }, [videoId]);
+
     async function addAnnotation() {
         console.log('add annotation');
         console.log(annotations);
