@@ -110,8 +110,9 @@ const Video = () => {
         // collection yt-sync, document roomCode, field timestamp
         const docRef = doc(db, 'yt-time', roomCode);
         const docSnap = getDoc(docRef).then(docSnap => {
-            if (docSnap.exists()) {
+            if (docSnap.exists() && videoSync) {
                 const data = docSnap.data();
+                setVideoId(data.videoId);
                 setTimestamp(data.timestamp);
             }
         });

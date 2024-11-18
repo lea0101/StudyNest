@@ -4,6 +4,13 @@ import YouTube from 'react-youtube';
 function YouTubePlayer({ videoId, timestamp, onTimeUpdate }) {
     const [player, setPlayer] = useState(null);
 
+    // update timestamp if updated
+    useEffect(() => {
+      if (player) {
+        player.seekTo(timestamp);
+      }
+    }, [timestamp, player]);
+
     const onPlayerReady = (event) => {
       setPlayer(event.target);
     }
