@@ -108,14 +108,18 @@ const Video = () => {
 
     useEffect(() => {
         // collection yt-sync, document roomCode, field timestamp
-        const docRef = doc(db, 'yt-time', roomCode);
-        const docSnap = getDoc(docRef).then(docSnap => {
-            if (docSnap.exists() && videoSync) {
-                const data = docSnap.data();
-                setVideoId(data.videoId);
+        // if video sync is enabled, update timestamp and videoid to match that of db
+        const q = query(
+            collection(db, 'yt-time')
+        );
+        const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
+            QuerySnapshot.forEach((doc) => {
+                let data = doc.data();
                 setTimestamp(data.timestamp);
-            }
+                setVideoId(data.videoId);
+            });
         });
+        return () => unsubscribe;
     }, [videoSync]);
 
     useEffect(() => {
