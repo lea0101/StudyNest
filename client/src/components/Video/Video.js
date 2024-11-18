@@ -31,6 +31,8 @@ const Video = () => {
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
 
+    let [videoSync, setVideoSync] = useState(false);
+
     useEffect(() => {
         console.log("useEffect 1");
 
@@ -98,33 +100,22 @@ const Video = () => {
     }, [videoId]);
 
     async function updateDBTimestamp(newTimestamp) {
-        const q = query(
-            collection(db, `yt-time-${roomCode}`)
-        );
-        const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
-            QuerySnapshot.forEach((doc) => {
-                const docRef = doc.ref;
-                setDoc(docRef, { timestamp: newTimestamp });
-            });
-            setTimestamp(newTimestamp);
-        });
-        return () => unsubscribe;
+        if (videoSync) {
+            console.log('updating timestamp', newTimestamp);
+            await setDoc(doc(db, 'yt-time', roomCode), { timestamp: newTimestamp });
+        }
     }
 
     useEffect(() => {
-        const q = query(
-            collection(db, `yt-time-${roomCode}`)
-        );
-        const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
-            let newTimestamp = timestamp;
-            QuerySnapshot.forEach((doc) => {
-                const data = doc.data();
-                newTimestamp = data.timestamp;
-            });
-            setTimestamp(newTimestamp);
+        // collection yt-sync, document roomCode, field timestamp
+        const docRef = doc(db, 'yt-time', roomCode);
+        const docSnap = getDoc(docRef).then(docSnap => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                setTimestamp(data.timestamp);
+            }
         });
-        return () => unsubscribe;
-    }, []);
+    }, [videoSync]);
 
     async function addAnnotation() {
         console.log('add annotation');
@@ -161,6 +152,15 @@ const Video = () => {
         console.log('added new annotation', annotation, annotations);
     }
 
+    function toggleSync(event) {
+        const enableSync = event.target.checked;
+        console.log('enableSync', enableSync);
+        setVideoSync(enableSync);
+        // if (enableSync) {
+        //     updateDBTimestamp(timestamp);
+        // }
+    }
+
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
     } else if (isAuthorized == 2){
@@ -188,6 +188,10 @@ const Video = () => {
                         }
                     </ul>
                     <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp}/>
+                </div>
+                <div style={{ display: 'flex' }}>
+                    <label style={{ width: 'max-content'}} htmlFor="enable-sync">Enable Sync: </label>
+                    <input style={{ maxWidth: '30px'}} type="checkbox" name="enable-sync" onChange={toggleSync} />
                 </div>
                 <div>
                     <input id="annotationInput" type="text" />
