@@ -437,24 +437,29 @@ function RoomPage() {
             <div className="room-header">
                 <h1>Welcome to Room {roomName}</h1>
             </div>
-            <div className="room-users">
-                <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Users in Room</h2>
-                <ul>
-                    {userList.map((user, i) => (
-                        // <li key={i}>{user}</li>
-                        <li key={i}>{user.username}</li>
-                    ))}
-                </ul>
-            </div>
 
             {/* content in the middle */}
-            <div className="room-content">
-                <p>Explore your virtual study room</p>
-                <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
-                <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
-                <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
-                <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
-                <Timer />
+            <div className="room-container">
+                {/* users in the room */}
+                <div className="room-users">
+                    <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Users in Room</h2>
+                    <ul>
+                        {userList.map((user, i) => (
+                            // <li key={i}>{user}</li>
+                            <li key={i}>{user.username}</li>
+                        ))}
+                    </ul>
+                </div>
+
+                {/* core features */}
+                <div className="room-content">
+                    <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Explore your virtual study room</h2>
+                    <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
+                    <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+                    <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
+                    <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
+                    <Timer />
+                </div>
             </div>
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
