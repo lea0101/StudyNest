@@ -25,6 +25,8 @@ const Video = () => {
     let [videoId, setVideoId] = useState('');
     let [displayName, setDisplayName] = useState('');
     let [photoURL, setPhotoURL] = useState('');
+    let [videoState, setVideoState] = useState(0);
+    let [videoStateSignal, setVideoStateSignal] = useState(0);
 
     const [isAuthorized, setAuthorized] = useState(2);
 
@@ -100,9 +102,18 @@ const Video = () => {
     }, [videoId]);
 
     async function updateDBTimestamp(newTimestamp) {
-        if (videoSync) {
-            console.log('updating timestamp', newTimestamp);
-            await setDoc(doc(db, 'yt-time', roomCode), { timestamp: newTimestamp });
+        // if (videoSync) {
+        //     console.log('updating timestamp', newTimestamp);
+        //     await setDoc(doc(db, 'yt-time', roomCode),
+        //     {
+        //         videoId: videoId,
+        //         timestamp: timestamp,
+        //         videoState: videoState,
+        //         lastUpdated: user.uid
+        //     });
+        // }
+        if (Math.abs(newTimestamp - timestamp) > 3) {
+            setTimestamp(newTimestamp);
         }
     }
 
@@ -117,16 +128,34 @@ const Video = () => {
                 let data = doc.data();
                 setTimestamp(data.timestamp);
                 setVideoId(data.videoId);
+                setVideoState(data.videoState || 0);
             });
         });
         return () => unsubscribe;
     }, [videoSync]);
 
     useEffect(() => {
-        if (videoSync) {
-            setDoc(doc(db, 'yt-time', roomCode), { videoId: videoId, timestamp: timestamp });
+        console.log(videoId, timestamp, videoState);
+        if (videoState === 0) {
+            return;
         }
-    }, [videoId]);
+        if (videoSync) {
+            console.log('updating', {
+                videoId: videoId,
+                timestamp: timestamp,
+                videoState: videoState,
+                lastUpdated: user.uid
+            });
+            setDoc(doc(db, 'yt-time', roomCode),
+            {
+                videoId: videoId,
+                timestamp: timestamp,
+                videoState: videoState,
+                lastUpdated: user.uid
+            });
+            setVideoState(0);
+        }
+    }, [videoId, videoState, timestamp]);
 
     async function addAnnotation() {
         console.log('add annotation');
@@ -189,7 +218,7 @@ const Video = () => {
                                                 const formattedTimestamp = new Date(annotation.timestamp * 1000).toISOString().substr(11, 8);
                                                 return (
                                                 <li className="video-annotation"key={index}>
-                                                    <img className="video-annotation-pfp" width="30px" src={annotation.photoURL} alt="" />
+                                                    {annotation.photoURL && <img className="video-annotation-pfp" width="30px" src={annotation.photoURL} alt="" /> }
                                                     <span className='video-annotation-text'>{annotation.displayName}</span>
                                                     <span className="video-annotation-timestamp">{formattedTimestamp}</span> 
                                                     <span className="video-annotation-text">{annotation.text}</span>
@@ -198,7 +227,7 @@ const Video = () => {
                                         )
                         }
                     </ul>
-                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp}/>
+                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp} videoState={videoState} setVideoState={setVideoState}/>
                 </div>
                 <div style={{ display: 'flex' }}>
                     <label style={{ width: 'max-content'}} htmlFor="enable-sync">Enable Sync: </label>
