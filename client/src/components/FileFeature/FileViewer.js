@@ -1,29 +1,21 @@
 import React, { useState, useEffect, useRef} from 'react';
 import { storage, auth, db } from '../../config/firebase';
 import { useAuthState } from "react-firebase-hooks/auth";
-import { ref, listAll, getDownloadURL, uploadBytesResumable, getStorage } from "firebase/storage";
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import FileUploader from "./FileUploader";
-import NavBar from "../Home/NavBar";
+import { ref, getDownloadURL } from "firebase/storage";
+import { useNavigate, useLocation } from 'react-router-dom';
 import "./FileCollab.css";
-import { Button, Position, PrimaryButton, Worker, Viewer, Tooltip, SpecialZoomLevel } from '@react-pdf-viewer/core';
+import { Button, Position, PrimaryButton, Viewer, Tooltip, } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
-import { Document, Page, pdfjs } from "react-pdf";
+import { pdfjs } from "react-pdf";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import { HighlightArea, SelectionData, highlightPlugin, RenderHighlightTargetProps, RenderHighlightContentProps, MessageIcon, RenderHighlightsProps } from '@react-pdf-viewer/highlight';
 import '@react-pdf-viewer/highlight/lib/styles/index.css';
-import { TiMessage } from "react-icons/ti";
 import { FaHighlighter } from "react-icons/fa";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import 'react-tooltip/dist/react-tooltip.css';
-import { SelectionMode } from '@react-pdf-viewer/selection-mode';
 import { v4 as uuidv4 } from 'uuid';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
-import { BookmarkIcon, FileIcon, ThumbnailIcon } from '@react-pdf-viewer/default-layout';
-import { SidebarTab } from '@react-pdf-viewer/default-layout';
-import { toolbarPlugin } from '@react-pdf-viewer/toolbar';
-import { bookmarkPlugin } from '@react-pdf-viewer/bookmark';
 import '@react-pdf-viewer/bookmark/lib/styles/index.css';
 import { FaRegBookmark, FaBookmark } from "react-icons/fa6";
 import { pageNavigationPlugin } from '@react-pdf-viewer/page-navigation';
@@ -37,7 +29,6 @@ import {
     doc,
     deleteDoc,
     where,
-    getDocs,
     updateDoc
 } from "firebase/firestore";
 
@@ -71,7 +62,6 @@ const FileViewer = (props) => {
     const [ bookmarks, setBookmarks ] = useState([]);
     var shouldUpdateBookmarks = false;
     const [ url, setURL ] = useState(null);
-    const { state } = useLocation();
 
     const [ message, setMessage ] = useState('');
     const [ notes, setNotes ] = useState([]);
@@ -85,7 +75,6 @@ const FileViewer = (props) => {
     const bmarkEles: Map<number, HTMLElement> = new Map();
     const [ isCurrentPageBookmarked, setCurrentPageBookmarked ] = useState(false);
 
-    const viewerRef = useRef(null);
 
     useEffect(() => {
         getDownloadURL(ref(storage, fileName))
@@ -460,13 +449,14 @@ const FileViewer = (props) => {
                 userID: currentUID,
             }
             uploadBookmarkToDb(bookmark);
-            shouldUpdateBookmarks = !shouldUpdateBookmarks;
 
         }
         else {
             // Delete the bookmark if they click the icon again on the same page
             deleteBookmarkDb(bookmarkRef[0].docID);
+            setBookmarks([]);
         }
+        shouldUpdateBookmarks = !shouldUpdateBookmarks;
     };
     
     async function uploadBookmarkToDb(bookmark) {
