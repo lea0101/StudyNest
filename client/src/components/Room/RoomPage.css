@@ -31,3 +31,13 @@
     max-width: 500px;
     padding: 30px;
 }
+
+.users {
+    width: 200px;
+    color: white;
+    font-size: 16px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+}

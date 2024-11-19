@@ -26,6 +26,10 @@ function RoomPage() {
     const [isAuthorized, setAuthorized] = useState(2);
     const [rooms, setRooms] = useState([]);
     const [userList, setUserList] = useState([]);
+    const [showBio, setShowBio] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedUserBio, setSelectedUserBio] = useState(null);
+    const [loadingUser, setLoadingUser] = useState(false);
     const navigate = useNavigate();
 
     const { roomName } = useParams(); // get room name from url params
@@ -408,6 +412,34 @@ function RoomPage() {
         }
     };
 
+    const handleClickUser = async (user) => {
+        setLoadingUser(true);
+        try {
+            setShowBio(true);
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                setSelectedUser(userData.displayname || "User Information:");
+                console.log("selectedUser in handleClickUser: ", selectedUser);
+                setSelectedUserBio(userData.bio || "Hi there! I'm using StudyNest!");
+            } else {
+                setSelectedUserBio("Hi there! I'm using StudyNest!")
+            }
+        } catch (error) {
+            console.error("Error fetching user bio: ", error);
+            setSelectedUserBio("Error fetching bio");
+        } finally {
+            setLoadingUser(false);
+        }
+    }
+
+    // toggle for cancel leave
+    const handleCancelBio = () => {
+        setShowBio(false);
+    }
+
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
     } else if (isAuthorized == 2){
@@ -445,11 +477,46 @@ function RoomPage() {
                     <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Users in Room</h2>
                     <ul>
                         {userList.map((user, i) => (
-                            // <li key={i}>{user}</li>
-                            <li key={i}>{user.username}</li>
+                            // <li key={i}>{user.username}</li>
+                            <button key={i} className="users" onClick={() => handleClickUser(user)}>{user.username}</button>
                         ))}
                     </ul>
                 </div>
+
+                {loadingUser ? (
+                    <div className="confirmation-modal">
+                        <div className="confirmation-content"
+                        style={{
+                            "background-color":
+                                selectedLight === "light"
+                                ? "white"
+                                : selectedLight === "dark"
+                                ? "rgb(69, 67, 63)"
+                                : "white",                       
+                        }}>
+                            <p style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Loading...</p>
+                        </div>
+                    </div>
+                ) : (
+                    showBio && (
+                        <div className="confirmation-modal">
+                            <div className="confirmation-content"
+                            style={{
+                                "background-color":
+                                    selectedLight === "light"
+                                    ? "white"
+                                    : selectedLight === "dark"
+                                    ? "rgb(69, 67, 63)"
+                                    : "white",                       
+                            }}>
+                                <p>{selectedUser}:</p>
+                                <p style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Profile Bio: {selectedUserBio}</p>
+                                <p>*insert profile picture*</p>
+                                <button className="dynamic-button" onClick={handleCancelBio}>Done</button>
+                            </div>
+                        </div>
+                    )
+                )}
 
                 {/* core features */}
                 <div className="room-content">
