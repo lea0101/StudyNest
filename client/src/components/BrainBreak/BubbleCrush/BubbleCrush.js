@@ -4,13 +4,13 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import '../BrainBreak.css'
 import { useRoomSettings } from "../../Room/RoomSettingsContext";
 
-import blue from './blue-bubble.png'
-import green from './green-bubble.png'
-import orange from './orange-bubble.png'
-import purple from './purple-bubble.png'
-import red from './red-bubble.png'
-import yellow from './yellow-bubble.png'
-import blank from './default_icon_3.png'
+import blue from './img/default_icon_1.png'
+import green from './img/default_icon_2.png'
+import orange from './img/default_icon_3.png'
+import purple from './img/default_icon_4.png'
+import red from './img/default_icon_5.png'
+import yellow from './img/default_icon_6.png'
+import blank from './purple-bubble.png'
 
 import ScoreBoard from './ScoreBoard'
 
@@ -159,6 +159,7 @@ const BubbleCrush = () => {
             colorState[squareBeingDraggedId] = squareBeingDragged.getAttribute('src')
             setcolorState([...colorState])
         }
+        
     }
 
     const makeBoard = () => {
@@ -187,6 +188,7 @@ const BubbleCrush = () => {
     }, [checkForColumnOfFour, checkForRowOfFour, checkForColumnOfThree, checkForRowOfThree, moveIntoSquareBelow, colorState])
     
 
+    
     return (
         <div>
             <div className="hangman"
