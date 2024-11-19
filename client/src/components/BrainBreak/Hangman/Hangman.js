@@ -16,7 +16,7 @@ function Hangman() {
 
     const { isTimerDone, isActive, resetTimerStatus } = useTimer(); // access timer
 
-    const [word, setWord] = useState('REACT');
+    const [word, setWord] = useState('STUDYNEEST');
     const [guessedLetters, setGuessedLetters] = useState([]);
     const [incorrectLetters, setIncorrectLetters] = useState([]);
     const [wrongGuesses, setWrongGuesses] = useState(0);
