@@ -71,12 +71,12 @@ function FileUploader({loadFilesHandler}) {
     isDragReject
   ]);
 
-  const files = acceptedFiles.map(file => (
-    <li key={file.path}>
-      {file.path} [{file.size} bytes]
-    </li>
+  var files = acceptedFiles.map(file => (
+    <p key={file.path}>
+      {file.path.slice(2)} [{file.size} bytes]
+    </p>
   ));
-
+    
   const handleSubmit = (e) => {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
@@ -107,9 +107,9 @@ function FileUploader({loadFilesHandler}) {
                 getDownloadURL(uploadTask.snapshot.ref).then(
                     (downloadURL) => 
                     {
+                        loadFilesHandler();
                     });
             });
-       loadFilesHandler();
   }
   return (
     <div className="FileUploader">
@@ -122,9 +122,7 @@ function FileUploader({loadFilesHandler}) {
             Browse Device
         </button>
       </div>
-      <aside>
         <p className="file-upload-selection">{files}</p>
-      </aside>
       <button className="file-form-button" type="submit">Submit</button>
       <br/>
       <br/>

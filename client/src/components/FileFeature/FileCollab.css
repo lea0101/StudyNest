@@ -16,6 +16,7 @@
 
 .toolbar {
     width: 100%;
+    top: 0;
 }
 
 .bookmark-button {
@@ -23,6 +24,10 @@
     margin-right: 2%;
 }
 
+.page-nav-label {
+    float: left;
+    margin-left: 2%;
+}
 .file-viewer {
     margin-left: 100px;
     width: 60vw;

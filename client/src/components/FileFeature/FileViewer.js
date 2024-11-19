@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import { storage, auth, db } from '../../config/firebase';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, listAll, getDownloadURL, uploadBytesResumable, getStorage } from "firebase/storage";
@@ -26,6 +26,8 @@ import { toolbarPlugin } from '@react-pdf-viewer/toolbar';
 import { bookmarkPlugin } from '@react-pdf-viewer/bookmark';
 import '@react-pdf-viewer/bookmark/lib/styles/index.css';
 import { FaRegBookmark, FaBookmark } from "react-icons/fa6";
+import { pageNavigationPlugin } from '@react-pdf-viewer/page-navigation';
+import '@react-pdf-viewer/page-navigation/lib/styles/index.css';
 
 import {
     query,
@@ -65,7 +67,6 @@ const FileViewer = (props) => {
     var [user] = useAuthState(auth);
     var userDisplayName = user.displayName;
     // Get the file url from firebase
-    const [ numPages, setNumPages ] = useState(null);
     const [ isLoading, setIsLoading ] = useState(true);
     const [ bookmarks, setBookmarks ] = useState([]);
     var shouldUpdateBookmarks = false;
@@ -81,6 +82,10 @@ const FileViewer = (props) => {
     const [ currentPage, setCurrentPage ] = useState(1); 
 
     const noteEles: Map<number, HTMLElement> = new Map();
+    const bmarkEles: Map<number, HTMLElement> = new Map();
+    const [ isCurrentPageBookmarked, setCurrentPageBookmarked ] = useState(false);
+
+    const viewerRef = useRef(null);
 
     useEffect(() => {
         getDownloadURL(ref(storage, fileName))
@@ -131,6 +136,21 @@ const FileViewer = (props) => {
     }, [shouldUpdateBookmarks]);
 
     shouldUpdateBookmarks = !shouldUpdateBookmarks;
+
+    const handlePageChange = (e) => {
+        setCurrentPage(e);
+    };
+
+    useEffect(() => {
+        const v = bookmarks.filter(b => b.pageID === currentPage.currentPage);
+        if (v.length > 0) {
+            setCurrentPageBookmarked(true);
+        }
+        else
+        {
+            setCurrentPageBookmarked(false);
+        }    
+    }, [handlePageChange]);
 
     const renderHighlightTarget = (props: RenderHighlightTargetProps) => (
         <div
@@ -196,7 +216,6 @@ const FileViewer = (props) => {
         const docRef = doc(db, "file_notes", noteID);
         deleteDoc(docRef)
         .then(() => {
-            console.log("Deleted successfully.");
         })
         .catch(error => {
             console.log(error);
@@ -262,6 +281,11 @@ const FileViewer = (props) => {
             noteEles.get(note.id).scrollIntoView();
         }
     }
+    const jumpToPage = (pageNumber: number) => {
+        if (bmarkEles.has(pageNumber)) {
+            bmarkEles.get(pageNumber).scrollIntoView();
+        }
+    }
 
     const renderHighlights = (props: RenderHighlightsProps) => (
         <div>
@@ -291,7 +315,7 @@ const FileViewer = (props) => {
                                         </div>
 
                                     </React.Fragment>
-                                );
+                                 );
                                 }
                             }
                                 return (
@@ -311,17 +335,29 @@ const FileViewer = (props) => {
                         )}
                     </div>
                 </React.Fragment>
-
             ))}
+        {bookmarks.map((bookmark) => {
+            <React.Fragment key={`${uuidv4()}${bookmark.pageID}`} >
+                <div
+            style={{
+                background: 'none',
+                display: 'flex',
+                position: 'absolute',
+                left: `0`,
+                top: `0`,
+                transform: 'translate(0, 8px)',
+                    zIndex: 1,
+                }}
+                ref={(ref): void => {
+                    bmarkEles.set(bookmark.pageID, ((ref): HTMLElement));
+                }}
+                />
+            </React.Fragment> 
+        })
+        }
         </div>
     );
 
-    const handlePageChange = (e) => {
-        setCurrentPage(e);
-    };
-    // Configure Toolbar Plugin
-    const toolbarPluginInstance = toolbarPlugin();
-    const { Toolbar } = toolbarPluginInstance;
 
     // Configure Default Layout Plugin
     const defaultLayoutPluginInstance = defaultLayoutPlugin({
@@ -382,20 +418,31 @@ const FileViewer = (props) => {
                 {bookmarks.map((bmark) => {
                             return (
                             <React.Fragment key={`fragment-${uuidv4()}${bmark.id}`}>
-                                <button key={`${uuidv4()}${bmark.id}`}>Page {bmark.pageID+1}</button>
+                                <button onClick={() => jumpToPage(bmark.pageID)} key={`${uuidv4()}${bmark.id}`}>Page {bmark.pageID+1}</button>
                             </React.Fragment>
                             );
                 })}
                 </div>,
-                icon: <FaBookmark/>,
-                title: "Bookmarks"
+                icon: <FaBookmark/> ,
+                title: "Bookmarks",
             },
         ],
         renderToolbar: (props) => {
+            if (isCurrentPageBookmarked) {
             return (
             <div className="toolbar">
+                <p className="page-nav-label">Page {currentPage.currentPage + 1}</p>
                 <button className="bookmark-button" onClick={() => addBookmark(props)} style={{ padding: '5px 10px' }}>
-                   <FaRegBookmark/> 
+                    <FaBookmark/>
+                </button>
+            </div>
+        );
+            }
+            return (
+            <div className="toolbar">
+                <p className="page-nav-label">Page {currentPage.currentPage + 1}</p>
+                <button className="bookmark-button" onClick={() => addBookmark(props)} style={{ padding: '5px 10px' }}>
+                    <FaRegBookmark/>
                 </button>
             </div>
         );
@@ -414,6 +461,7 @@ const FileViewer = (props) => {
             }
             uploadBookmarkToDb(bookmark);
             shouldUpdateBookmarks = !shouldUpdateBookmarks;
+
         }
         else {
             // Delete the bookmark if they click the icon again on the same page
@@ -437,6 +485,7 @@ const FileViewer = (props) => {
             console.log(error);
         });
     }
+    
 
    const highlightPluginInstance = highlightPlugin({renderHighlightTarget, renderHighlightContent, renderHighlights});
     if (isLoading) return <p>Loading...</p>;

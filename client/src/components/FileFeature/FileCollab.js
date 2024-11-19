@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { storage, auth } from '../../config/firebase';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, listAll, getDownloadURL, uploadBytesResumable } from "firebase/storage";
@@ -14,21 +14,26 @@ const FileCollab = () => {
     const { state } = useLocation();
     const [ selectedFile, setSelectedFile ] = useState('');
     const roomName = state?.roomCode;
-    const getFileList = async () => {
-        const storageRef = await ref(storage, `file_uploads/${roomName}`);
-        const result = await listAll(storageRef);
-        const urlPromises = result.items.map((data) => data.name);
-        return Promise.all(urlPromises);
-    };
+    const [ shouldUpdate, setShouldUpdate ] = useState(true);
 
-    const loadFilesHandler = async () => {
-        const urls = await getFileList();
-        setFiles(urls);
-    };
+    const loadFilesHandler = useCallback(() => {
+        const getFileList = async () => {
+            const storageRef = await ref(storage, `file_uploads/${roomName}`);
+            const result = await listAll(storageRef);
+            const urlPromises = result.items.map((data) => data.name);
+            return Promise.all(urlPromises);
+        }
+
+        const getFiles = async () => {
+            const urls = await getFileList();
+            setFiles(urls);
+        }
+        getFiles();
+    }, []);
 
     useEffect(() => {
-      loadFilesHandler();
-     }, []);
+        loadFilesHandler();
+    }, []);
 
     return (
         <div className="module">
