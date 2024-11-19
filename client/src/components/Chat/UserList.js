@@ -1,4 +1,6 @@
 import React, { useRef,useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBell } from '@fortawesome/free-solid-svg-icons'
 import { auth } from "../../config/firebase";
 import { getAuth } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -92,7 +94,8 @@ const UserList = ({addPing, removePing, roomCode}) => {
 
     return (
         <div className="listContainer">
-            Ping
+            <div>  Ping <FontAwesomeIcon icon={faBell}/>
+            </div>
             {userList.map((user, i) => (
                 // <li key={i}>{user}</li>
                 <label className="listLabel" key={i}>

@@ -12,6 +12,44 @@
   width: -moz-available;          /* WebKit-based browsers will ignore this. */
   width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
 }
+.sticker_container{
+	position: absolute;
+	bottom: 50px;
+	height: auto;
+	width: 700px;
+}
+.image-grid {
+    display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    gap: 8px;  /* Space between images */
+}
+
+.image-grid img {
+     width: 100%;  /* Make images responsive */
+    height: 100%;  /* Make images fill the height of the grid item */
+    border-radius: 8px;  /* Optional: add rounded corners */
+	 object-fit: contain; /* Makes sure the entire image is visible */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Optional: subtle shadow */
+    transition: transform 0.3s ease;  /* Optional: image hover effect */
+		 max-height: 75px; /* Prevent the image from exceeding a certain height */
+		 max-width: 75px; /* Prevent the image from exceeding a certain height */
+}
+
+.image-grid img:hover {
+    transform: scale(1.05);  /* Optional: scale on hover */
+}
+
+/*.sticker_grid {*/
+/*  display:flex;*/
+/*  flex-wrap: wrap;*/
+/*  height: 30vh;*/
+/*  width: 300px;*/
+/*}*/
+
+/*.sticker_img {*/
+/*  max-width:100%;*/
+/*  [>height:80px;<]*/
+/*}*/
 
 input:focus {
     outline: none;
