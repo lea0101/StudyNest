@@ -4,22 +4,35 @@
     width: 200px;
     background-color: #f1f1f1;
     height: 100%;
-    overflow: auto;
 }
 
 .files-mainviewer {
-    overflow: scroll;
+    width: 80%;
+    height: 80vh;
+    overflow: auto;
+    justify-content: center; 
+    align-items: center;
 }
 
+.toolbar {
+    width: 100%;
+    top: 0;
+}
+
+.bookmark-button {
+    float: right;
+    margin-right: 2%;
+}
+
+.page-nav-label {
+    float: left;
+    margin-left: 2%;
+}
 .file-viewer {
     margin-left: 100px;
-    width: 50vw;
+    width: 60vw;
     flex-grow: 1;
-}
-
-.file-viewer-container {
-    overflow-y: scroll;
-    max-height: 700px;
+    
 }
 
 .file-list-button {
@@ -91,4 +104,53 @@
 
 .add-note-dialog {
     z-index: 6;
+}
+
+.sidebar-note-link {
+    width: 100%;
+    button {
+        border: none;
+        width: 100%;
+        text-align: left;
+        border-bottom: 3px dotted #CCCCCC;
+        font-style: italic;
+    }
+    p {
+        width: 100%;
+        text-align: left;
+        border-bottom: 3px solid #DDDDDD;
+        font-size: small;
+    }
+}
+
+.delete-note {
+    button {
+        border: none;
+    
+    }
+    color: red;
+    text-align: right;
+    font-size: xx-small;
+    text-decoration-line: underline;
+    border-bottom: 0px solid #DDDDDD;        
+    border: none;
+    width: 100%;
+    font-style: italic;
+}
+
+.sidebar-note-link {
+    width: 100%;
+    button {
+        border: none;
+        width: 100%;
+        text-align: left;
+        border-bottom: 3px dotted #CCCCCC;
+        font-style: italic;
+    }
+    p {
+        width: 100%;
+        text-align: left;
+        border-bottom: 3px solid #DDDDDD;
+        font-size: small;
+    }
 }
