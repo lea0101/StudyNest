@@ -49,6 +49,10 @@ function BrainBreakPage() {
         navigate(`/rooms/${roomName}/brainbreak/hangman`, { state: {roomCode : roomCode}});
     }
 
+    const handleEnterBubbleCrush = () => {
+        navigate(`/rooms/${roomName}/brainbreak/bubblecrush`, { state: {roomCode : roomCode}});
+    }
+
     return (
         <div className="brain-break"
         style={{
@@ -74,6 +78,9 @@ function BrainBreakPage() {
                     </button>
                     <button className="activity-button" onClick={handleEnterHangman} style={{backgroundColor: buttonColor}}>
                         Hangman
+                    </button>
+                    <button className="activity-button" onClick={handleEnterBubbleCrush} style={{backgroundColor: buttonColor}}>
+                        BubbleCrush
                     </button>
                 </div>
             )}
