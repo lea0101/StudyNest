@@ -9,6 +9,7 @@ import { useRoomSettings } from "./RoomSettingsContext";
 import { useTimer } from "../Timer/TimerContext";
 
 import '../BrainBreak/BrainBreak.css'
+import './RoomPage.css'
 
 
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -379,6 +380,7 @@ function RoomPage() {
 
     const handleColorChange = async (event) => {
         const value = event.target.value;
+        console.log("handleColorChange value: ", value);
         setSelectedColor(value);
 
         try {
@@ -393,6 +395,7 @@ function RoomPage() {
 
     const handleLightChange = async (event) => {
         const value = event.target.value;
+        console.log("handleChange value: ", value);
         setSelectedLight(value);
 
         try {
@@ -434,7 +437,7 @@ function RoomPage() {
             <div className="room-header">
                 <h1>Welcome to Room {roomName}</h1>
             </div>
-            <div>
+            <div className="room-users">
                 <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Users in Room</h2>
                 <ul>
                     {userList.map((user, i) => (
@@ -445,12 +448,14 @@ function RoomPage() {
             </div>
 
             {/* content in the middle */}
-            <p>Explore your virtual study room</p>
-            <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
-            <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
-            <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
-            <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
-            <Timer />
+            <div className="room-content">
+                <p>Explore your virtual study room</p>
+                <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
+                <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+                <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
+                <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
+                <Timer />
+            </div>
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">

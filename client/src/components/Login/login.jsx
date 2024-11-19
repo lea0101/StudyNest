@@ -33,8 +33,8 @@ function Login() {
         <>
             <img class="darken" src={logo} onClick={handleLogin} alt="google_button"/>
             {loading && <p>Loading!</p>}
-            {user && <><h2>{user?.displayName}</h2>
-                <img src={user?.photoURL} alt="profile_image" /> </>}
+            {user && <><h3>Logged in as {user?.displayName}</h3>
+            <img style={{width: "100px", height: "100px"}} src={user?.photoURL} alt="profile_image" /> </>}
         </>
     )
 }
