@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { FaUserCircle } from 'react-icons/fa';
+
 import NavBar from '../Home/NavBar';
 import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 import Timer from "../Timer/Timer";
@@ -11,10 +13,8 @@ import { useTimer } from "../Timer/TimerContext";
 import '../BrainBreak/BrainBreak.css'
 import './RoomPage.css'
 
-
 import { useAuthState } from "react-firebase-hooks/auth";
 import { getAuth } from "firebase/auth";
-
 
 import { db } from "../../config/firebase";
 import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot, snapshotEqual } from "firebase/firestore";
@@ -30,6 +30,7 @@ function RoomPage() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedUserBio, setSelectedUserBio] = useState(null);
     const [loadingUser, setLoadingUser] = useState(false);
+    const [imgURL, setImgURL] = useState(null);
     const navigate = useNavigate();
 
     const { roomName } = useParams(); // get room name from url params
@@ -422,8 +423,8 @@ function RoomPage() {
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 setSelectedUser(userData.displayname || "User Information:");
-                console.log("selectedUser in handleClickUser: ", selectedUser);
                 setSelectedUserBio(userData.bio || "Hi there! I'm using StudyNest!");
+                setImgURL(userData.icon);
             } else {
                 setSelectedUserBio("Hi there! I'm using StudyNest!")
             }
@@ -478,7 +479,17 @@ function RoomPage() {
                     <ul>
                         {userList.map((user, i) => (
                             // <li key={i}>{user.username}</li>
-                            <button key={i} className="users" onClick={() => handleClickUser(user)}>{user.username}</button>
+                            <button
+                                key={i}
+                                className="users"
+                                onClick={() => handleClickUser(user)}
+                                style={{
+                                    color: selectedLight === 'light' ? 'black' : 'white',
+
+                                }}
+                            >
+                                {user.username}
+                            </button>
                         ))}
                     </ul>
                 </div>
@@ -507,11 +518,21 @@ function RoomPage() {
                                     ? "white"
                                     : selectedLight === "dark"
                                     ? "rgb(69, 67, 63)"
-                                    : "white",                       
+                                    : "white", 
+                                "width": "400px",             
                             }}>
-                                <p>{selectedUser}:</p>
-                                <p style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Profile Bio: {selectedUserBio}</p>
-                                <p>*insert profile picture*</p>
+                                <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>{selectedUser}</h2>
+                                <p style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Profile Bio: {selectedUserBio}</p>
+                                <div className="user-profile-container">
+                                    {imgURL ? (
+                                        <img src={imgURL} alt='' height={100} />
+                                    ) : (
+                                        <div style={{ height: "100px" }}>
+                                            <FaUserCircle style={{ width: "80%", height: "100%" }} />
+                                        </div>
+                                    )}
+                                        
+                                </div>
                                 <button className="dynamic-button" onClick={handleCancelBio}>Done</button>
                             </div>
                         </div>
