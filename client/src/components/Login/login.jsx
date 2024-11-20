@@ -39,9 +39,10 @@ function Login() {
             {/* {user && <><h3>Logged in as {user?.displayName}</h3>
             <img style={{width: "100px", height: "100px"}} src={user?.photoURL} alt="profile_image" /> </>} */}
             {user && <h3 style={{"margin-top": "10px" }}>Logged in as {user?.email}</h3>}
-            {(user && user?.photoURL !== null) ? (
+            {(user && user?.photoURL !== null) && (
                 <img style={{width: "100px", height: "100px"}} src={user?.photoURL} alt="profile_image" />
-            ) : (
+            )}
+            {(user && user?.photoURL !== null) && (
                 <div style={{ height: "100px" }}>
                     <FaUserCircle style={{ width: "80%", height: "100%" }} />
                 </div>
