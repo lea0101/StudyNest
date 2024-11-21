@@ -20,7 +20,7 @@ import iconPlaceholder from '../../img/icon_placeholder.png'
 import "./UserSettings.css"
 
 import { db } from "../../config/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 
 const defaultIcons = [
     { value: 'icon1', label: 'Icon 1', image: defaultIcon1},
@@ -131,16 +131,30 @@ function UserSettings() {
 
   const handleDeleteAccount = () => {
     setShowConfirmation(true);
-
-    // other code to delete account (can't log in, not shown in rooms anymore)
   }
 
   const handleCancelConfirm = () => {
     setShowConfirmation(false);
   }
 
-  const handleDeleteConfirm = () => {
-    navigate("/signup");
+  const handleDeleteConfirm = async () => {
+    // mark a user as deleted if they confirm the delete action
+    if (auth.currentUser) {
+      try {
+        // mark the user as deleted in Firestore
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(userDocRef, { deleted: true });
+
+        // log out the user after marking them as deleted
+        await auth.signOut();
+
+        // redirect to signup page
+        navigate("/signup");
+      } catch (error) {
+        console.error("Error marking user as deleted: ", error);
+        alert("Failed to delete account. Please try again.");
+      }
+    }
   }
 
   return (
