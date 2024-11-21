@@ -6,6 +6,7 @@ import { storage, auth } from '../../config/firebase';
 import { updateProfile } from 'firebase/auth';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
+import { getDoc } from "firebase/firestore";
 import NavBar from "../Home/NavBar";
 
 import defaultIcon1 from '../../img/default_icon_1.png'
@@ -40,6 +41,7 @@ function UserSettings() {
   const [displayName, setDisplayName] = useState(userDisplayName);
   const [profileIcon, setProfileIcon] = useState(icon);
   const [imgURL, setImgURL] = useState(icon); 
+  const [bio, setBio] = useState("");
 
   const navigate = useNavigate();
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -56,45 +58,76 @@ function UserSettings() {
     }
   }, [user]);
 
-  const submitPrefs = (e) => {
-	  e.preventDefault();
+  useEffect(() => {
+    // retrieve data (bio)
+    const fetchUserData = async () => {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setBio(userData.bio || "");
+        }
+      }
+    }
+
+    fetchUserData();
+  }, [user]);
+
+  const submitPrefs = async (e) => {
+    e.preventDefault();
+    if (user) {
+      const userDocRef = doc(db, "users", user.uid);
       const file = e.target[4]?.files[0];
+  
       if (file) {
-      // This means the user did upload a file.
-      const storageRef = ref(storage, `user_icons/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on("state_changed",
-          (snapshot) =>
-          {
-          },
-          (error) =>
-          {
-            alert("Error uploading file");
-          },
-          () => {
-              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                  updateProfile(user, {photoURL: downloadURL});
-                  setImgURL(downloadURL)
-              });
-          }
+        // This means the user did upload a file.
+        const storageRef = ref(storage, `user_icons/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        uploadTask.on("state_changed",
+            (snapshot) =>
+            {
+            },
+            (error) =>
+            {
+              alert("Error uploading file");
+            },
+            () => {
+                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                    updateProfile(user, {photoURL: downloadURL});
+                    setImgURL(downloadURL)
+                });
+            }
+        );
+        }
+        else {
+        // Either the user did not upload a file, or they are using a default icon.
+            const iconSelection = e.target[3];
+            if (iconSelection)
+            {
+              updateProfile(user, {photoURL: profileIcon});
+              setImgURL(profileIcon);
+            }
+        }
+        // TODO: Processing to update username
+        if (userDisplayName !== displayName)
+        {
+          userDisplayName = displayName;
+          updateProfile(user, {displayName: displayName});
+        }
+  
+      // save bio to Firestore
+      await setDoc(
+        userDocRef,
+        {
+          bio: bio,
+        },
+        { merge: true }
       );
-      }
-      else {
-      // Either the user did not upload a file, or they are using a default icon.
-          const iconSelection = e.target[3];
-          if (iconSelection)
-          {
-            updateProfile(user, {photoURL: profileIcon});
-            setImgURL(profileIcon);
-          }
-      }
-      // TODO: Processing to update username
-      if (userDisplayName !== displayName)
-      {
-        userDisplayName = displayName;
-        updateProfile(user, {displayName: displayName});
-      }
-  }
+  
+      // alert("Profile updated successfully!");
+    }
+  };
 
   const handleDeleteAccount = () => {
     setShowConfirmation(true);
@@ -158,12 +191,19 @@ function UserSettings() {
               { (imgURL && <img src={imgURL} alt='' height={150} />) 
               || (profileIcon && <img src={profileIcon} alt='' height={150} />) }
             </div>
+
+            <div>
+              <br/>
+              <label>Profile Bio<br/>
+              <input type="text" value={bio} onChange={(e) => setBio(e.target.value)}/>
+              </label>
+            </div>
           </div>
           <br/>
 
           <div className="button-group">
             <button type="submit" class='save-button'>Save Changes</button>
-            <button class='delete-account-button' onClick={handleDeleteAccount}>Delete Account</button>
+            <button class='delete-account-button' onClick={handleDeleteAccount}>Delete My Account</button>
           </div>
         </form>
 

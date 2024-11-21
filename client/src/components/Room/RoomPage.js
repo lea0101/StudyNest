@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { FaUserCircle } from 'react-icons/fa';
+
 import NavBar from '../Home/NavBar';
 import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 import Timer from "../Timer/Timer";
@@ -9,11 +11,10 @@ import { useRoomSettings } from "./RoomSettingsContext";
 import { useTimer } from "../Timer/TimerContext";
 
 import '../BrainBreak/BrainBreak.css'
-
+import './RoomPage.css'
 
 import { useAuthState } from "react-firebase-hooks/auth";
 import { getAuth } from "firebase/auth";
-
 
 import { db } from "../../config/firebase";
 import { doc, setDoc, updateDoc, getDoc, getDocs, where, query, collection ,onSnapshot, snapshotEqual } from "firebase/firestore";
@@ -25,6 +26,11 @@ function RoomPage() {
     const [isAuthorized, setAuthorized] = useState(2);
     const [rooms, setRooms] = useState([]);
     const [userList, setUserList] = useState([]);
+    const [showBio, setShowBio] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [selectedUserBio, setSelectedUserBio] = useState(null);
+    const [loadingUser, setLoadingUser] = useState(false);
+    const [imgURL, setImgURL] = useState(null);
     const navigate = useNavigate();
 
     const { roomName } = useParams(); // get room name from url params
@@ -379,6 +385,7 @@ function RoomPage() {
 
     const handleColorChange = async (event) => {
         const value = event.target.value;
+        console.log("handleColorChange value: ", value);
         setSelectedColor(value);
 
         try {
@@ -393,6 +400,7 @@ function RoomPage() {
 
     const handleLightChange = async (event) => {
         const value = event.target.value;
+        console.log("handleChange value: ", value);
         setSelectedLight(value);
 
         try {
@@ -404,6 +412,34 @@ function RoomPage() {
             console.error('Error updating light: ', error);
         }
     };
+
+    const handleClickUser = async (user) => {
+        setLoadingUser(true);
+        try {
+            setShowBio(true);
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                setSelectedUser(userData.displayname || "User Information:");
+                setSelectedUserBio(userData.bio || "Hi there! I'm using StudyNest!");
+                setImgURL(userData.icon);
+            } else {
+                setSelectedUserBio("Hi there! I'm using StudyNest!")
+            }
+        } catch (error) {
+            console.error("Error fetching user bio: ", error);
+            setSelectedUserBio("Error fetching bio");
+        } finally {
+            setLoadingUser(false);
+        }
+    }
+
+    // toggle for cancel leave
+    const handleCancelBio = () => {
+        setShowBio(false);
+    }
 
     if (isAuthorized == 1) {
         return <NotAuthorizedPage/>
@@ -434,23 +470,157 @@ function RoomPage() {
             <div className="room-header">
                 <h1>Welcome to Room {roomName}</h1>
             </div>
-            <div>
-                <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Users in Room</h2>
-                <ul>
-                    {userList.map((user, i) => (
-                        // <li key={i}>{user}</li>
-                        <li key={i}>{user.username}</li>
-                    ))}
-                </ul>
-            </div>
 
             {/* content in the middle */}
-            <p>Explore your virtual study room</p>
+            <div className="room-users">
+                <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Users in Room</h2>
+                <div className="room-users-list">
+                    <ul>
+                        {userList.map((user, i) => (
+                            // <li key={i}>{user.username}</li>
+                            <button
+                                key={i}
+                                className="users"
+                                onClick={() => handleClickUser(user)}
+                                style={{
+                                    color: selectedLight === 'light' ? 'black' : 'white',
+
+                                }}
+                            >
+                                {user.username}
+                            </button>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+
+            {loadingUser ? (
+                <div className="confirmation-modal">
+                    <div className="confirmation-content"
+                    style={{
+                        "background-color":
+                            selectedLight === "light"
+                            ? "white"
+                            : selectedLight === "dark"
+                            ? "rgb(69, 67, 63)"
+                            : "white",                       
+                    }}>
+                        <p style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Loading...</p>
+                    </div>
+                </div>
+            ) : (
+                showBio && (
+                    <div className="confirmation-modal">
+                        <div className="confirmation-content"
+                        style={{
+                            "background-color":
+                                selectedLight === "light"
+                                ? "white"
+                                : selectedLight === "dark"
+                                ? "rgb(69, 67, 63)"
+                                : "white", 
+                            "width": "400px",             
+                        }}>
+                            <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>{selectedUser}</h2>
+                            <p style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Profile Bio: {selectedUserBio}</p>
+                            <div className="user-profile-container">
+                                {imgURL ? (
+                                    <img src={imgURL} alt='' height={100} />
+                                ) : (
+                                    <div style={{ height: "100px" }}>
+                                        <FaUserCircle style={{ width: "80%", height: "100%" }} />
+                                    </div>
+                                )}
+                                    
+                            </div>
+                            <button className="dynamic-button" onClick={handleCancelBio}>Done</button>
+                        </div>
+                    </div>
+                )
+            )}
+
+            <h3 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Explore your virtual study room</h3>
             <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
             <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
             <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
             <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
             <Timer />
+
+            {/* <div className="room-container">
+                <div className="room-users">
+                    <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Users in Room</h2>
+                    <ul>
+                        {userList.map((user, i) => (
+                            // <li key={i}>{user.username}</li>
+                            <button
+                                key={i}
+                                className="users"
+                                onClick={() => handleClickUser(user)}
+                                style={{
+                                    color: selectedLight === 'light' ? 'black' : 'white',
+
+                                }}
+                            >
+                                {user.username}
+                            </button>
+                        ))}
+                    </ul>
+                </div>
+
+                {loadingUser ? (
+                    <div className="confirmation-modal">
+                        <div className="confirmation-content"
+                        style={{
+                            "background-color":
+                                selectedLight === "light"
+                                ? "white"
+                                : selectedLight === "dark"
+                                ? "rgb(69, 67, 63)"
+                                : "white",                       
+                        }}>
+                            <p style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Loading...</p>
+                        </div>
+                    </div>
+                ) : (
+                    showBio && (
+                        <div className="confirmation-modal">
+                            <div className="confirmation-content"
+                            style={{
+                                "background-color":
+                                    selectedLight === "light"
+                                    ? "white"
+                                    : selectedLight === "dark"
+                                    ? "rgb(69, 67, 63)"
+                                    : "white", 
+                                "width": "400px",             
+                            }}>
+                                <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>{selectedUser}</h2>
+                                <p style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Profile Bio: {selectedUserBio}</p>
+                                <div className="user-profile-container">
+                                    {imgURL ? (
+                                        <img src={imgURL} alt='' height={100} />
+                                    ) : (
+                                        <div style={{ height: "100px" }}>
+                                            <FaUserCircle style={{ width: "80%", height: "100%" }} />
+                                        </div>
+                                    )}
+                                        
+                                </div>
+                                <button className="dynamic-button" onClick={handleCancelBio}>Done</button>
+                            </div>
+                        </div>
+                    )
+                )}
+
+                <div className="room-content">
+                    <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Explore your virtual study room</h2>
+                    <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
+                    <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+                    <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
+                    <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
+                    <Timer />
+                </div>
+            </div> */}
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
