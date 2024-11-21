@@ -87,7 +87,8 @@ function RoomPage() {
         }
     }, [loading]);
 
-    /* listen to changes in Firestore rooms collection for a specific roomCode, fetch userList from room document, and retrieve each user's username from users collection, and update userList with these usernames */
+    /* listen to changes in Firestore rooms collection for a specific roomCode, fetch userList from room document,
+    and retrieve each user's username from users collection, and update userList with these usernames */
     useEffect(() => {
         console.log("useEffect 2");
 
@@ -108,21 +109,19 @@ function RoomPage() {
 
                 if (userList) {
                     Object.values(userList).forEach((userObj) => {
+                        if (userObj.deleted) return;
+
                         const uid = userObj.uid;
-                        // console.log('userObj:', userObj);
-                        // console.log('uid: ', uid);
-                        // console.log('user.uid', user.uid);
 
                         if (uid === user.uid) {
                             // if current user is in the userList
                             setUserRole(userObj.role);
                         }
-                        // console.log('role: ', userRole);
+
                         usersWithRoles.push({
                             uid: uid,
                             role: userObj.role
                         });
-                        // console.log(userList);
 
                         // fetch username (aka email) from the 'users' collection
                         const userPromise = getDoc(doc(db, 'users', uid))
@@ -147,14 +146,7 @@ function RoomPage() {
                 username: fetchedUsers[index]
             }));
 
-            // set userList with both usernames and roles
-            // console.log('fetchedUsers: ', fetchedUsers);
-            // console.log('usersWithRoles: ', usersWithRoles);
-            // console.log('updatedUserList: ', updatedUserList);
-            // console.log('userList: ', userList);
-
             setUserList(updatedUserList);
-            // console.log('Updated User List: ', userList);
         });
     
         return () => {
@@ -212,31 +204,6 @@ function RoomPage() {
     }
 
     // for this user, remove the room from their user data and then navigate to home
-    // const handleConfirmLeave = () => {
-    //     // remove the room from the rooms list and update local storage
-    //     const updatedRooms = rooms.filter(r => r.name !== roomName || r.code !== roomCode);
-    //     localStorage.setItem('rooms', JSON.stringify(updatedRooms));
-
-    //     setShowConfirmation(false);
-    //     const userDocRef = doc(db, 'users', user.uid);
-    //     getDoc(userDocRef).then(snapshot => {
-    //         if (typeof snapshot.data() !== 'undefined') {
-    //             const updatedRooms = snapshot.data().rooms.filter(room => room.name !== roomName || room.code !== roomCode);
-    //             updateDoc(userDocRef, {rooms: updatedRooms});
-    //         }
-    //     }).then(() => {
-    //         const roomDocRef = doc(db, 'rooms', roomCode);
-    //         getDoc(roomDocRef).then(snapshot => {
-    //             if (typeof snapshot.data() !== 'undefined') {
-    //                 const priorUserList = snapshot.data().userList;
-    //                 const newUserList = priorUserList.filter(userUid => userUid !== user.uid)
-    //                 updateDoc(roomDocRef, {userList: newUserList});
-    //             }
-    //         })
-    //     }).then(() => {
-    //         navigate('/home');
-    //     });
-    // }
     const handleConfirmLeave = () => {
         // remove the room from the rooms list and update local storage
         const updatedRooms = rooms.filter(r => r.name !== roomName || r.code !== roomCode);
@@ -476,8 +443,9 @@ function RoomPage() {
                 <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Users in Room</h2>
                 <div className="room-users-list">
                     <ul>
-                        {userList.map((user, i) => (
-                            // <li key={i}>{user.username}</li>
+                        {userList
+                        .filter((user) => !user.deleted) // exclude deleted users
+                        .map((user, i) => (
                             <button
                                 key={i}
                                 className="users"
@@ -545,82 +513,6 @@ function RoomPage() {
             <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
             <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
             <Timer />
-
-            {/* <div className="room-container">
-                <div className="room-users">
-                    <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Users in Room</h2>
-                    <ul>
-                        {userList.map((user, i) => (
-                            // <li key={i}>{user.username}</li>
-                            <button
-                                key={i}
-                                className="users"
-                                onClick={() => handleClickUser(user)}
-                                style={{
-                                    color: selectedLight === 'light' ? 'black' : 'white',
-
-                                }}
-                            >
-                                {user.username}
-                            </button>
-                        ))}
-                    </ul>
-                </div>
-
-                {loadingUser ? (
-                    <div className="confirmation-modal">
-                        <div className="confirmation-content"
-                        style={{
-                            "background-color":
-                                selectedLight === "light"
-                                ? "white"
-                                : selectedLight === "dark"
-                                ? "rgb(69, 67, 63)"
-                                : "white",                       
-                        }}>
-                            <p style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Loading...</p>
-                        </div>
-                    </div>
-                ) : (
-                    showBio && (
-                        <div className="confirmation-modal">
-                            <div className="confirmation-content"
-                            style={{
-                                "background-color":
-                                    selectedLight === "light"
-                                    ? "white"
-                                    : selectedLight === "dark"
-                                    ? "rgb(69, 67, 63)"
-                                    : "white", 
-                                "width": "400px",             
-                            }}>
-                                <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>{selectedUser}</h2>
-                                <p style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Profile Bio: {selectedUserBio}</p>
-                                <div className="user-profile-container">
-                                    {imgURL ? (
-                                        <img src={imgURL} alt='' height={100} />
-                                    ) : (
-                                        <div style={{ height: "100px" }}>
-                                            <FaUserCircle style={{ width: "80%", height: "100%" }} />
-                                        </div>
-                                    )}
-                                        
-                                </div>
-                                <button className="dynamic-button" onClick={handleCancelBio}>Done</button>
-                            </div>
-                        </div>
-                    )
-                )}
-
-                <div className="room-content">
-                    <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Explore your virtual study room</h2>
-                    <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
-                    <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
-                    <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
-                    <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
-                    <Timer />
-                </div>
-            </div> */}
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
@@ -732,7 +624,9 @@ function RoomPage() {
                                 <h3>Manage Users</h3>
                                 <h4>You are an Editor</h4>
                                 <ul className="user-settings-list">
-                                    {userList.map((userItem, i) => (
+                                    {userList
+                                    .filter((user) => !user.deleted) // exclude deleted users
+                                    .map((userItem, i) => (
                                         <li key={i} style={{
                                                 display: 'flex',
                                                 justifyContent: 'space-between',

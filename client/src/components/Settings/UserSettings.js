@@ -6,7 +6,7 @@ import { storage, auth } from '../../config/firebase';
 import { updateProfile } from 'firebase/auth';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { getDoc } from "firebase/firestore";
+import { getDoc, getDocs, where, query, collection } from "firebase/firestore";
 import NavBar from "../Home/NavBar";
 
 import defaultIcon1 from '../../img/default_icon_1.png'
@@ -141,14 +141,43 @@ function UserSettings() {
     // mark a user as deleted if they confirm the delete action
     if (auth.currentUser) {
       try {
-        // mark the user as deleted in Firestore
+        // step 1: mark the user as deleted in Firestore
         const userDocRef = doc(db, "users", auth.currentUser.uid);
         await updateDoc(userDocRef, { deleted: true });
 
-        // log out the user after marking them as deleted
+
+        // step 2: mark the user as deleted in all their rooms
+        const roomsQuery = query(collection(db, "rooms"), where("userList", "!=", null));
+        const roomsSnapshot = await getDocs(roomsQuery);
+
+        const roomUpdatePromises = [];
+
+        roomsSnapshot.forEach((roomDoc) => {
+          const roomData = roomDoc.data();
+
+          const userList = Object.values(roomData.userList || {});
+
+          const updatedUserList = userList.map((currUser) => {
+            if (currUser.uid === auth.currentUser.uid) {
+              return { ...currUser, deleted: true }; // mark user as deleted
+            }
+            return currUser;
+          })
+
+          roomUpdatePromises.push(
+            updateDoc(doc(db, "rooms", roomDoc.id), { userList: updatedUserList })
+          )
+        });
+        
+        // wait for all room updates to complete
+        await Promise.all(roomUpdatePromises);
+
+
+        // step 3: log out the user after marking them as deleted
         await auth.signOut();
 
-        // redirect to signup page
+
+        // step 4: redirect to signup page
         navigate("/signup");
       } catch (error) {
         console.error("Error marking user as deleted: ", error);
