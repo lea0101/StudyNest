@@ -246,6 +246,12 @@ function UserSettings() {
 
           <div className="button-group">
             <button type="submit" class='save-button'>Save Changes</button>
+            {/* <button class='delete-account-button' onClick={handleDeleteAccount}>Delete My Account</button> */}
+          </div>
+          <br/>
+          
+          <div className="button-group">
+            <label style={{display: "flex", justifyContent: "center"}}>Danger Zone: Delete Account</label>
             <button class='delete-account-button' onClick={handleDeleteAccount}>Delete My Account</button>
           </div>
         </form>
