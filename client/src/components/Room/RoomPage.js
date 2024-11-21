@@ -472,8 +472,81 @@ function RoomPage() {
             </div>
 
             {/* content in the middle */}
-            <div className="room-container">
-                {/* users in the room */}
+            <div className="room-users">
+                <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Users in Room</h2>
+                <div className="room-users-list">
+                    <ul>
+                        {userList.map((user, i) => (
+                            // <li key={i}>{user.username}</li>
+                            <button
+                                key={i}
+                                className="users"
+                                onClick={() => handleClickUser(user)}
+                                style={{
+                                    color: selectedLight === 'light' ? 'black' : 'white',
+
+                                }}
+                            >
+                                {user.username}
+                            </button>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+
+            {loadingUser ? (
+                <div className="confirmation-modal">
+                    <div className="confirmation-content"
+                    style={{
+                        "background-color":
+                            selectedLight === "light"
+                            ? "white"
+                            : selectedLight === "dark"
+                            ? "rgb(69, 67, 63)"
+                            : "white",                       
+                    }}>
+                        <p style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Loading...</p>
+                    </div>
+                </div>
+            ) : (
+                showBio && (
+                    <div className="confirmation-modal">
+                        <div className="confirmation-content"
+                        style={{
+                            "background-color":
+                                selectedLight === "light"
+                                ? "white"
+                                : selectedLight === "dark"
+                                ? "rgb(69, 67, 63)"
+                                : "white", 
+                            "width": "400px",             
+                        }}>
+                            <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>{selectedUser}</h2>
+                            <p style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Profile Bio: {selectedUserBio}</p>
+                            <div className="user-profile-container">
+                                {imgURL ? (
+                                    <img src={imgURL} alt='' height={100} />
+                                ) : (
+                                    <div style={{ height: "100px" }}>
+                                        <FaUserCircle style={{ width: "80%", height: "100%" }} />
+                                    </div>
+                                )}
+                                    
+                            </div>
+                            <button className="dynamic-button" onClick={handleCancelBio}>Done</button>
+                        </div>
+                    </div>
+                )
+            )}
+
+            <h3 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Explore your virtual study room</h3>
+            <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
+            <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+            <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
+            <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
+            <Timer />
+
+            {/* <div className="room-container">
                 <div className="room-users">
                     <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Users in Room</h2>
                     <ul>
@@ -539,7 +612,6 @@ function RoomPage() {
                     )
                 )}
 
-                {/* core features */}
                 <div className="room-content">
                     <h2 style={{ color: selectedLight === 'light' ? 'grey' : 'white' }}>Explore your virtual study room</h2>
                     <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
@@ -548,7 +620,7 @@ function RoomPage() {
                     <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
                     <Timer />
                 </div>
-            </div>
+            </div> */}
 
             {/* room code displayed on the bottom left and can be copied to clipboard */}
             <div className="room-code">
