@@ -42,7 +42,7 @@ function Login() {
             {(user && user?.photoURL !== null) && (
                 <img style={{width: "100px", height: "100px"}} src={user?.photoURL} alt="profile_image" />
             )}
-            {(user && user?.photoURL !== null) && (
+            {(user && user?.photoURL === null) && (
                 <div style={{ height: "100px" }}>
                     <FaUserCircle style={{ width: "80%", height: "100%" }} />
                 </div>
