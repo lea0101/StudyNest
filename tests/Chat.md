@@ -93,3 +93,53 @@ Severity: 2
 ## Expected Result
 1. The user who was pinged recieves an email with the message "Ping".
 2. The sender sees a pop up that says the message sent successfully.
+
+# Test Case 391
+System: Chat
+Sprint: 3
+User Story: 9
+Severity: 2
+> Test the embed feature for YouTube links
+
+## Instructions
+1. Open the chat and submit a message containing a valid YouTube link.
+2. Click on the embed that appears and go back to the StudyNest screen.
+3. Refresh the page.
+
+## Expected Result
+1. The YouTube link should be highlighted and clickable in the message that appears.
+2. The thumbnail and title of the video should be shown in the card that appears beneath the original message. 
+3. Clicking on the link or embed should redirect the uesr to the YouTube video.
+4. Refreshing the page should still show the embed.
+
+# Test Case 392
+System: Chat
+Sprint: 3
+User Story: 9
+Severity: 2
+> Test the embed feature for images links
+
+## Instructions
+1. Open the chat and submit a message containing one or more images.
+2. Refresh the page.
+
+## Expected Result
+1. The image links should be highlighted and clickable in the message that appears.
+2. Each image should appear beneath the original chat message in the order that it was originally sent.
+2. Refreshing the page should still show the images.
+
+# Test Case 393
+System: Chat
+Sprint: 3
+User Story: 9
+Severity: 2
+> Test the embed feature for non-YouTube, non-image links
+
+## Instructions
+1. Open the chat and submit a message containing a link to a non-Youtube, non-image website.
+2. Refresh the page.
+
+## Expected Result
+1. The link should be highlighted and clickable in the message that appears.
+2. After a short period, an embed of the website should appear beneath the original message containing the favicon for the website and it's title.
+2. Refreshing the page should still show the embed.
