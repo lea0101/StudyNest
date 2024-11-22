@@ -29,8 +29,12 @@ const BubbleCrush = () => {
     const { roomName } = useParams(); // get room name from url params
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
+    const [level, setLevel] = useState(1); // Track the current level
+    const [levelNotification, setLevelNotification] = useState(""); // Notification for leveling up
 
     const { selectedColor, selectedLight } = useRoomSettings(); // access color and light settings
+
+    
 
     const handleGoBack = () => {
         navigate(`/rooms/${roomName}/brainbreak`, { state: {roomCode : roomCode}});
@@ -171,6 +175,11 @@ const BubbleCrush = () => {
         setcolorState(randomColorArrangement)
     }
 
+    const getFirstDigit = (num) => {
+        const numStr = Math.abs(num).toString(); // Convert to string and handle negative numbers
+        return numStr.length === 1 ? 0 : parseInt(numStr[0], 10);
+    }
+
     useEffect(() => {
         makeBoard()
     }, [])
@@ -187,6 +196,15 @@ const BubbleCrush = () => {
         return () => clearInterval(timer)
     }, [checkForColumnOfFour, checkForRowOfFour, checkForColumnOfThree, checkForRowOfThree, moveIntoSquareBelow, colorState])
     
+    // Update level based on score
+    useEffect(() => {
+        const newLevel = getFirstDigit(scoreDisplay);
+        if (newLevel !== level) {
+        setLevel(newLevel);
+        setLevelNotification(`Congrats! You've reached Level ${newLevel}!`);
+        setTimeout(() => setLevelNotification(""), 3000); // Clear notification after 3 seconds
+        }
+    }, [scoreDisplay, level]);
 
     
     return (
@@ -210,6 +228,16 @@ const BubbleCrush = () => {
                 <h1>BubbleCrush</h1>
                 <h2>Your Score:</h2>
                 <ScoreBoard score={scoreDisplay}/>
+
+                {/* Level Display */}
+                <h2>Level: {level}</h2>
+
+                {/* Level Notification */}
+                {levelNotification && (
+                <div className="level-notification">{levelNotification}</div>
+                )}
+
+
                 <div className="room-code" onClick={handleGoBack}>
                     <p>Go Back</p>
                 </div>
