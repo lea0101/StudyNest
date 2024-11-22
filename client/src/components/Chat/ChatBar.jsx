@@ -16,7 +16,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
   const [pingEnabled, setPingEnabled] = useState(true);
   const [pingList, setPingList] = useState([]);
   const inputFile = useRef(null);
-  const { uid, displayName, photoURL, email } = auth.currentUser;
+  const { uid, displayName, photoURL } = auth.currentUser;
 
 
   /*
@@ -138,7 +138,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
   }
 
   function removePing(email) {
-    setPingList(pingList.filter(e => e != email));
+    setPingList(pingList.filter(e => e !== email));
     console.log(pingList);
   }
 
@@ -155,6 +155,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
       avatar: photoURL,
       createdAt: serverTimestamp(),
       imageSrc: sticker_url,
+      isSticker: true,
       uid,
     }).catch((err) => {
       alert("Error sending message");
