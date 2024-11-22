@@ -123,7 +123,7 @@ function Timer() {
 
     const handleStart = async () => {
         if (secondsInput < 0 || minutesInput < 0 || hoursInput < 0) {
-            alert("Please input valid times! Tiems cannot be negative.");
+            alert("Please input valid times! Times cannot be negative.");
             return;
         }
 
