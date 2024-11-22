@@ -30,15 +30,48 @@ const WhiteBoard = () => {
     let [imageURL, setImageURL] = useState('');
     let [newImageURL, setNewImageURL] = useState('');
 
-    const addImage = () => {
+    const isValidP5Image = async (url) => {
+        try {
+            const response = await fetch(url, { method: 'HEAD' });
+            if (!response.ok) {
+                return false; // Invalid URL or inaccessible
+            }
+        
+            const contentType = response.headers.get('Content-Type');
+            // Check for common image MIME types
+            const validMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            return validMimeTypes.includes(contentType);
+        } catch (error) {
+            console.error('Error checking image:', error);
+            return false;
+        }
+    };
+
+    const addImage = async () => {
         const url = document.getElementById('addImageURLInput').value;
         if (url === '') {
             setErrorMessage('Please enter a valid URL');
             return;
         }
-        setNewImageURL(url);
-        setImageURL('');
-        setShowImageAdd(false);
+        const img = new Image();
+        img.src = url;
+
+        img.onload = () => {
+            if (isValidP5Image(url)) {
+                setNewImageURL(url);
+                setImageURL('');
+                setShowImageAdd(false);
+            } else {
+                setErrorMessage('Invalid URL');
+            }
+            // setNewImageURL(url);
+            // setImageURL('');
+            // setShowImageAdd(false);
+        };
+        img.onerror = () => {
+            console.log('this could\'ve been stopped');
+            setErrorMessage('Invalid URL');
+        };
     }
 
     useEffect(() => {

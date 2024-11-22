@@ -133,18 +133,8 @@ class StrokeImage extends Rectangle {
         if (this.image === null) {
             p.loadImage(this.url, (img) => {
                 this.image = img;
-                if (this.width <= 0) {
+                if (this.width <= 0 || this.height <= 0) {
                     this.width = this.image.width || 0;
-                    if (this.width > 200) {
-                        this.height *= 200 / this.width;
-                        this.width = 200;
-                    }
-                    if (this.height > 200) {
-                        this.width *= 200 / this.height;
-                        this.height = 200;
-                    }
-                }
-                if (this.height <= 0) {
                     this.height = this.image.height || 0;
                     if (this.width > 200) {
                         this.height *= 200 / this.width;
