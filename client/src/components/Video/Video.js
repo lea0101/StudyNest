@@ -9,9 +9,13 @@ import {
     setDoc
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useAuthState } from "react-firebase-hooks/auth";
 
+import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
+
+import { useLocation } from 'react-router-dom';
 
 const Video = () => {
     const auth = getAuth();
@@ -21,6 +25,52 @@ const Video = () => {
     let [videoId, setVideoId] = useState('');
     let [displayName, setDisplayName] = useState('');
     let [photoURL, setPhotoURL] = useState('');
+    let [videoState, setVideoState] = useState(0);
+
+    const [isAuthorized, setAuthorized] = useState(2);
+
+    const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
+    const roomCode = state?.roomCode;
+
+    let [videoSync, setVideoSync] = useState(false);
+
+    useEffect(() => {
+        console.log("useEffect 1");
+
+        if (loading) {
+            return;
+        }
+
+        if (roomCode == undefined) {
+            setAuthorized(1);
+            return;
+        }
+        
+        if (user) {
+            if (roomCode == undefined) {
+                setAuthorized(1);
+                return;
+            }
+            const roomDocRef = doc(db, 'rooms', roomCode);
+            getDoc(roomDocRef).then(doc => {
+                 if (doc.exists()) {
+                    const userList = doc.data().userList || {};
+                    const userInList = Object.values(userList).some(userObj => userObj.uid === user.uid);
+
+                    if (userInList) {
+                        setAuthorized(0); // set authorized if user is in userList
+                    } else {
+                        setAuthorized(1);
+                    }
+                 } else {
+                    setAuthorized(1);
+                 }
+            }).catch(error => {
+                console.error("Error fetching room: ", error);
+                setAuthorized(1);
+            })
+        }
+    }, [loading]);
 
     useEffect(() => {
         if (user) {
@@ -34,7 +84,7 @@ const Video = () => {
         // fetch annotations for the video
         const q = query(
             // TODO: incorporate videoId into query
-            collection(db, "youtube-annotations")
+            collection(db, `yt-com-${roomCode}-${videoId}`)
         );
         const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
             const newAnnotations = [];
@@ -45,38 +95,68 @@ const Video = () => {
             });
             const sortedAnnotations = newAnnotations.sort((a, b) => a.timestamp - b.timestamp);
             setAnnotations(sortedAnnotations);
+            console.log('updated annotations', sortedAnnotations);
         });
         return () => unsubscribe;
-    }, []);
+    }, [videoId]);
 
     async function updateDBTimestamp(newTimestamp) {
-        const q = query(
-            collection(db, "youtube-timestamps")
-        );
-        const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
-            QuerySnapshot.forEach((doc) => {
-                const docRef = doc.ref;
-                setDoc(docRef, { timestamp: newTimestamp });
-            });
+        // if (videoSync) {
+        //     console.log('updating timestamp', newTimestamp);
+        //     await setDoc(doc(db, 'yt-time', roomCode),
+        //     {
+        //         videoId: videoId,
+        //         timestamp: timestamp,
+        //         videoState: videoState,
+        //         lastUpdated: user.uid
+        //     });
+        // }
+        if (Math.abs(newTimestamp - timestamp) > 3) {
             setTimestamp(newTimestamp);
-        });
-        return () => unsubscribe;
+        }
     }
 
     useEffect(() => {
+        if (!videoSync) {
+            return;
+        }
+        // collection yt-sync, document roomCode, field timestamp
+        // if video sync is enabled, update timestamp and videoid to match that of db
         const q = query(
-            collection(db, "youtube-timestamps")
+            collection(db, 'yt-time')
         );
         const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
-            let newTimestamp = timestamp;
             QuerySnapshot.forEach((doc) => {
-                const data = doc.data();
-                newTimestamp = data.timestamp;
+                let data = doc.data();
+                setTimestamp(data.timestamp);
+                setVideoId(data.videoId);
+                setVideoState(data.videoState || 0);
             });
-            setTimestamp(newTimestamp);
         });
         return () => unsubscribe;
-    }, []);
+    }, [videoSync]);
+
+    useEffect(() => {
+        if (!videoSync) {
+            return;
+        }
+        console.log(videoId, timestamp, videoState);
+        console.log('updating', {
+            videoId: videoId,
+            timestamp: timestamp,
+            videoState: videoState,
+            lastUpdated: user.uid
+        });
+        setDoc(doc(db, 'yt-time', roomCode),
+        {
+            videoId: videoId,
+            timestamp: timestamp,
+            videoState: videoState,
+            lastUpdated: user.uid
+        }).then(() => {
+            setVideoState(0);
+        });
+    }, [videoSync, videoId, videoState]);
 
     async function addAnnotation() {
         console.log('add annotation');
@@ -97,9 +177,10 @@ const Video = () => {
         while (left <= right) {
             let mid = Math.floor((left + right) / 2);
             if (annotations[mid].timestamp === timestamp) {
-                annotations.splice(mid, 0, annotation);
-                setAnnotations([...annotations]);
-                return;
+                // annotations.splice(mid, 0, annotation);
+                // setAnnotations([...annotations]);
+                left = mid;
+                break;
             } else if (annotations[mid].timestamp < timestamp) {
                 left = mid + 1;
             } else {
@@ -107,8 +188,24 @@ const Video = () => {
             }
         }
         annotations.splice(left, 0, annotation);
-        const docRef = await addDoc(collection(db, "youtube-annotations"), annotation);
+        const docRef = await addDoc(collection(db, `yt-com-${roomCode}-${videoId}`), annotation);
         setAnnotations([...annotations]);
+        console.log('added new annotation', annotation, annotations);
+    }
+
+    function toggleSync(event) {
+        const enableSync = event.target.checked;
+        console.log('enableSync', enableSync);
+        setVideoSync(enableSync);
+        // if (enableSync) {
+        //     updateDBTimestamp(timestamp);
+        // }
+    }
+
+    if (isAuthorized == 1) {
+        return <NotAuthorizedPage/>
+    } else if (isAuthorized == 2){
+        return <div> Loading... </div>
     }
 
     return (
@@ -122,7 +219,7 @@ const Video = () => {
                                                 const formattedTimestamp = new Date(annotation.timestamp * 1000).toISOString().substr(11, 8);
                                                 return (
                                                 <li className="video-annotation"key={index}>
-                                                    <img className="video-annotation-pfp" width="30px" src={annotation.photoURL} alt="" />
+                                                    {annotation.photoURL && <img className="video-annotation-pfp" width="30px" src={annotation.photoURL} alt="" /> }
                                                     <span className='video-annotation-text'>{annotation.displayName}</span>
                                                     <span className="video-annotation-timestamp">{formattedTimestamp}</span> 
                                                     <span className="video-annotation-text">{annotation.text}</span>
@@ -131,14 +228,18 @@ const Video = () => {
                                         )
                         }
                     </ul>
-                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp}/>
+                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp} videoState={videoState} setVideoState={setVideoState} videoSync={videoSync}/>
+                </div>
+                <div style={{ display: 'flex' }}>
+                    <label style={{ width: 'max-content'}} htmlFor="enable-sync">Enable Sync: </label>
+                    <input style={{ maxWidth: '30px'}} type="checkbox" name="enable-sync" onChange={toggleSync} />
                 </div>
                 <div>
                     <input id="annotationInput" type="text" />
                     <button className='b-button' onClick={addAnnotation}>Submit</button>
                 </div>
             </div>
-            <VideoQueue setCurrentVideo={setVideoId}></VideoQueue>
+            <VideoQueue roomCode={roomCode} setCurrentVideo={setVideoId}></VideoQueue>
         </div>
     );
 }
