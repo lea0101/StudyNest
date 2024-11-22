@@ -90,6 +90,7 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
     handleCancelUpstream();
     setEditMessage("Edit");
     setIsEditable(false);
+    setMenuShowReactionChart(false);
     setIsClicked(false);
   }
 
@@ -100,10 +101,18 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
     if (reactions == null) {
       reactions = []
     }
-    const reactionNoUser = reactions.filter(a => !a.by.includes(userName));
-    const newReactions = [...reactionNoUser, {emoji:emoji, by:userName}];
+    console.log(userName);
+    const priorReactionNoUserI = reactions.findIndex(a => a.by.includes(userName));
+    var newReactions = reactions;
+    console.log(reactions[priorReactionNoUserI])
+    if ((priorReactionNoUserI === -1) || (newReactions[priorReactionNoUserI].emoji !== emoji)) {
+      newReactions = [...reactions.filter(a => !a.by.includes(userName)), {emoji:emoji, by:userName}];
+    } else {
+      newReactions.splice(priorReactionNoUserI, 1);
+    }
     handleAddReactionUpstream(message.id, newReactions);
     setEmojiCounter(newReactions);
+    setMenuShowReactionChart(false);
   }
 
   return (<>

@@ -16,8 +16,12 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
   const [pingEnabled, setPingEnabled] = useState(true);
   const [pingList, setPingList] = useState([]);
   const inputFile = useRef(null);
-  const { uid, displayName, photoURL } = auth.currentUser;
+  const { uid, displayName, email, photoURL } = auth.currentUser;
 
+  var userName = displayName;
+  if (displayName == null) {
+     userName = email;
+  }
 
   /*
    * UPLOAD FUNCTIONS
@@ -106,7 +110,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
     console.log("updating DB with the following: " + url)
     addDoc(dbMsgQuery, {
       text: message,
-      name: displayName,
+      name: userName,
       avatar: photoURL,
       createdAt: serverTimestamp(),
       imageSrc: url,
@@ -152,7 +156,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
     //document.querySelector("#airplane").classList.add('fly');
     addDoc(dbMsgQuery, {
       text: "",
-      name: displayName,
+      name: userName,
       avatar: photoURL,
       createdAt: serverTimestamp(),
       imageSrc: sticker_url,
