@@ -9,3 +9,29 @@
     color: black;
     padding: 20px;
 }
+
+
+
+.title {
+    font-size: 14px;
+    text-shadow: grey;
+    color: black;
+}
+
+.level-notification {
+    color: black;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    margin: 15px 0;
+    animation: fadeInOut 3s ease;
+  }
+  
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+  }

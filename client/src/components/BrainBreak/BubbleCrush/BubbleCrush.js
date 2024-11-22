@@ -176,6 +176,14 @@ const BubbleCrush = () => {
     }
 
     const getFirstDigit = (num) => {
+        const absNum = Math.abs(num);
+        // If single digit, return 0
+        if (absNum < 10) {
+            return 0;
+        }
+        // Remove the last digit using integer division
+        return Math.floor(absNum / 10);
+
         const numStr = Math.abs(num).toString(); // Convert to string and handle negative numbers
         return numStr.length === 1 ? 0 : parseInt(numStr[0], 10);
     }
@@ -209,7 +217,7 @@ const BubbleCrush = () => {
     
     return (
         <div>
-            <div className="hangman"
+            <div className="bc-hangman"
             style={{
                 "background-color":
                     selectedLight === "light"
@@ -225,16 +233,20 @@ const BubbleCrush = () => {
                     : "white"                       
             }}>
                 
-                <h1>BubbleCrush</h1>
-                <h2>Your Score:</h2>
-                <ScoreBoard score={scoreDisplay}/>
-
+                <h1 className="title">BubbleCrush</h1>
+                <h2>Your Score: {scoreDisplay}
+                </h2>
+                
                 {/* Level Display */}
                 <h2>Level: {level}</h2>
 
                 {/* Level Notification */}
                 {levelNotification && (
-                <div className="level-notification">{levelNotification}</div>
+
+                <div className="message level-notification">
+                    <p style={{"font-weight": "bold", color: "black"}}> {levelNotification} </p>
+                </div>
+         
                 )}
 
 
