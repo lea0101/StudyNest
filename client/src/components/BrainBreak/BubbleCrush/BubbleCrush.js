@@ -12,6 +12,8 @@ import red from './img/default_icon_5.png'
 import yellow from './img/default_icon_6.png'
 import blank from './splosion.png'
 
+
+
 import ScoreBoard from './ScoreBoard'
 
 const width = 8
@@ -25,12 +27,17 @@ const bubbleColors = [
 ]
 
 const BubbleCrush = () => {
+    
     const navigate = useNavigate();
     const { roomName } = useParams(); // get room name from url params
     const { state } = useLocation(); // retrieve state (roomCode) passed when navigating
     const roomCode = state?.roomCode;
+
     const [level, setLevel] = useState(1); // Track the current level
     const [levelNotification, setLevelNotification] = useState(""); // Notification for leveling up
+    const [userInteracted, setUserInteracted] = useState(false); // Tracks user interaction
+    const [goBackNotification, setGoBackNotification] = useState(""); // Tracks notification for "Go Back"
+
 
     const { selectedColor, selectedLight } = useRoomSettings(); // access color and light settings
 
@@ -45,6 +52,7 @@ const BubbleCrush = () => {
     const [squareBeingDragged, setDraggedSquare] = useState(null)
     const [squareBeingReplaced, setReplacedSquare] = useState(null)
     const [scoreDisplay, updateScore] = useState(0)
+    
 
     const checkForColumnOfFour = () => {
         for (let i = 0; i <= 39; i++) {
@@ -173,6 +181,7 @@ const BubbleCrush = () => {
             randomColorArrangement.push(randomColor)
         }
         setcolorState(randomColorArrangement)
+        
     }
 
     const getFirstDigit = (num) => {
@@ -208,11 +217,26 @@ const BubbleCrush = () => {
     useEffect(() => {
         const newLevel = getFirstDigit(scoreDisplay);
         if (newLevel !== level) {
-        setLevel(newLevel);
-        setLevelNotification(`Congrats! You've reached Level ${newLevel}!`);
-        setTimeout(() => setLevelNotification(""), 3000); // Clear notification after 3 seconds
+            setLevel(newLevel);
+            setLevelNotification(`Congrats! You've reached Level ${newLevel}!`);
+            setTimeout(() => setLevelNotification(""), 3000); // Clear notification after 3 seconds
         }
     }, [scoreDisplay, level]);
+
+
+    // Track user interactions
+    const handleUserInteraction = () => {
+        setUserInteracted(true);
+    };
+
+    // Handle Go Back button click
+    const handleGoBackClick = () => {
+        const score = scoreDisplay;
+        
+        navigate(`/rooms/${roomName}/brainbreak/bubblecrush/luck`, { state: {roomCode : roomCode}});
+        
+        //handleGoBack(); // Trigger the existing go back functionality
+    };
 
     
     return (
@@ -243,20 +267,22 @@ const BubbleCrush = () => {
                 {/* Level Notification */}
                 {levelNotification && (
 
-                <div className="message level-notification">
-                    <p style={{"font-weight": "bold", color: "black"}}> {levelNotification} </p>
-                </div>
+                    <div className="message level-notification">
+                        <p style={{"font-weight": "bold", color: "black"}}> {levelNotification} </p>
+                    </div>
          
                 )}
 
-
+                <div className="room-code2" onClick={handleGoBackClick}>
+                    <p>Quit Hangman</p>
+                </div>
                 <div className="room-code" onClick={handleGoBack}>
                     <p>Go Back</p>
                 </div>
 
                 <div className="app">
                     
-                    <div className="game">
+                    <div onClick={handleUserInteraction} className="game">
                         {colorState.map((candyColor, index) => (
                             <img
                                 key={index}

@@ -25,6 +25,7 @@ import NotAuthorizedPage from "./Pages/NotAuthorizedPage";
 import { TimerProvider } from './components/Timer/TimerContext';
 import RoomWrapper from './components/Room/RoomWrapper';
 import BubbleCrush from './components/BrainBreak/BubbleCrush/BubbleCrush';
+import Luck from './components/BrainBreak/BubbleCrush/Luck';
 
 function App() {
   const [user] = useAuthState(auth);
@@ -67,6 +68,7 @@ function App() {
                       <Route path="brainbreak/hangman" element={<Hangman />} />
                       <Route path="brainbreak/meditation" element={< Meditation/>} />
                       <Route path="brainbreak/bubblecrush" element={< BubbleCrush/>} />
+                      <Route path="brainbreak/bubblecrush/luck" element={< Luck/>} />
                     </Routes>
                   </TimerProvider>
                 </RoomWrapper>

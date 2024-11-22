@@ -293,6 +293,14 @@ body, html {
   color: gray;
 }
 
+.room-code2 {
+  position: absolute;
+  bottom: 25px;
+  left: 20px;
+  font-size: 14px;
+  color: gray;
+}
+
 .room-code:hover {
   cursor: pointer;
   text-decoration: underline;

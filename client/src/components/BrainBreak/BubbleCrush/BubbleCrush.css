@@ -10,7 +10,22 @@
     padding: 20px;
 }
 
+.s {
+    background-color: var(--button-color, #6fb2c5);
+    color: black;
+    transition: background-color 0.3s ease;
+  }
 
+.go-back-notification {
+    background-color: #ff6347;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    margin: 15px 0;
+    animation: fadeInOut 3s ease;
+  }
 
 .title {
     font-size: 14px;
