@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import YouTube from 'react-youtube';
 
-function YouTubePlayer({ videoId, timestamp, onTimeUpdate, videoState, setVideoState }) {
+function YouTubePlayer({ videoId, timestamp, onTimeUpdate, videoState, setVideoState, videoSync }) {
     const [player, setPlayer] = useState(null);
     const [playerReady, setPlayerReady] = useState(false);
 
     // update timestamp if updated
     useEffect(() => {
+      if (!videoSync) {
+        return;
+      }
       if (!playerReady) {
         return;
       }
       if (videoId && player && timestamp && Math.abs(player.getCurrentTime() - timestamp) > 1) {
         player.seekTo(timestamp);
       }
-    }, [playerReady, timestamp, player]);
+    }, [videoSync, playerReady, timestamp, player]);
 
     // update video state if updated
     useEffect(() => {
+      if (!videoSync) {
+        return;
+      }
       if (!playerReady) {
         return;
       }
@@ -27,7 +33,7 @@ function YouTubePlayer({ videoId, timestamp, onTimeUpdate, videoState, setVideoS
           player.pauseVideo();
         }
       }
-    }, [playerReady, videoState, player]);
+    }, [videoSync, playerReady, videoState, player]);
     
     const onPlayerReady = (event) => {
       setPlayer(event.target);

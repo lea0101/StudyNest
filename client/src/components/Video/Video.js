@@ -118,6 +118,9 @@ const Video = () => {
     }
 
     useEffect(() => {
+        if (!videoSync) {
+            return;
+        }
         // collection yt-sync, document roomCode, field timestamp
         // if video sync is enabled, update timestamp and videoid to match that of db
         const q = query(
@@ -135,6 +138,9 @@ const Video = () => {
     }, [videoSync]);
 
     useEffect(() => {
+        if (!videoSync) {
+            return;
+        }
         console.log(videoId, timestamp, videoState);
         if (videoState === 0) {
             return;
@@ -152,10 +158,11 @@ const Video = () => {
                 timestamp: timestamp,
                 videoState: videoState,
                 lastUpdated: user.uid
+            }).then(() => {
+                setVideoState(0);
             });
-            setVideoState(0);
         }
-    }, [videoId, videoState, timestamp]);
+    }, [videoSync, videoId, videoState]);
 
     async function addAnnotation() {
         console.log('add annotation');
@@ -227,7 +234,7 @@ const Video = () => {
                                         )
                         }
                     </ul>
-                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp} videoState={videoState} setVideoState={setVideoState}/>
+                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp} videoState={videoState} setVideoState={setVideoState} videoSync={videoSync}/>
                 </div>
                 <div style={{ display: 'flex' }}>
                     <label style={{ width: 'max-content'}} htmlFor="enable-sync">Enable Sync: </label>
