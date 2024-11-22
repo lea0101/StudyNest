@@ -4,7 +4,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, getDownloadURL } from "firebase/storage";
 import { useNavigate, useLocation } from 'react-router-dom';
 import "./FileCollab.css";
-import { Button, Position, PrimaryButton, Viewer, Tooltip, } from '@react-pdf-viewer/core';
+import { Button, Position, PrimaryButton, Viewer, Tooltip, SpecialZoomLevel } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import { pdfjs } from "react-pdf";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
@@ -20,6 +20,16 @@ import '@react-pdf-viewer/bookmark/lib/styles/index.css';
 import { FaRegBookmark, FaBookmark } from "react-icons/fa6";
 import { pageNavigationPlugin } from '@react-pdf-viewer/page-navigation';
 import '@react-pdf-viewer/page-navigation/lib/styles/index.css';
+
+import { thumbnailPlugin } from '@react-pdf-viewer/thumbnail';
+import type { RenderCurrentPageLabel, RenderCurrentPageLabelProps } from '@react-pdf-viewer/thumbnail';
+import { TiDeleteOutline } from "react-icons/ti";
+
+import { useRoomSettings } from "../Room/RoomSettingsContext";
+import { useTimer } from "../Timer/TimerContext";
+
+import type { RenderThumbnailItemProps } from '@react-pdf-viewer/thumbnail';
+
 
 import {
     query,
@@ -55,12 +65,27 @@ interface Bookmark {
 }
 
 const FileViewer = (props) => {
+    const { selectedColor, selectedLight, contextUserRole } = useRoomSettings(); // access color & light and user role settings
+    const { isTimerDone, isActive, resetTimerStatus } = useTimer(); // access timer
+
+    const colorMapping = {
+        default: "#6fb2c5",
+        red: "rgb(217, 91, 91)",
+        orange: "rgb(204, 131, 53)",
+        yellow: "rgb(245, 227, 125)",
+        green: "rgb(118, 153, 93)",
+        blue: "rgb(59, 124, 150)",
+        purple: "rgb(165, 132, 224)",
+        pink: "rgb(242, 170, 213)"  
+    };
+    const buttonColor = colorMapping[selectedColor || colorMapping.default];
+    
     var [user] = useAuthState(auth);
     var userDisplayName = user.displayName;
     // Get the file url from firebase
     const [ isLoading, setIsLoading ] = useState(true);
     const [ bookmarks, setBookmarks ] = useState([]);
-    var shouldUpdateBookmarks = false;
+    const [ shouldUpdateBookmarks, setShouldUpdateBookmarks ] = useState(false);
     const [ url, setURL ] = useState(null);
 
     const [ message, setMessage ] = useState('');
@@ -72,9 +97,7 @@ const FileViewer = (props) => {
     const [ currentPage, setCurrentPage ] = useState(1); 
 
     const noteEles: Map<number, HTMLElement> = new Map();
-    const bmarkEles: Map<number, HTMLElement> = new Map();
     const [ isCurrentPageBookmarked, setCurrentPageBookmarked ] = useState(false);
-
 
     useEffect(() => {
         getDownloadURL(ref(storage, fileName))
@@ -107,7 +130,6 @@ const FileViewer = (props) => {
     }, []);
 
     useEffect(() => {
-        setBookmarks([]);
         const q = query(collection(db, "file_bookmarks"), where ("fileUrl", "==", fileName));
         const querySnapshot = onSnapshot(q, (QuerySnapshot) => {
             QuerySnapshot.forEach((doc) => {
@@ -124,7 +146,9 @@ const FileViewer = (props) => {
         });
     }, [shouldUpdateBookmarks]);
 
-    shouldUpdateBookmarks = !shouldUpdateBookmarks;
+    useEffect(() => {
+    }, [shouldUpdateBookmarks]);
+
 
     const handlePageChange = (e) => {
         setCurrentPage(e);
@@ -150,7 +174,7 @@ const FileViewer = (props) => {
                 left: `${props.selectionRegion.left}%`,
                 top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
                 transform: 'translate(0, 8px)',
-                zIndex: 1,
+                zIndex: 15,
             }}
         >
             <Tooltip
@@ -170,7 +194,7 @@ const FileViewer = (props) => {
                         <FaHighlighter />
                     </Button>
                 }
-                content={() => <div style={{ width: '100px' }}>Highlight selection</div>}
+                content={() => <div style={{ width: '100px', zIndex: 16, position: 'sticky' }}>Highlight selection</div>}
                 offset={{ left: 0, top: -8 }}
             />
         </div>
@@ -237,7 +261,7 @@ const FileViewer = (props) => {
                     position: 'absolute',
                     left: `${props.selectionRegion.left}%`,
                     top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
-                    zIndex: 1,
+                    zIndex: 8,
                 }}
                 className="add-note-dialog"
             >
@@ -270,11 +294,6 @@ const FileViewer = (props) => {
             noteEles.get(note.id).scrollIntoView();
         }
     }
-    const jumpToPage = (pageNumber: number) => {
-        if (bmarkEles.has(pageNumber)) {
-            bmarkEles.get(pageNumber).scrollIntoView();
-        }
-    }
 
     const renderHighlights = (props: RenderHighlightsProps) => (
         <div>
@@ -297,7 +316,7 @@ const FileViewer = (props) => {
                                             props.getCssProperties(area, props.rotation)
                                             )}
                                         >
-                                            <div className="note-info-tooltip" >
+                                            <div className="note-info-tooltip" style={{backgroundColor: buttonColor}}>
                                                 <p>
                                                 <strong>{note.posterDisplayName}:</strong> {note.content}</p>
                                             </div>
@@ -316,7 +335,8 @@ const FileViewer = (props) => {
                                             className="highlight-block"
                                             ref={(ref): void => {
                                             noteEles.set(note.id, ((ref): HTMLElement));
-                                        }}>
+                                            }}
+                                    >
                                     </div>
                                     </React.Fragment>
                                 );
@@ -325,28 +345,48 @@ const FileViewer = (props) => {
                     </div>
                 </React.Fragment>
             ))}
-        {bookmarks.map((bookmark) => {
-            <React.Fragment key={`${uuidv4()}${bookmark.pageID}`} >
-                <div
-            style={{
-                background: 'none',
-                display: 'flex',
-                position: 'absolute',
-                left: `0`,
-                top: `0`,
-                transform: 'translate(0, 8px)',
-                    zIndex: 1,
-                }}
-                ref={(ref): void => {
-                    bmarkEles.set(bookmark.pageID, ((ref): HTMLElement));
-                }}
-                />
-            </React.Fragment> 
-        })
-        }
         </div>
     );
 
+    
+    const renderCurrentPageLabel: RenderCurrentPageLabel = (props: RenderCurrentPageLabelProps) => {
+        return (
+        <>
+            {props.pageIndex + 1}
+            {props.pageLabel !== `${props.pageIndex + 1}` && `(${props.pageLabel})`}
+        </>
+        );
+    };
+
+    const thumbnailPluginInstance = thumbnailPlugin({
+        renderCurrentPageLabel,
+    });
+
+    const { Thumbnails } = thumbnailPluginInstance;
+
+    const renderThumbnailItem = (props: RenderThumbnailItemProps) => {
+        const bookmarkRef = bookmarks.filter(e => e.pageID === props.pageIndex);
+        if (bookmarkRef.length === 0) {
+            return (
+                <div key={props.key}>
+                    <div onClick={props.onJumpToPage}>
+                        {props.renderPageThumbnail}
+                    </div>
+                    {props.renderPageLabel}
+                </div>
+            );
+        }
+        else {
+            return (
+                <div key={props.key}>
+                    <div onClick={props.onJumpToPage}>
+                        {props.renderPageThumbnail}
+                    </div>
+                    <FaBookmark/> {props.renderPageLabel}
+                </div>
+            );
+        }
+    };
 
     // Configure Default Layout Plugin
     const defaultLayoutPluginInstance = defaultLayoutPlugin({
@@ -358,44 +398,76 @@ const FileViewer = (props) => {
                     {
                         if (note.content === "") {
                             var str = note.quote + "...";
-                            const maxLen = 30;
+                            const maxLen = 50;
                             if (str.length > maxLen) {
                                 str = note.quote.substring(0, Math.min(note.quote.length, maxLen)) + "...";
                             }
                             return (
                             <React.Fragment key={`fragment-${uuidv4()}${note.id}`}>
-                                <button key={`${uuidv4()}${note.id}`} 
+                                <div onClick={() => jumpToNote(note)} key={`div-${uuidv4()}${note.id}`} className="sidebar-item">
+                                <p className="sidebar-note-content" key={`${uuidv4()}${note.id}`} 
                                     onClick={() => jumpToNote(note)}
-                                >Highlighted: {str}</button>
+                                >Highlighted: {str}</p>
                                 <div key={`${uuidv4()}--${note.id}`} className="delete-note">
-                                    <button key={`${uuidv4()}${note.id}`} onClick={() => removeNote(note)}>Delete</button>
+                                    <button key={`${uuidv4()}${note.id}`} onClick={() => removeNote(note)}><TiDeleteOutline /></button>
                                 </div>
                                    
-                            <p key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                            
+                            <p className="sidebar-note-name" key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                        
+                                </div>
                             </React.Fragment>
                             );
                         }
                         return  (
                             <React.Fragment key={`fragment-${uuidv4()}${note.id}`}>
-                                <button key={`${uuidv4()}${note.id}`} 
-                                    onClick={() => jumpToNote(note)}
-                                >{note.content}</button>
+                        <div key={`div-${uuidv4()}${note.id}`} className="sidebar-item"
+                            onClick={() => jumpToNote(note)}>
+                                <p key={`${uuidv4()}${note.id}`} className="sidebar-note-content" 
+                                >{note.content}</p>
                                 <div key={`${uuidv4()}--${note.id}`} className="delete-note">
-                                    <button key={`${uuidv4()}${note.id}`} onClick={() => removeNote(note)}>Delete</button>
+                                    <button key={`${uuidv4()}${note.id}`} onClick={() => removeNote(note)}><TiDeleteOutline /></button>
                                 </div>
                                    
-                            <p key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                            
+                            <p className="sidebar-note-name" key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                            
+                            </div>
                             </React.Fragment>
                         );
                     }
                     else
                     {
+                        if (note.content === "") {
+                            var str = note.quote + "...";
+                            const maxLen = 50;
+                            if (str.length > maxLen) {
+                                str = note.quote.substring(0, Math.min(note.quote.length, maxLen)) + "...";
+                            }
+                            return (
+                            <React.Fragment key={`fragment-${uuidv4()}${note.id}`}>
+                                <div onClick={() => jumpToNote(note)} key={`div-${uuidv4()}${note.id}`} className="sidebar-item">
+                                <p className="sidebar-note-content" key={`${uuidv4()}${note.id}`} 
+                                    onClick={() => jumpToNote(note)}
+                                >Highlighted: {str}</p>
+                                <div key={`${uuidv4()}--${note.id}`} className="delete-note">
+                                </div>
+                                   
+                            <p className="sidebar-note-name" key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                        
+                                </div>
+                            </React.Fragment>
+                            );
+                        }
                         return  (
-                            <>
-                                <button key={`${uuidv4()}${note.id}`}  >{note.content}</button>
-                                <p>By {note.posterDisplayName}</p>                            
-                            </>
+                            <React.Fragment key={`fragment-${uuidv4()}${note.id}`}>
+                        <div key={`div-${uuidv4()}${note.id}`} className="sidebar-item"
+                            onClick={() => jumpToNote(note)}>
+                                <p key={`${uuidv4()}${note.id}`} className="sidebar-note-content" 
+                                >{note.content}</p>
+                                <div key={`${uuidv4()}--${note.id}`} className="delete-note">
+                                </div>
+                                   
+                            <p className="sidebar-note-name" key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                            
+                            </div>
+                            </React.Fragment>
                         );
+
                     }
                 })}
                 </div>,
@@ -403,16 +475,8 @@ const FileViewer = (props) => {
                 title: 'Notes',
             },
             {
-                content: <div className="sidebar-bookmark-link"> 
-                {bookmarks.map((bmark) => {
-                            return (
-                            <React.Fragment key={`fragment-${uuidv4()}${bmark.id}`}>
-                                <button onClick={() => jumpToPage(bmark.pageID)} key={`${uuidv4()}${bmark.id}`}>Page {bmark.pageID+1}</button>
-                            </React.Fragment>
-                            );
-                })}
-                </div>,
-                icon: <FaBookmark/> ,
+                content: <Thumbnails renderThumbnailItem={renderThumbnailItem}/>,
+                icon: <FaRegBookmark/>,
                 title: "Bookmarks",
             },
         ],
@@ -454,22 +518,21 @@ const FileViewer = (props) => {
         else {
             // Delete the bookmark if they click the icon again on the same page
             deleteBookmarkDb(bookmarkRef[0].docID);
-            setBookmarks([]);
         }
-        shouldUpdateBookmarks = !shouldUpdateBookmarks;
+        setShouldUpdateBookmarks(!shouldUpdateBookmarks);
     };
     
     async function uploadBookmarkToDb(bookmark) {
         const docRef = await addDoc(collection(db, "file_bookmarks"), bookmark);
         bookmark.docID = docRef.id;
         await updateDoc(docRef, {docID: docRef.id});
-        setBookmarks(bookmarks.concat([bookmark]));
     }
     async function deleteBookmarkDb(bookmarkID) {
         const docRef = doc(db, "file_bookmarks", bookmarkID);
         deleteDoc(docRef)
         .then(() => {
-            shouldUpdateBookmarks = !shouldUpdateBookmarks;
+            setBookmarks(bookmarks.filter(bmark => bmark.docID !== bookmarkID));
+            setShouldUpdateBookmarks(!shouldUpdateBookmarks);
         })
         .catch(error => {
             console.log(error);
@@ -485,7 +548,7 @@ const FileViewer = (props) => {
         }
         else {
             return (
-            <Viewer className="file-viewer" onPageChange={handlePageChange} fileUrl={url} plugins={[highlightPluginInstance, defaultLayoutPluginInstance]}/>
+            <Viewer className="file-viewer" defaultScale={SpecialZoomLevel.PageWidth} onPageChange={handlePageChange} fileUrl={url} plugins={[highlightPluginInstance, defaultLayoutPluginInstance, thumbnailPluginInstance]}/>
             );
         }
     }

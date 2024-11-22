@@ -29,11 +29,10 @@ function LoginPage() {
       <form className = "login-form" onSubmit={handleLogin}>
         <h3>Login to Your Account</h3>
 
-        <Signin /> {/* want to replace with Signin component */}
+        <Signin />
         <Login />
-        {/* <button className="guest-signin-button" type="submit">Sign in as Guest</button> */} {/* guest sign in button, add later */}
         <button className="go-to-signup-button" onClick={handleSignup}>Don't have an account? Sign Up</button>
-        <button className="guest-signin-button" onClick={handleForgot}>Forgot Password </button> {/* guest sign in button, add later */}
+        <button className="guest-signin-button" onClick={handleForgot}>Forgot Password </button>
       </form>
     </div>
   );

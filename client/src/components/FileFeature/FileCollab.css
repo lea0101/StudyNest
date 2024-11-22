@@ -1,9 +1,11 @@
 .files-sidebar {
+    background-color: var(--button-color);
     margin-left: 50px;
+    margin-right: 50px;
     align-items: left;
     width: 200px;
-    background-color: #f1f1f1;
     height: 100%;
+    border-radius: 12px
 }
 
 .files-mainviewer {
@@ -22,6 +24,7 @@
 .bookmark-button {
     float: right;
     margin-right: 2%;
+    margin-top: 10px;
 }
 
 .page-nav-label {
@@ -32,21 +35,32 @@
     margin-left: 100px;
     width: 60vw;
     flex-grow: 1;
-    
 }
+
 
 .file-list-button {
     width: 100%;
     border: none;
-    margin-bottom: 5px;
-    margin-top: 5px;
-    border-bottom: 3px solid #DDDDDD;
+    margin-bottom: 15px;
+    border: 3px solid rgba(0, 0, 0, 0);
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.4);
+    font-size: 16px;
+}
+
+.file-list-button:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.file-list-button:active {
+    background-color: rgba(255, 255, 255, 1);
 }
 
 .file-form-button {
-    border: 2px solid #DDDDDD;
-    border-radius: 5px;
-    background-color: #EEEEEE;
+    border: 3px solid rgba(0, 0, 0, 0);
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
     width: 75%;
 }
 
@@ -61,12 +75,14 @@
 }
 
 .note-info-tooltip {
+    right: 0px;
+    top: 0px;
+    margin-top: -60px;
     visibility: hidden;
     min-width: 50px;
     min-height: 50px;
     width: fit-content;
     height: fit-content;
-    background-color: rgba(42, 130, 218,1 );
     border: 1px solid #fbc02d;
     border-radius: 5px;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
@@ -78,20 +94,27 @@
     float: right;
     p {
         color: black;
-        font-size: 9px;
+        font-size: 15px;
         text-align: left;
         float: left;
         margin: 10px;
-        z-index: 50;
+        position: relative;
     }
     position: relative;
-    z-index: 6;
+    z-index: 8;
 }
 
 .highlight-block {
-    z-index: 5;
+    position: relative;
+    z-index: 6;
     background-color: rgba(255, 255, 0, .4);
     margin: 0 auto;
+}
+
+.tooltip-container:hover {
+    .highlight-block {
+        border: 1px solid black;
+    }
 }
 
 .tooltip-container:hover .note-info-tooltip {
@@ -103,54 +126,60 @@
 }
 
 .add-note-dialog {
-    z-index: 6;
+    position: relative;
+    z-index: 10;
 }
 
-.sidebar-note-link {
-    width: 100%;
-    button {
+
+.sidebar-note-content {
+        margin-top: 2%;
         border: none;
-        width: 100%;
+        width: 90%;
+        border-radius: 6px;
         text-align: left;
-        border-bottom: 3px dotted #CCCCCC;
         font-style: italic;
-    }
-    p {
+}
+
+.sidebar-note-name {
         width: 100%;
         text-align: left;
-        border-bottom: 3px solid #DDDDDD;
         font-size: small;
-    }
+        margin-left: 2%; 
 }
 
 .delete-note {
-    button {
-        border: none;
-    
-    }
-    color: red;
-    text-align: right;
-    font-size: xx-small;
-    text-decoration-line: underline;
-    border-bottom: 0px solid #DDDDDD;        
+    border-radius: 0px;
     border: none;
-    width: 100%;
-    font-style: italic;
+    float:right;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    max-width: 50px;
+    max-height: 50px;
+    z-index: 2;
 }
 
 .sidebar-note-link {
-    width: 100%;
-    button {
-        border: none;
-        width: 100%;
-        text-align: left;
-        border-bottom: 3px dotted #CCCCCC;
-        font-style: italic;
-    }
-    p {
-        width: 100%;
-        text-align: left;
-        border-bottom: 3px solid #DDDDDD;
-        font-size: small;
-    }
+    flex-grow: 3;
+}
+.file-uploader div {
+    background-color: var(--button-color);
+}
+
+.sidebar-item {
+    background-color: var(--button-color);
+    width: 75%;
+    min-height: 50px;
+    margin: 0 auto;
+    position: relative;
+    border-radius: 10px;
+    padding: 3%;
+    margin-bottom: 10%;
+}
+
+.sidebar-item:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+.sidebar-item:active {
+    background-color: rgba(255, 255, 255, 0.2);
 }

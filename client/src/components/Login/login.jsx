@@ -1,4 +1,5 @@
-import { auth, provider } from "../../config/firebase"
+import { auth, provider, db } from "../../config/firebase"
+import { doc, getDoc } from "@firebase/firestore";
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import "./login.css";
@@ -12,22 +13,56 @@ function Login() {
     const navigate = useNavigate(); // initialize navigate
 
     async function handleLogin() {
-        await signInWithPopup(auth, provider).then((result) => {
-            // Google Access Token for API.
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            const token = credential.accessToken;
+        try {
+            // sign in with Google
+            const result = await signInWithPopup(auth, provider);
             const user = result.user;
-            // IdP data = getAdditionalUserInfo(result)
 
-            // navigate to home page after successful login
+            // fetch user's firestore document
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                // check if user is marked as deleted
+                const userData = userDoc.data();
+                if (userData.deleted) {
+                    alert("Your account has been deleted.");
+                    await auth.signOut();
+                    return;
+                }
+            } else {
+                alert("Account not found.");
+                await auth.signOut();
+                return;
+            }
+
+            // navigate to home if can sign in
             navigate('/');
-        }).catch((error) => {
+
+        } catch (error) {
             const errorCode = error.code;
             const errorMessage = error.message;
             const email = error.customData.email;
             const credential = GoogleAuthProvider.credentialFromError(error);
             console.log(errorCode);
-        });
+        }
+
+        // await signInWithPopup(auth, provider).then((result) => {
+        //     // Google Access Token for API.
+        //     const credential = GoogleAuthProvider.credentialFromResult(result);
+        //     const token = credential.accessToken;
+        //     const user = result.user;
+        //     // IdP data = getAdditionalUserInfo(result)
+
+        //     // navigate to home page after successful login
+        //     navigate('/');
+        // }).catch((error) => {
+        //     const errorCode = error.code;
+        //     const errorMessage = error.message;
+        //     const email = error.customData.email;
+        //     const credential = GoogleAuthProvider.credentialFromError(error);
+        //     console.log(errorCode);
+        // });
     }
 
     console.log("hi: ", user?.displayName);

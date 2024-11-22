@@ -21,6 +21,8 @@ function Timer() {
     const [paused, setPaused] = useState(false);
     const [remainingTime, setRemainingTime] = useState(0);
 
+    const [error, setError] = useState("");
+
     // firestore reference for timer document
     const timerRef = doc(db, 'rooms', roomCode);
     const intervalRef = useRef(null); // store interval reference
@@ -120,6 +122,11 @@ function Timer() {
     }, [isActive, countdownTime]);
 
     const handleStart = async () => {
+        if (secondsInput < 0 || minutesInput < 0 || hoursInput < 0) {
+            alert("Please input valid times! Times cannot be negative.");
+            return;
+        }
+
         if (isActive && !paused) {
             // pause timer
             setPaused(true);

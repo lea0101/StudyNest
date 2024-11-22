@@ -511,6 +511,10 @@ input {
   font-size: 0.9 rem;
   margin-top: 10px;
   width: fit-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .profile-picture {

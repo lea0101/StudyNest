@@ -123,6 +123,46 @@ class Rectangle extends Shape {
     }
 }
 
+class StrokeImage extends Rectangle {
+    constructor(x, y, width, height, url, shader) {
+        super(x, y, width, height, shader);
+        this.url = url;
+        this.image = null;
+    }
+    display(p) {
+        if (this.image === null) {
+            p.loadImage(this.url, (img) => {
+                this.image = img;
+                if (this.width <= 0 || this.height <= 0) {
+                    this.width = this.image.width || 0;
+                    this.height = this.image.height || 0;
+                    if (this.width > 200) {
+                        this.height *= 200 / this.width;
+                        this.width = 200;
+                    }
+                    if (this.height > 200) {
+                        this.width *= 200 / this.height;
+                        this.height = 200;
+                    }
+                }
+            });
+            return this.toJSON();
+        }
+        p.image(this.image, this.x, this.y, this.width, this.height);
+    }
+    toJSON() {
+        return {
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            shader: this.shader.toJSON(),
+            type: getShapeType(this),
+            url: this.url
+        };
+    }
+}
+
 function dist(x1, y1, x2, y2) {
     return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
 }
@@ -151,7 +191,9 @@ class Ellipse extends Shape {
         p.ellipse(this.x+this.width/2, this.y+this.height/2, this.width, this.height);
     }
     isNear(x, y) {
-        return dist(x, y, this.x + this.width / 2, this.y + this.height / 2) < this.width / 2;
+        let dx = x - this.x - this.width / 2;
+        let dy = y - this.y - this.height / 2;
+        return Math.abs(dx) <= Math.abs(this.width / 2) && Math.abs(dy) <= Math.abs(this.height / 2);
     }
     isBoundedBy(rect) {
         return rect.containsPoint(this.x, this.y) && rect.containsPoint(this.x + this.width, this.y + this.height);
@@ -172,25 +214,46 @@ function dotProduct(x1, y1, x2, y2) {
     return x1 * x2 + y1 * y2;
 }
 
-function distancePointToSegment(px, py, ax, ay, bx, by) {
-    const ABx = bx - ax;
-    const ABy = by - ay;
-    const APx = px - ax;
-    const APy = py - ay;
+// function distancePointToSegment(px, py, ax, ay, bx, by) {
+//     const ABx = bx - ax;
+//     const ABy = by - ay;
+//     const APx = px - ax;
+//     const APy = py - ay;
 
-    const AB_AB = dotProduct(ABx, ABy, ABx, ABy);
-    const AB_AP = dotProduct(ABx, ABy, APx, APy);
+//     const AB_AB = dotProduct(ABx, ABy, ABx, ABy);
+//     const AB_AP = dotProduct(ABx, ABy, APx, APy);
 
-    let t = AB_AP / AB_AB;
+//     let t = AB_AP / AB_AB;
 
-    t = Math.max(0, Math.min(1, t));
+//     t = Math.max(0, Math.min(1, t));
 
-    const closestX = ax + t * ABx;
-    const closestY = ay + t * ABy;
+//     const closestX = ax + t * ABx;
+//     const closestY = ay + t * ABy;
 
-    return dist(px, py, closestX, closestY);
+//     return dist(px, py, closestX, closestY);
+// }
+
+function distancePointToSegment(px, py, x1, y1, x2, y2) {
+    // Calculate the squared length of the segment
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const lengthSquared = dx * dx + dy * dy;
+
+    // If the segment is a point, return the distance to that point
+    if (lengthSquared === 0) {
+        return Math.sqrt((px - x1) ** 2 + (py - y1) ** 2);
+    }
+
+    // Project the point onto the line segment, clamping between 0 and 1
+    const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSquared));
+
+    // Find the projection point on the segment
+    const projX = x1 + t * dx;
+    const projY = y1 + t * dy;
+
+    // Return the distance from the point to the projection
+    return Math.sqrt((px - projX) ** 2 + (py - projY) ** 2);
 }
-
 
 // curve class that extends shape, array of points that draws a line between every two points
 class Curve extends Shape {
@@ -237,8 +300,12 @@ class Curve extends Shape {
     }
     isNear(x, y) {
         let prev = this.points[0];
+        let closest = distancePointToSegment(x, y, prev.x, prev.y, this.points[1].x, this.points[1].y);
         for (let point of this.points) {
-            if (distancePointToSegment(x, y, prev.x, prev.y, point.x, point.y) < 5) {
+            if (distancePointToSegment(x, y, prev.x, prev.y, point.x, point.y) < closest) {
+                closest = distancePointToSegment(x, y, prev.x, prev.y, point.x, point.y);
+            }
+            if (distancePointToSegment(x, y, prev.x, prev.y, point.x, point.y) < 10) {
                 return true;
             }
             prev = point;
@@ -266,6 +333,10 @@ function generateShapeFromJSON(json) {
     let shader = new Shader(json.shader.stroke, json.shader.fill, json.shader.weight, json.shader.dashed);
     let out;
     switch (json.type) {
+        case "image":
+            // x, y, width, height, url, shader
+            out = new StrokeImage(json.x, json.y, json.width, json.height, json.url, shader);
+            break;
         case "rectangle":
             out = new Rectangle(json.x, json.y, json.width, json.height, shader);
             break;
@@ -284,7 +355,9 @@ function generateShapeFromJSON(json) {
 }
 
 function getShapeType(shape) {
-    if (shape instanceof Rectangle) {
+    if (shape instanceof StrokeImage) {
+        return "image";
+    } else if (shape instanceof Rectangle) {
         return "rectangle";
     } else if (shape instanceof Ellipse) {
         return "ellipse";
@@ -296,4 +369,4 @@ function getShapeType(shape) {
     }
 }
 
-export { Shader, Shape, Rectangle, Ellipse, Curve, getShapeType, generateShapeFromJSON};
+export { Shader, Shape, Rectangle, StrokeImage, Ellipse, Curve, getShapeType, generateShapeFromJSON};

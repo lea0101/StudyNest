@@ -1,16 +1,17 @@
-
 @font-face {
-  font-family: "SanFrancisco";
-  src:
-    url("https://cdn.rawgit.com/AllThingsSmitty/fonts/25983b71/SanFrancisco/sanfranciscodisplay-regular-webfont.woff2") format("woff2"),
-    url("https://cdn.rawgit.com/AllThingsSmitty/fonts/25983b71/SanFrancisco/sanfranciscodisplay-regular-webfont.woff") format("woff");
+	font-family: "SanFrancisco";
+	src:
+	url("https://cdn.rawgit.com/AllThingsSmitty/fonts/25983b71/SanFrancisco/sanfranciscodisplay-regular-webfont.woff2") format("woff2"),
+	url("https://cdn.rawgit.com/AllThingsSmitty/fonts/25983b71/SanFrancisco/sanfranciscodisplay-regular-webfont.woff") format("woff");
 }
 
+
 .msg_img {
-  padding-top: .25rem;
-  width: 100%;
-  width: -moz-available;          /* WebKit-based browsers will ignore this. */
-  width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+	padding-top: .25rem;
+	width: 100%;
+	width: -moz-available;          /* WebKit-based browsers will ignore this. */
+	width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+	height: inherit;
 }
 .sticker_container{
 	position: absolute;
@@ -19,24 +20,24 @@
 	width: 700px;
 }
 .image-grid {
-    display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
-    gap: 8px;  /* Space between images */
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+	gap: 8px;  /* Space between images */
 }
 
 .image-grid img {
-     width: 100%;  /* Make images responsive */
-    height: 100%;  /* Make images fill the height of the grid item */
-    border-radius: 8px;  /* Optional: add rounded corners */
-	 object-fit: contain; /* Makes sure the entire image is visible */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Optional: subtle shadow */
-    transition: transform 0.3s ease;  /* Optional: image hover effect */
-		 max-height: 75px; /* Prevent the image from exceeding a certain height */
-		 max-width: 75px; /* Prevent the image from exceeding a certain height */
+	width: 100%;  /* Make images responsive */
+	height: 100%;  /* Make images fill the height of the grid item */
+	border-radius: 8px;  /* Optional: add rounded corners */
+	object-fit: contain; /* Makes sure the entire image is visible */
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Optional: subtle shadow */
+	transition: transform 0.3s ease;  /* Optional: image hover effect */
+	max-height: 75px; /* Prevent the image from exceeding a certain height */
+	max-width: 75px; /* Prevent the image from exceeding a certain height */
 }
 
 .image-grid img:hover {
-    transform: scale(1.05);  /* Optional: scale on hover */
+	transform: scale(1.05);  /* Optional: scale on hover */
 }
 
 /*.sticker_grid {*/
@@ -52,115 +53,115 @@
 /*}*/
 
 input:focus {
-    outline: none;
+	outline: none;
 }
 
 .chat_bar {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
 }
 /*======================================================*/
 
 .button_container {
-	 width: auto;
+	width: auto;
 }
 
 .upload_button {
-  height: 24.5px;
-  width: 24.5px;
+	height: 24.5px;
+	width: 24.5px;
 }
 
 .send_button {
-  color: #e2e2e2;
-  height: 40px;
-  width: 40px;
+	color: #e2e2e2;
+	height: 40px;
+	width: 40px;
 }
 
- .button {
-   padding:5px;
-	 position: relative;
-	 border: 3px solid #e2e2e2;
-	 border-radius: 25px;
-	 cursor: pointer;
+.button {
+	padding:5px;
+	position: relative;
+	border: 3px solid #e2e2e2;
+	border-radius: 25px;
+	cursor: pointer;
 
-   margin: 5px;
-   background: none;
-	 overflow: hidden;
-	 transition: all 0.4s ease-out;
+	margin: 5px;
+	background: none;
+	overflow: hidden;
+	transition: all 0.4s ease-out;
 }
 .button:hover {
 	background-color: #F8F8F8;
 }
 
- .button__success {
-	 font-size: 24px;
-	 display: block;
-	 position: absolute;
-	 left: 0;
-	 top: 0;
-	 height: 100%;
-	 width: 100%;
-	 background-color: transparent;
-	 color: #fff;
-	 text-align: center;
-	 transition: all 0.4s;
-	 transform: translateY(100%);
+.button__success {
+	font-size: 24px;
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 100%;
+	background-color: transparent;
+	color: #fff;
+	text-align: center;
+	transition: all 0.4s;
+	transform: translateY(100%);
 }
- .button__text {
-	 display: block;
-	 color: #e2e2e2;
-	 font-weight: 40;
-	 letter-spacing: 1px;
-	 padding-top: 1.5px;
-	 text-align: center;
-	 transition: opacity 0.2s;
+.button__text {
+	display: block;
+	color: #e2e2e2;
+	font-weight: 40;
+	letter-spacing: 1px;
+	padding-top: 1.5px;
+	text-align: center;
+	transition: opacity 0.2s;
 }
- .button:after {
-	 content: '';
-	 display: block;
-	 position: absolute;
-	 left: 0;
-	 top: 0;
-	 height: 100%;
-	 width: 0%;
-	 background-color: #a7ffc6;
-	 transition: width 1s cubic-bezier(0.42, 0, 0, 1.035) 0.5s, opacity 0.1s;
+.button:after {
+	content: '';
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 0%;
+	background-color: #a7ffc6;
+	transition: width 1s cubic-bezier(0.42, 0, 0, 1.035) 0.5s, opacity 0.1s;
 }
- .button.is-loading {
-	 /*width: 100%;*/
+.button.is-loading {
+	/*width: 100%;*/
 }
- .button.is-loading:after {
-   width: 100%;
+.button.is-loading:after {
+	width: 100%;
 }
- .button.is-loading .button__text {
-	 opacity: 0;
+.button.is-loading .button__text {
+	opacity: 0;
 }
- .button.is-completed {
-	 background-color: #80ffac;
-	 border-color: #80ffac;
+.button.is-completed {
+	background-color: #80ffac;
+	border-color: #80ffac;
 }
- .button.is-completed:after {
-	 opacity: 0;
+.button.is-completed:after {
+	opacity: 0;
 }
- .button.is-completed .button__success {
-	 transform: translateY(0%);
+.button.is-completed .button__success {
+	transform: translateY(0%);
 }
 
 .plane {
-  opacity: 1;
-  transition: opacity .5s;
+	opacity: 1;
+	transition: opacity .5s;
 }
 
 .is-sent {
-  transform: translate(100%, -100%);
-  opacity: 0;
-  transition: translate .20s opacity .2s;
+	transform: translate(100%, -100%);
+	opacity: 0;
+	transition: translate .20s opacity .2s;
 }
 
 .is-sent:after {
-    transform: translate(0, 0); /* Centering adjustment */
+	transform: translate(0, 0); /* Centering adjustment */
 }
 
 

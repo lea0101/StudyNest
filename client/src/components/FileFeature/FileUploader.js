@@ -23,8 +23,7 @@ const baseStyle = {
   borderRadius: 2,
   borderColor: '#eeeeee',
   borderStyle: 'dashed',
-  backgroundColor: '#fafafa',
-  color: '#bdbdbd',
+  color: 'black',
   outline: 'none',
   transition: 'border .24s ease-in-out'
 };
@@ -112,7 +111,7 @@ function FileUploader({loadFilesHandler}) {
             });
   }
   return (
-    <div className="FileUploader">
+    <div className="file-uploader">
     <form onSubmit={handleSubmit}>
       <div {...getRootProps({style})}>
         <input type ="file" name="my-file" required style ={{opacity: 0}} ref={hiddenInputRef}/>
