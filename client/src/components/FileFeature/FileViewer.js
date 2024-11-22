@@ -434,12 +434,40 @@ const FileViewer = (props) => {
                     }
                     else
                     {
+                        if (note.content === "") {
+                            var str = note.quote + "...";
+                            const maxLen = 50;
+                            if (str.length > maxLen) {
+                                str = note.quote.substring(0, Math.min(note.quote.length, maxLen)) + "...";
+                            }
+                            return (
+                            <React.Fragment key={`fragment-${uuidv4()}${note.id}`}>
+                                <div onClick={() => jumpToNote(note)} key={`div-${uuidv4()}${note.id}`} className="sidebar-item">
+                                <p className="sidebar-note-content" key={`${uuidv4()}${note.id}`} 
+                                    onClick={() => jumpToNote(note)}
+                                >Highlighted: {str}</p>
+                                <div key={`${uuidv4()}--${note.id}`} className="delete-note">
+                                </div>
+                                   
+                            <p className="sidebar-note-name" key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                        
+                                </div>
+                            </React.Fragment>
+                            );
+                        }
                         return  (
-                            <>
-                                <button key={`${uuidv4()}${note.id}`}  >{note.content}</button>
-                                <p>By {note.posterDisplayName}</p>                            
-                            </>
+                            <React.Fragment key={`fragment-${uuidv4()}${note.id}`}>
+                        <div key={`div-${uuidv4()}${note.id}`} className="sidebar-item"
+                            onClick={() => jumpToNote(note)}>
+                                <p key={`${uuidv4()}${note.id}`} className="sidebar-note-content" 
+                                >{note.content}</p>
+                                <div key={`${uuidv4()}--${note.id}`} className="delete-note">
+                                </div>
+                                   
+                            <p className="sidebar-note-name" key={`${note.id}-${note.posterDisplayName}`}>By {note.posterDisplayName} (You)</p>                            
+                            </div>
+                            </React.Fragment>
                         );
+
                     }
                 })}
                 </div>,
@@ -503,6 +531,7 @@ const FileViewer = (props) => {
         const docRef = doc(db, "file_bookmarks", bookmarkID);
         deleteDoc(docRef)
         .then(() => {
+            setBookmarks([]);
             setShouldUpdateBookmarks(!shouldUpdateBookmarks);
         })
         .catch(error => {
