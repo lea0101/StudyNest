@@ -143,14 +143,14 @@ const WhiteBoard = () => {
                         <button id="redo" onClick={pushAction()}>Redo</button>
                     </div> */}
                     <div id="tool-select" className="single-select no-null-select">
-                        <button id="grab" className="selected" onClick={getUpdateToolHandler}>Grab</button>
-                        <button id="paint" onClick={getUpdateToolHandler}>Paint</button>
-                        <button id="rectangle" onClick={getUpdateToolHandler}>Rectangle</button>
-                        <button id="ellipse" onClick={getUpdateToolHandler}>Ellipse</button>
-                        <button id="erase" onClick={getUpdateToolHandler}>Erase</button>
-                        <button id="clear" onClick={() => setClearEvent(true)}>Clear</button>
-                        <button id="select" onClick={getUpdateToolHandler}>Select</button>
-                        <button id="image" onClick={() => setShowImageAdd(true)}>Insert Image</button>
+                        <button className="selected b-button" id="grab"onClick={getUpdateToolHandler}>Grab</button>
+                        <button className="b-button" id="paint" onClick={getUpdateToolHandler}>Paint</button>
+                        <button className="b-button" id="rectangle" onClick={getUpdateToolHandler}>Rectangle</button>
+                        <button className="b-button" id="ellipse" onClick={getUpdateToolHandler}>Ellipse</button>
+                        <button className="b-button" id="erase" onClick={getUpdateToolHandler}>Erase</button>
+                        <button className="b-button" id="clear" onClick={() => setClearEvent(true)}>Clear</button>
+                        <button className="b-button" id="select" onClick={getUpdateToolHandler}>Select</button>
+                        <button className="b-button" id="image" onClick={() => setShowImageAdd(true)}>Insert Image</button>
                     </div>
                     <div id="color-select" className="single-select no-null-select">
                         <div>
@@ -158,10 +158,10 @@ const WhiteBoard = () => {
                             <input type="checkbox" id="fill-enable" onChange={(event) => setFill(event.target.checked)} />
                                 <label htmlFor="fill">Fill</label>
                         </div>
-                        <button id="black" onClick={getUpdateColorHandler} className="default-select"></button>
-                        <button id="red" onClick={getUpdateColorHandler}></button>
-                        <button id="green" onClick={getUpdateColorHandler}></button>
-                        <button id="blue" onClick={getUpdateColorHandler}></button>
+                        <button className="b-button" id="black" onClick={getUpdateColorHandler}></button>
+                        <button className="b-button" id="red" onClick={getUpdateColorHandler}></button>
+                        <button className="b-button" id="green" onClick={getUpdateColorHandler}></button>
+                        <button className="b-button" id="blue" onClick={getUpdateColorHandler}></button>
                     </div>
                 </div>
                 <P5Wrapper roomCode={roomCode} tool={tool} color={color} fill={fill} clearEvent={clearEvent} setClearEvent={setClearEvent} newImageURL={newImageURL} />

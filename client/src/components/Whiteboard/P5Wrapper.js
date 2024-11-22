@@ -18,6 +18,9 @@ const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent, new
     let [strokes, setStrokes] = useState([]);
     let [selection, setSelection] = useState([]);
     let [selectedShape, setSelectedShape] = useState(null);
+    let [contextMenu, setContextMenu] = useState(null);
+    let [contextWidthParam, setContextWidthParam] = useState(0);
+    let [contextHeightParam, setContextHeightParam] = useState(0);
 
     useEffect(() => {
         if (newImageURL) {
@@ -28,6 +31,7 @@ const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent, new
     }, [newImageURL]);
 
     useEffect(() => {
+        document.addEventListener('contextmenu', event => event.preventDefault());
         const q = query(
             collection(db, `strokes-${roomCode}`)
         );
@@ -139,13 +143,28 @@ const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent, new
                 }
             };
 
-            p.mousePressed = function () {
+            p.mousePressed = function (event) {
                 if (p.mouseX <= 0 || p.mouseX >= p.width || p.mouseY <= 0 || p.mouseY >= p.height) {
                     return;
                 }
                 let shader = new Shader(color, fill ? color : null, 10, false);
                 switch (tool) {
                     case 'grab':
+                        if (event.button !== 2) {
+                            setContextMenu(null);
+                            break;
+                        }
+                        for (let shape of strokes) {
+                            if (shape.isNear(p.mouseX, p.mouseY)) {
+                                setContextMenu({
+                                    shape: shape,
+                                    x: p.mouseX,
+                                    y: p.mouseY
+                                });
+                                return;
+                            }
+                        }
+                        setContextMenu(null);
                         break;
                     case 'rectangle':
                         currentShape = new Rectangle(p.mouseX, p.mouseY, 0, 0, shader);
@@ -169,31 +188,37 @@ const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent, new
                 if (p.mouseX <= 0 || p.mouseX >= p.width || p.mouseY <= 0 || p.mouseY >= p.height) {
                     return;
                 }
-                if (tool === 'grab') {
-                    if (!selectedShape) {
-                        for (let shape of strokes) {
-                            if (shape.isNear(p.mouseX, p.mouseY)) {
-                                selectedShape = shape;
-                                setSelectedShape(shape);
-                                break;
-                            }
+                // tool is grab and left click
+                if (tool !== 'grab') {
+                    return;
+                }
+                if (!selectedShape) {
+                    for (let shape of strokes) {
+                        if (shape.isNear(p.mouseX, p.mouseY)) {
+                            selectedShape = shape;
+                            setSelectedShape(shape);
+                            break;
                         }
                     }
-                    if (!selectedShape) return;
-                    if (getShapeType(selectedShape) === 'curve') {
-                        for (let point of selectedShape.points) {
-                            point.x += event.movementX;
-                            point.y += event.movementY;
-                        }
-                    } else {
-                        selectedShape.x += event.movementX;
-                        selectedShape.y += event.movementY;
+                }
+                if (!selectedShape) return;
+                p.cursor('grab');
+                if (getShapeType(selectedShape) === 'curve') {
+                    for (let point of selectedShape.points) {
+                        point.x += event.movementX;
+                        point.y += event.movementY;
                     }
+                } else {
+                    selectedShape.x += event.movementX;
+                    selectedShape.y += event.movementY;
                 }
             }
 
-            p.mouseReleased = function () {
+            p.mouseReleased = function (event) {
                 if (tool === 'grab') {
+                    if (event.button === 2) {
+                        console.log(contextMenu);
+                    }
                     if (!selectedShape) return;
                     updateDoc(selectedShape.id, selectedShape.toJSON());
                     setSelectedShape(null);
@@ -232,7 +257,47 @@ const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent, new
 
     }, [tool, color, fill, strokes, selection]);
 
-    return <div className="p5wrapper" ref={sketchRef}></div>;
+    useEffect(() => {
+        if (contextMenu) {
+            setContextWidthParam(contextMenu.shape.width);
+            setContextHeightParam(contextMenu.shape.height);
+        }
+    }, [contextMenu]);
+
+    return <>
+        <div className="p5wrapper" ref={sketchRef}></div>
+        {contextMenu && <div className="context-menu" style={{left: contextMenu.x, top: contextMenu.y}}>
+            {/* Resize options if type is Rectangle or Ellipse */}
+            {/* Input boxes for width and height that update the shape when changed */}
+            {contextMenu.shape.width && contextMenu.shape.height && 
+            <div className="resize-menu">
+                <div className="resize-param">
+                    <label htmlFor="width">Width</label><input name="width" type="number" value={contextWidthParam} onChange={(event) => {
+                        if (event.target.value <= 0) {
+                            return;
+                        }
+                        console.log(event.target.value);
+                        contextMenu.shape.width = event.target.value;
+                        setContextWidthParam(contextMenu.shape.width);
+                        updateDoc(contextMenu.shape.id, contextMenu.shape.toJSON());
+                    }} />
+                </div>
+                <div className="resize-param">
+                    <label htmlFor="height">Height</label><input name="height" type="number" value={contextHeightParam} onChange={(event) => {
+                        if (event.target.value <= 0) {
+                            return;
+                        }
+                        console.log(event.target.value);
+                        contextMenu.shape.height = event.target.value;
+                        setContextHeightParam(contextMenu.shape.height);
+                        updateDoc(contextMenu.shape.id, contextMenu.shape.toJSON());
+                    }} />
+                </div>
+            </div>
+            }
+            <button className="b-button" onClick={() => deleteStroke(strokes.indexOf(contextMenu.shape))}>Delete</button>
+        </div>}
+    </>;
 };
 
 export default P5Wrapper;
