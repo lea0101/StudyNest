@@ -110,6 +110,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
       avatar: photoURL,
       createdAt: serverTimestamp(),
       imageSrc: url,
+      reactions: [],
       uid,
     }).catch((err) => {
       alert("Error sending message");
@@ -156,6 +157,7 @@ const ChatBar = ({ scroll, dbMsgQuery, roomCode, roomName }) => {
       createdAt: serverTimestamp(),
       imageSrc: sticker_url,
       isSticker: true,
+      reactions: [],
       uid,
     }).catch((err) => {
       alert("Error sending message");

@@ -7,18 +7,24 @@ import EmbedList from "./EmbedList";
 import "./Chat.css";
 import "./ReactionBar.css";
 
-const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEditingUpstream, handleDeleteUpstream}) => {
+const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEditingUpstream, handleDeleteUpstream, handleAddReactionUpstream, reactions}) => {
   const [user] = useAuthState(auth);
+  const {displayName, email} = auth.currentUser;
   const messageOwner = (message.uid === user.uid) ? "me" : "them";
   const isSticker = (message.isSticker === true) ? "sticker no-tail" : "";
   const [isClicked, setIsClicked] = useState(false)
   const [isEditable, setIsEditable] = useState(false)
   const [editMessage, setEditMessage] = useState("Edit")
   const [showReactionChart, setShowReactionChart] = useState(false)
+  const [showMenuReactionChart, setMenuShowReactionChart] = useState(false)
   const msgFocus = useRef(null);
   const msgTxt = useRef(message.text);
-  var emojiCounter = [];
+  const [emojiCounter, setEmojiCounter] = useState((reactions == null)?[] : reactions);
 
+  var userName = displayName;
+  if (displayName == null) {
+     userName = email;
+  }
   const extractUrls = (text) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.match(urlRegex);
@@ -69,14 +75,15 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
   }
 
   const handleMsgClick = () => {
-    if (messageOwner === "me") {
-      if (isClicked === true && editMessage === "Edit") {
+    //if (messageOwner === "me") {
+      if ((isClicked === true && editMessage === "Edit") ||
+      (isClicked == true && messageOwner != "me")) {
         setIsClicked(false);
+        setMenuShowReactionChart(false);
       } else {
         setIsClicked(true);
       }
-
-    }
+    //}
   }
 
   const handleCancel = () => {
@@ -86,8 +93,18 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
     setIsClicked(false);
   }
 
-  const handleAdd = () => { setShowReactionChart(!showReactionChart) }
-  const addReactionFromMenu = () => { setShowReactionChart(!showReactionChart) }
+  //const handleAdd = () => { setShowReactionChart(!showReactionChart) }
+  const addReactionFromMenu = () => { setMenuShowReactionChart(!showMenuReactionChart) }
+
+  const handleReturnedEmoji = (emoji) => {
+    if (reactions == null) {
+      reactions = []
+    }
+    const reactionNoUser = reactions.filter(a => !a.by.includes(userName));
+    const newReactions = [...reactionNoUser, {emoji:emoji, by:userName}];
+    handleAddReactionUpstream(message.id, newReactions);
+    setEmojiCounter(newReactions);
+  }
 
   return (<>
       <p onClick={handleMsgClick} contentEditable={isEditable}
@@ -102,24 +119,24 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
       </p>
     { message.updated && <p className={`details ${messageOwner}`}> edited </p>}
 
-    <div className={`reactionBar ${(emojiCounter) ? "hide":""}`} style={{alignSelf: (messageOwner == "me") ? "flex-end": "start"}}>
-      <SlackCounter onAdd={handleAdd} counters={emojiCounter}/>
+    <div className={`reactionBar ${(emojiCounter.length === 0) ? "hide":""}`} style={{alignSelf: (messageOwner == "me") ? "flex-end": "start"}}>
+      <SlackCounter onAdd={() => {console.log("no")}} counters={emojiCounter} onSelect={ handleReturnedEmoji }/>
       { showReactionChart ? (
-      <div style={{ position: 'inherit', bottom: '100%', marginBottom: '10px' }}>
-        <SlackSelector />
+      <div className={`selector ${messageOwner}`}>
+        <SlackSelector/>
       </div>
     ) : null }
     </div>
 
 
-    { isClicked && <div className="msgOptions">
-      {!message.isSticker && <button onClick={() => {handleEdit()}} > {editMessage} </button> }
-      <button onClick={() => {handleDeleteUpstream(message.id); setIsClicked(false);}} > Delete </button>
+    { isClicked && <div className={`msgOptions ${messageOwner}`}>
+      {(messageOwner === "me") && !message.isSticker && <button onClick={() => {handleEdit()}} > {editMessage} </button> }
+      {(messageOwner === "me") && <button onClick={() => {handleDeleteUpstream(message.id); setIsClicked(false);}} > Delete </button>}
       <button onClick={() => {addReactionFromMenu()}}> Add Reaction</button>
       <button onClick={() => {handleCancel()}}> Cancel </button>
-      { showReactionChart ? (
-        <div style={{ position: 'inherit', display:"inline-block", bottom: '100%', marginBottom: '10px' }}>
-        <SlackSelector />
+      { showMenuReactionChart ? (
+        <div className={`selector ${messageOwner}`}>
+          <SlackSelector onSelect={ handleReturnedEmoji }/>
       </div>
     ) : null }
     </div>

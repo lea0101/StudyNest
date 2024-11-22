@@ -5,3 +5,17 @@
 .reactionBar:hover + .hide {
   display: block;
 }
+
+.selector {
+  position: inline;
+  bottom: 100%;
+  marginBottom: 10px;
+}
+
+.selector.me {
+  text-align: right;
+  text-align: -webkit-right;
+  text-align: -moz-right;
+  text-align: -o-right; 
+  text-align: -ms-right;
+}
