@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Rectangle, Ellipse, Curve, Shader, getShapeType, generateShapeFromJSON } from './shape';
+import { Rectangle, StrokeImage, Ellipse, Curve, Shader, getShapeType, generateShapeFromJSON } from './shape';
 import p5 from 'p5';
 import {
     query,
@@ -8,14 +8,24 @@ import {
     addDoc,
     doc,
     deleteDoc,
-    serverTimestamp
+    serverTimestamp,
+    updateDoc
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent }) => {
+const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent, newImageURL }) => {
     const sketchRef = useRef(null);
     let [strokes, setStrokes] = useState([]);
     let [selection, setSelection] = useState([]);
+    let [selectedShape, setSelectedShape] = useState(null);
+
+    useEffect(() => {
+        if (newImageURL) {
+            let shader = new Shader(color, fill ? color : null, 10, false);
+            let image = new StrokeImage(0, 0, 0, 0, newImageURL, shader);
+            addStroke(image);
+        }
+    }, [newImageURL]);
 
     useEffect(() => {
         const q = query(
@@ -72,7 +82,10 @@ const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent }) =
             p.draw = function () {
                 p.background(255);
                 for (let shape of strokes) {
-                    shape.display(p);
+                    let newJSON = shape.display(p);
+                    if (newJSON) {
+                        updateDoc(shape.id, newJSON);
+                    }
                 }
                 if (currentShape) {
                     switch (getShapeType(currentShape)) {
@@ -132,6 +145,8 @@ const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent }) =
                 }
                 let shader = new Shader(color, fill ? color : null, 10, false);
                 switch (tool) {
+                    case 'grab':
+                        break;
                     case 'rectangle':
                         currentShape = new Rectangle(p.mouseX, p.mouseY, 0, 0, shader);
                         break;
@@ -141,16 +156,49 @@ const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent }) =
                     case 'paint':
                         currentShape = new Curve([{ x: p.mouseX, y: p.mouseY }], shader);
                         break;
-                    default:
-                        console.log("default");
-                        break;
                     case 'select':
                         currentShape = new Rectangle(p.mouseX, p.mouseY, 0, 0, shader);
+                        break;
+                    default:
+                        console.log("default");
                         break;
                 }
             };
 
+            p.mouseDragged = function (event) {
+                if (p.mouseX <= 0 || p.mouseX >= p.width || p.mouseY <= 0 || p.mouseY >= p.height) {
+                    return;
+                }
+                if (tool === 'grab') {
+                    if (!selectedShape) {
+                        for (let shape of strokes) {
+                            if (shape.isNear(p.mouseX, p.mouseY)) {
+                                selectedShape = shape;
+                                setSelectedShape(shape);
+                                break;
+                            }
+                        }
+                    }
+                    if (!selectedShape) return;
+                    if (getShapeType(selectedShape) === 'curve') {
+                        for (let point of selectedShape.points) {
+                            point.x += event.movementX;
+                            point.y += event.movementY;
+                        }
+                    } else {
+                        selectedShape.x += event.movementX;
+                        selectedShape.y += event.movementY;
+                    }
+                }
+            }
+
             p.mouseReleased = function () {
+                if (tool === 'grab') {
+                    if (!selectedShape) return;
+                    updateDoc(selectedShape.id, selectedShape.toJSON());
+                    setSelectedShape(null);
+                    return;
+                }
                 if (currentShape === null) return;
                 let shapeType = getShapeType(currentShape);
                 if (shapeType === "rectangle" || shapeType === "ellipse") {
@@ -170,7 +218,6 @@ const P5Wrapper = ({ roomCode, tool, color, fill, clearEvent, setClearEvent }) =
                         }
                     }
                     setSelection([...newSelection]);
-                    console.log(newSelection);
                 }
                 currentShape = null;
             };
