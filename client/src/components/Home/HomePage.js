@@ -33,14 +33,16 @@ function HomePage() {
 
         roomsSnapshot.forEach(doc => {
           const roomData = doc.data();
-          // console.log('roomData: ', roomData);
-          // console.log('roomData.userList: ', roomData.userList);
 
-          const userListArray = Object.values(roomData.userList || {}).map((userItem) => ({
-            role: userItem.role,
-            uid: userItem.uid
-          }));
+          // const userListArray = Object.values(roomData.userList || {}).map((userItem) => ({
+          //   role: userItem.role,
+          //   uid: userItem.uid
+          // }));
 
+          // filter userList to exclude deleted users
+          const userListArray = Object.values(roomData.userList || {}).filter((userItem) => !userItem.deleted);
+
+          // check if current user is in the room
           const isUserInRoom = userListArray.some(userItem => userItem.uid === user.uid);
 
           if (isUserInRoom) {
@@ -214,17 +216,22 @@ function HomePage() {
       if (doc.exists()) {
         const roomData = doc.data();
 
-        const currUserList = Object.values(roomData.userList || {}).map((userItem) => ({
-          role: userItem.role,
-          uid: userItem.uid
-        }));
+        // const currUserList = Object.values(roomData.userList || {}).map((userItem) => ({
+        //   role: userItem.role,
+        //   uid: userItem.uid
+        // }));
+        // filter userList to exclude users marked as deleted
+        // const currUserList = Object.values(roomData.userList || {}).filter((userItem) => !userItem.deleted);
+        const currUserList = Object.values(roomData.userList || {});
 
-        const updatedUserList = roomData.userList ? [
-          ...currUserList,
-          { uid: user.uid, role: "editor" }
-        ] : [{ role: "editor ", uid: user.uid }]; // default to a new array is userList does not exist
+        // check if current user is already in the room
+        const userInRoom = currUserList.some((userItem) => userItem.uid === user.uid);
+        if (!userInRoom) {
+          // add current user to the userList if not already present
+          const nextIndex = currUserList.length;
+          const updatedUserList = { ...roomData.userList, [nextIndex]: { uid: user.uid, role: "editor" } };
 
-        updateDoc(roomDocRef, { userList: updatedUserList})
+          updateDoc(roomDocRef, { userList: updatedUserList})
           .then(() => {
             setRooms((prevRooms) => [
               ...prevRooms,
@@ -234,6 +241,26 @@ function HomePage() {
           .catch((error) => {
             console.error("Error updating room: ", error);
           })
+          
+        } else {
+          alert("You are already in this room!");
+        }
+
+        // const updatedUserList = roomData.userList ? [
+        //   ...currUserList,
+        //   { uid: user.uid, role: "editor" }
+        // ] : [{ role: "editor ", uid: user.uid }]; // default to a new array is userList does not exist
+
+        // updateDoc(roomDocRef, { userList: updatedUserList})
+        //   .then(() => {
+        //     setRooms((prevRooms) => [
+        //       ...prevRooms,
+        //       { name: roomData.name, code: roomData.code }
+        //     ]);
+        //   })
+        //   .catch((error) => {
+        //     console.error("Error updating room: ", error);
+        //   })
       } else {
         alert("Room does not exist!");
       }
