@@ -35,6 +35,8 @@ export const RoomSettingsProvider = ({ children, roomCode }) => {
                 // room settings
                 setSelectedColor(data.settings?.color || 'default');
                 setSelectedLight(data.settings?.light || 'light');
+                console.log("RoomSettingsContext selectedColor: ", selectedColor);
+                console.log("RoomSettingsContext selectedLight: ", selectedLight);
 
                 // find current user's role in userList - can use contextUserRole in other modules to check if they have access
                 const userList = data.userList || [];
