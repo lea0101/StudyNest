@@ -38,6 +38,13 @@ function YouTubePlayer({ videoId, timestamp, onTimeUpdate, videoState, setVideoS
     const onPlayerReady = (event) => {
       setPlayer(event.target);
     }
+
+    useEffect(() => {
+      console.log('video id', videoId);
+      // if (player && videoId) {
+      //   player.loadVideoById(videoId);
+      // }
+    }, [player, videoId]);
   
     const onStateChange = (event) => {
       setPlayerReady(true);
@@ -46,7 +53,7 @@ function YouTubePlayer({ videoId, timestamp, onTimeUpdate, videoState, setVideoS
         setVideoState(1);
         const interval = setInterval(() => {
           const currentTime = player.getCurrentTime();
-          console.log(currentTime);
+          // console.log(currentTime);
           onTimeUpdate(currentTime);
         }, 500);
         return () => clearInterval(interval);

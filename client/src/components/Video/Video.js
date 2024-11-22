@@ -26,7 +26,6 @@ const Video = () => {
     let [displayName, setDisplayName] = useState('');
     let [photoURL, setPhotoURL] = useState('');
     let [videoState, setVideoState] = useState(0);
-    let [videoStateSignal, setVideoStateSignal] = useState(0);
 
     const [isAuthorized, setAuthorized] = useState(2);
 
@@ -142,26 +141,21 @@ const Video = () => {
             return;
         }
         console.log(videoId, timestamp, videoState);
-        if (videoState === 0) {
-            return;
-        }
-        if (videoSync) {
-            console.log('updating', {
-                videoId: videoId,
-                timestamp: timestamp,
-                videoState: videoState,
-                lastUpdated: user.uid
-            });
-            setDoc(doc(db, 'yt-time', roomCode),
-            {
-                videoId: videoId,
-                timestamp: timestamp,
-                videoState: videoState,
-                lastUpdated: user.uid
-            }).then(() => {
-                setVideoState(0);
-            });
-        }
+        console.log('updating', {
+            videoId: videoId,
+            timestamp: timestamp,
+            videoState: videoState,
+            lastUpdated: user.uid
+        });
+        setDoc(doc(db, 'yt-time', roomCode),
+        {
+            videoId: videoId,
+            timestamp: timestamp,
+            videoState: videoState,
+            lastUpdated: user.uid
+        }).then(() => {
+            setVideoState(0);
+        });
     }, [videoSync, videoId, videoState]);
 
     async function addAnnotation() {
