@@ -143,3 +143,115 @@ Severity: 2
 1. The link should be highlighted and clickable in the message that appears.
 2. After a short period, an embed of the website should appear beneath the original message containing the favicon for the website and it's title.
 2. Refreshing the page should still show the embed.
+
+
+# Test Case 341
+Sprint 3
+User Story 4:As a user, I would like to reset my password, if time allows.
+This test tests the reset password emailing.
+## Instructions
+Go to the website and log out if logged in.
+From the login page, click on the Forgot Password button
+Put in the email to an account with an email that you have access to.
+Click the reset password button.
+Open your email app and log into the email you put into the bar.
+## Expected Results
+There should be an email that gives you the option to reset the password
+
+# Test Case 342
+Sprint 3
+User Story 4:As a user, I would like to reset my password, if time allows.
+This test tests the reset password functionality.
+## Instructions
+Complete test 342
+Click the link to reset the password.
+In the fields, type a new password.
+Go back to the study nest website.
+Enter the new password
+## Expected Results
+The reset password form gives you the option to reset the password.
+The user should be able to log into the page given the new password
+
+# Test Case 343
+Sprint 3
+User Story 4:As a user, I would like to reset my password, if time allows.
+This test tests the reset password error.
+## Instructions
+On the password reset page, put an invalid email like “invalid@gmail.com”
+Click the reset password button.
+## Expected Results
+An invalid user not found error should appear in the bottom of the screen.
+
+# Test Case 351
+Sprint 3
+User Story 5: As a user, I would like to be able to download and choose sticker packs, if time allows.
+This tests the sticker sending functionality.
+## Instructions
+Go to the study nest website.
+Log in and create a new room.
+Click the Chat button.
+Locate the sticky note button on the bottom of the page and click on it.
+From the list of images, click on the top left image.
+## Expected Results
+After clicking on the sticky node, a list of images in a grid appears.
+After clicking on the image, a new message should be sent with the image.
+
+# Test Case 352
+Sprint 3
+User Story 5: As a user, I would like to be able to download and choose sticker packs, if time allows.
+This tests if the sticker was sent properly.
+## Instructions
+Log into a different account from Test 351
+Join the newly created room from Test 351
+Click on chat.
+## Expected Results
+The newly sent sticker should appear in the chat for the other user.
+
+# Test Case 361
+Sprint 3
+User Story 6: As a user, I would like to be able to react to another user’s message with an emoji, if time allows.
+This tests the adding reaction functionality.
+## Instructions
+Finish Test 351.
+Send a new message “Test”.
+Click on the new message.
+Click on the “Add reaction” button”
+From the list of emojis, click on the 🙂
+## Expected Results
+After clicking on the 🙂, a new emoji should appear underneath # “Test”.
+
+# Test Case 362
+Sprint 3
+User Story 6: As a user, I would like to be able to react to another user’s message with an emoji, if time allows.
+This tests the persistence of reactions## .
+## Instructions
+Finish Test 361.
+Log out of the current account and make/log in to a new account.
+Join the room used in Test 351.
+Click on the chat in the room.
+## Expected Results
+The message # “Test” will have the 🙂 emoji underneath it.
+
+# Test Case 363
+Sprint 3
+User Story 6: As a user, I would like to be able to react to another user’s message with an emoji, if time allows.
+This tests m## ultiple reactions.
+## Instructions
+Finish Test 362.
+Underneath “Test”, click on the message.
+From the list, click on the ♥️emoji.
+## Expected Results
+The message # “Test” should have the 🙂 and the ♥️emojis underneath it.
+
+# Test Case 364
+Sprint 3
+User Story 6: As a user, I would like to be able to react to another user’s message with an emoji, if time allows.
+This tests m## ultiple reactions, when they use the same reaction.
+## Instructions
+Finish Test 362.
+Underneath “Test”, click on the 🙂emoji.
+## Expected Results
+The message “Test” should have the 🙂 underneath it, with a 2 denoting that 2 people reacted to that emoji with 🙂.
+
+
+
