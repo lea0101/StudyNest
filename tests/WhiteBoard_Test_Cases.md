@@ -18,7 +18,7 @@ Test WhiteBoard Authentication and Authorization
 1. The first account should be able to view the the whiteboard page and interact with the system normally.
 2. The second account, upon entering in the URL from the first browser window, should be presented with a Not Authorized Page. 
 
-# Test Case 2
+# Test Case 371
 System: WhiteBoard
 Sprint: 3
 Severity: 1
@@ -41,7 +41,7 @@ Test Whiteboard Image Insertion Feature with Ctrl+V and Image Addresses
 2. When the insert image button is pressed in the pop-up modal, the image should then appear in the whiteboard in the top left corner.
 3. If the image URL is invalid, an error message should appear in the pop-up modal.
 
-# Test Case 3
+# Test Case 372
 System: WhiteBoard
 Sprint: 3
 Severity: 1
@@ -66,7 +66,7 @@ Test Whiteboard Image Insertion Feature with Insert Image Button + File
 3. After clicking the insert image button in the pop-up modal, the image should appear on the cnavas of the whiteboard.
 4. If the file uploaded is not a valid image, then an error message should appear in the pop-up modal.
 
-# Test Case 4
+# Test Case 373
 System: WhiteBoard
 Sprint: 3
 Severity: 1

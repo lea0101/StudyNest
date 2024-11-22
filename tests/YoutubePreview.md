@@ -58,7 +58,7 @@ Test the annotation feature of the Youtube Preview system
 
 
 
-# Test Case 3
+# Test Case 381
 ## User Story 8
 System: YouTube Preview
 Sprint: 3
@@ -92,7 +92,7 @@ Synchronization with video position and playstate.
 4. When the video timestamp is changed and then played again, both browsers should resume at that new timestamp.
 5. If one or both of the "Enable Sync" options for the browsers are not checked, the video should not be synchronized.
 
-# Test Case 4
+# Test Case 382
 ## User Story 8
 System: YouTube Preview
 Sprint: 3
