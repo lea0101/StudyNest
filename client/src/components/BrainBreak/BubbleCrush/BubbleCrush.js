@@ -189,6 +189,8 @@ const BubbleCrush = () => {
     
 
     
+
+    
     return (
         <div>
             <div className="hangman"
