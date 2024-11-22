@@ -5,6 +5,7 @@ import { SlackCounter, SlackSelector } from '@charkour/react-reactions';
 import EmbedList from "./EmbedList";
 
 import "./Chat.css";
+import "./ReactionBar.css";
 
 const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEditingUpstream, handleDeleteUpstream}) => {
   const [user] = useAuthState(auth);
@@ -16,6 +17,7 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
   const [showReactionChart, setShowReactionChart] = useState(false)
   const msgFocus = useRef(null);
   const msgTxt = useRef(message.text);
+  var emojiCounter = [];
 
   const extractUrls = (text) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -84,8 +86,8 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
     setIsClicked(false);
   }
 
-
   const handleAdd = () => { setShowReactionChart(!showReactionChart) }
+  const addReactionFromMenu = () => { setShowReactionChart(!showReactionChart) }
 
   return (<>
       <p onClick={handleMsgClick} contentEditable={isEditable}
@@ -99,20 +101,29 @@ const MessageBox = ({ message, resets, handleCancelUpstream, endTags, handleEdit
           <EmbedList messageText={message.text}/>
       </p>
     { message.updated && <p className={`details ${messageOwner}`}> edited </p>}
-    { isClicked && <div className="msgOptions">
-      {!message.isSticker && <button onClick={() => {handleEdit()}} > {editMessage} </button> }
-      <button onClick={() => {handleDeleteUpstream(message.id); setIsClicked(false);}} > Delete </button>
-      <button onClick={() => {handleCancel()}}> Cancel </button>
-    </div>
-      }
-    <div>
-      <SlackCounter  onAdd={handleAdd}/>
+
+    <div className={`reactionBar ${(emojiCounter) ? "hide":""}`} style={{alignSelf: (messageOwner == "me") ? "flex-end": "start"}}>
+      <SlackCounter onAdd={handleAdd} counters={emojiCounter}/>
       { showReactionChart ? (
-      <div style={{ position: 'absolute', bottom: '100%', marginBottom: '10px' }}>
-        <SlackSelector onSelect={ this.handleSelect }/>
+      <div style={{ position: 'inherit', bottom: '100%', marginBottom: '10px' }}>
+        <SlackSelector />
       </div>
     ) : null }
     </div>
+
+
+    { isClicked && <div className="msgOptions">
+      {!message.isSticker && <button onClick={() => {handleEdit()}} > {editMessage} </button> }
+      <button onClick={() => {handleDeleteUpstream(message.id); setIsClicked(false);}} > Delete </button>
+      <button onClick={() => {addReactionFromMenu()}}> Add Reaction</button>
+      <button onClick={() => {handleCancel()}}> Cancel </button>
+      { showReactionChart ? (
+        <div style={{ position: 'inherit', display:"inline-block", bottom: '100%', marginBottom: '10px' }}>
+        <SlackSelector />
+      </div>
+    ) : null }
+    </div>
+      }
   </>)
 }
 

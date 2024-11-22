@@ -1,0 +1,7 @@
+.hide {
+  display: none;
+}
+
+.reactionBar:hover + .hide {
+  display: block;
+}
