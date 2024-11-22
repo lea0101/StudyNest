@@ -57,10 +57,26 @@
   position: absolute;
 }
 
+.msgbubble {
+  width: fit-content;
+  margin: 0.25rem 0 0;
+}
+
 p.from-me {
   align-self: flex-end;
   background-color: #00CE48;
   color: #fff;
+}
+
+p.sticker {
+	background: none;
+	height: 150px;
+  padding: 0px;
+}
+
+img.sticker {
+  padding-top: 0px;
+  border-radius: 20px;
 }
 
 p.from-me::before {
@@ -78,40 +94,48 @@ p.from-me::after {
   width: 10px;
 }
 
-p[class^="from-"] {
-  margin: 0.25rem 0 0;
-  width: fit-content;
-}
+/*p[class^="from-"] {*/
+/*  margin: 0.25rem 0 0;*/
+/*  width: fit-content;*/
+/*}*/
 
-p.from-them ~ p.from-them {
-  margin: 0.25rem 0 0;
-}
+/*p.from-them ~ p.from-them {*/
+/*  margin: 0.25rem 0 0;*/
+/*}*/
 
-p.from-them ~ p.from-them:not(:last-child) {
-  margin: 0.25rem 0 0;
-}
+/*p.from-them ~ p.from-them:not(:last-child) {*/
+/*  margin: 0.25rem 0 0;*/
+/*}*/
 
-p.from-them ~ p.from-them:last-child {
-  margin: 0.25rem 0 0;
-  margin-bottom: 0.5rem;
-}
+/*p.from-them ~ p.from-them:last-child {*/
+/*  margin: 0.25rem 0 0;*/
+/*  margin-bottom: 0.5rem;*/
+/*}*/
 
-p.from-them ~ p.from-them {
-  margin: 0.25rem 0 0;
-}
+/*p.from-them ~ p.from-them {*/
+/*  margin: 0.25rem 0 0;*/
+/*}*/
 
-p.from-me:first-child {
-  margin: 0 0 0.25rem;
-}
+/*p.from-them:nth-of-type(1) {*/
+/*  margin: 0.25rem 0 0;*/
+/*}*/
 
-p.from-me ~ p.from-me:not(:last-child) {
-  margin: 0.25rem 0 0;
-}
+/*p.from-me:first-of-type {*/
+/*  margin: 0.25rem 0 0;*/
+/*}*/
 
-p.from-me ~ p.from-me:last-child {
-  margin: 0.25rem 0 0;
-  margin-bottom: 0.5rem;
-}
+/*p.from-me:nth-of-type(1) {*/
+/*  margin: 0.25rem 0 0;*/
+/*}*/
+
+/*p.from-me ~ p.from-me:not(:last-child) {*/
+/*  margin: 0.25rem 0 0;*/
+/*}*/
+
+/*p.from-me ~ p.from-me:last-child {*/
+/*  margin: 0.25rem 0 0;*/
+/*  margin-bottom: 0.5rem;*/
+/*}*/
 
 p.from-them {
   align-items: flex-start;
@@ -205,6 +229,10 @@ p.user-name.them {
 }
 
 .msgOptions {
+  text-align: left;
+}
+
+.msgOptions.me {
   text-align: right;
 }
 

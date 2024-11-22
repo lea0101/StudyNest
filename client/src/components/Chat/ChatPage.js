@@ -59,6 +59,12 @@ function ChatPage() {
     setResets(resets + 1);
   }
 
+  async function handleAddReaction(msgId, reactions) {
+    await updateDoc(doc(db, 'rooms', roomCode, 'messages', msgId), {
+      reactions: [...reactions]
+    });
+  }
+
 
 //const sendMail = async () => {
 //  //console.log('cr')
@@ -140,7 +146,7 @@ function ChatPage() {
                 <Fragment key={i}>
                   { ((i === 0) || (messages[i - 1].uid !== message.uid)) &&
                   <SenderInfo message={message} key={`Senderinfo-${i}`} /> }
-                  <MessageBox message={message} resets={resets} handleCancelUpstream={handleMsgCancel} endTags={endTags} handleEditingUpstream={setEditing} handleDeleteUpstream={setDelete} key={message.id}/>
+                  <MessageBox message={message} resets={resets} handleCancelUpstream={handleMsgCancel} endTags={endTags} handleEditingUpstream={setEditing} handleDeleteUpstream={setDelete} handleAddReactionUpstream={handleAddReaction} reactions={message.reactions} key={message.id}/>
                 </Fragment>
               )
           })
