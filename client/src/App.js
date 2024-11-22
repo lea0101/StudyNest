@@ -17,6 +17,7 @@ import Video from './components/Video/Video';
 import BrainBreakPage from './components/BrainBreak/BrainBreakPage';
 import Hangman from './components/BrainBreak/Hangman/Hangman';
 import Meditation from './components/BrainBreak/Meditation/Meditation';
+import BubbleCrush from './components/BrainBreak/BubbleCrush/BubbleCrush';
 
 import UserSettings from "./components/Settings/UserSettings";
 import NotFoundPage from './Pages/NotFoundPage';
@@ -24,7 +25,7 @@ import NotAuthorizedPage from "./Pages/NotAuthorizedPage";
 
 import { TimerProvider } from './components/Timer/TimerContext';
 import RoomWrapper from './components/Room/RoomWrapper';
-import BubbleCrush from './components/BrainBreak/BubbleCrush/BubbleCrush';
+
 
 function App() {
   const [user] = useAuthState(auth);

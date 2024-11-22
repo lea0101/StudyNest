@@ -77,6 +77,25 @@ body, html {
   background-color: var(--button-color, #6fb2c5);
 }
 
+.share-room-button {
+  position: absolute;
+  border-radius: 10px;
+  bottom: 50px;
+  left: 0px;
+  width: 140px;
+  font-size: 14px;
+  background-color: var(--button-color, #6fb2c5);
+  box-shadow: 10 4px 10px rgba(0, 0, 0, 0.2);
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 200px;
+  box-sizing: border-box;
+}
+
+
 .confirm-leave-button {
   background-color: #ee5454;
   border: none;
@@ -751,17 +770,42 @@ input {
 }
 
 .dynamic-button {
-  background-color: var(--button-color, #6fb2c5);
-  color: black;
+  background-color: grey;
+  color: white;
   width: 100%;
   max-width: 200px;
   border: none;
-  padding: 10px;
+  padding: 7px;
   border-radius: 10px;
   cursor: pointer;
   box-sizing: border-box;
   margin-top: 10px;
   transition: background-color 0.3s ease;
+
+  border-radius: 5px;
+  border: 1px solid #6fb2c5;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.dynamic-button:hover {
+  background-color:var(--button-color, #6fb2c5);
+  color: black;
+}
+
+.user-card {
+  background-color: grey;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 1px solid #6fb2c5;
+  cursor: pointer;
+}
+
+.user-card:hover {
+  background-color:var(--button-color, #6fb2c5);
 }
 
 .video-thumbnail-holder {

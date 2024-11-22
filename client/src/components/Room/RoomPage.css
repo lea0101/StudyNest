@@ -3,41 +3,52 @@
     justify-content: space-between;
     align-items: center;
     height: 100vh;
-    padding: 20px;
     box-sizing: border-box;
     max-width: 1200px;
     gap: 20px;
     margin: 0 auto;
 }
 
-/* .room-users {
-    flex: 1;
-    max-width: 500px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    overflow-y: auto;
-    scrollbar-width: thin;
-} */
-
 .room-users {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    margin-top: 20px;
     /* padding: 20px; */
     /* margin-top: 20px; */
 }
 
+.room-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+
+    padding: 20px;
+    margin-top: -5;
+}
+
 .room-users-list {
     max-width: 300px;
-    max-height: 100px;
-    overflow-y: auto;
+    max-height: 200px;
+    overflow-y: scroll;
     scrollbar-width: thin;
     width: 100%;
+
+    display: flex;
+    flex-direction: column;
 }
+  
+  .user-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #6fb2c5;
+  }
+  
+  .user-name {
+    font-size: 16px;
+    font-weight: 500;
+  }
 
 .room-content {
     flex: 3;
@@ -71,7 +82,6 @@
     width: 200px;
     color: white;
     font-size: 16px;
-    background-color: transparent;
     border: none;
     cursor: pointer;
     /* text-align: left; */

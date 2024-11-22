@@ -436,6 +436,26 @@ function RoomPage() {
         }
     }
 
+    const getUserIcon = async (user) => {
+        setLoadingUser(true);
+        try {
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const i = userData.icon;
+                setImgURL(i);
+                return i;
+            }
+        } catch (error) {
+            console.error("Error fetching user icon: ", error);
+            setSelectedUserBio("Error fetching icon");
+        } finally {
+            setLoadingUser(false);
+        }
+    }
+
     // toggle for cancel leave
     const handleCancelBio = () => {
         setShowBio(false);
@@ -471,7 +491,12 @@ function RoomPage() {
                 <h1>Welcome to Room {roomName}</h1>
             </div>
 
+            {/* TIMER */}
+            <Timer />
+
+            <div style={{ display: 'flex' }}>
             {/* content in the middle */}
+            {/*
             <div className="room-users">
                 <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Users in Room</h2>
                 <div className="room-users-list">
@@ -491,6 +516,41 @@ function RoomPage() {
                             </button>
                         ))}
                     </ul>
+                </div>
+            </div> 
+                            */}
+
+
+
+            {/* USER LIST */}       
+                 
+            <div className="room-users room-actions">
+            {/* Room header with dynamic color based on selectedLight */}
+            <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>
+                Users in Room
+            </h2>
+                <div style={{flex: 1}}> 
+                    {/* User list container */}
+                    <div className="room-users-list">
+                        {userList.map((user, i) => (
+                        <div
+                            key={i}
+                            onClick={() => handleClickUser(user)}
+                            style={{
+                            color: selectedLight === 'light' ? '#000' : '#fff',
+                            }}
+                        >
+                            {/* <img
+                            src={imgURL}
+                            alt={`${user.username}'s profile`}
+                            className="user-profile-pic"
+                        /> */}
+
+                            <button className="dynamic-button" >{user.username}</button>
+                            {/*<span className="user-name">{user.username}</span>*/}
+                        </div>
+                    ))}
+                    </div>
                 </div>
             </div>
 
@@ -539,12 +599,19 @@ function RoomPage() {
                 )
             )}
 
-            <h3 style={{ color: selectedLight === 'light' ? 'black' : 'white' }}>Explore your virtual study room</h3>
-            <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
-            <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
-            <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
-            <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
-            <Timer />
+
+            {/* ROOM ACTIONS */}
+            <div className="user-name room-actions" style={{flex: 1}}> 
+                <h2 style={{ color: selectedLight === 'light' ? 'black' : 'white'}}>
+                    Explore your virtual study room
+                </h2>
+                
+                <button className="dynamic-button" onClick={handleEnterChat}>Chat</button>
+                <button className="dynamic-button" onClick={handleEnterWhiteboard}>Whiteboard</button>
+                <button className="dynamic-button" onClick={handleEnterFileCollab}>File Sharing</button>
+                <button className="dynamic-button" onClick={handleEnterVideo}>Video Streaming</button>
+            </div>
+            
 
             {/* <div className="room-container">
                 <div className="room-users">
@@ -638,7 +705,7 @@ function RoomPage() {
                 >
                     Room Code: {roomCode}
                 </button>
-                <button className="dynamic-button" onClick={() => setShowShare(true)}>Share</button>
+                <button className=" share-room-button" onClick={() => setShowShare(true)}>Share</button>
             </div>
 
             {/* Share Room Code */}
@@ -836,6 +903,7 @@ function RoomPage() {
                     </div>
                 </div>
             )}
+            </div>
 
         </div>
     ) }
