@@ -99,15 +99,14 @@
         float: left;
         margin: 10px;
         position: relative;
-        z-index: 50;
     }
-    position: absolute;
-    z-index: 6;
+    position: relative;
+    z-index: 8;
 }
 
 .highlight-block {
     position: relative;
-    z-index: 5;
+    z-index: 6;
     background-color: rgba(255, 255, 0, .4);
     margin: 0 auto;
 }
@@ -128,7 +127,7 @@
 
 .add-note-dialog {
     position: relative;
-    z-index: 6;
+    z-index: 10;
 }
 
 
@@ -157,6 +156,7 @@
     position: absolute;
     max-width: 50px;
     max-height: 50px;
+    z-index: 2;
 }
 
 .sidebar-note-link {

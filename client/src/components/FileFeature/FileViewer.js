@@ -174,7 +174,7 @@ const FileViewer = (props) => {
                 left: `${props.selectionRegion.left}%`,
                 top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
                 transform: 'translate(0, 8px)',
-                zIndex: 1,
+                zIndex: 15,
             }}
         >
             <Tooltip
@@ -194,7 +194,7 @@ const FileViewer = (props) => {
                         <FaHighlighter />
                     </Button>
                 }
-                content={() => <div style={{ width: '100px' }}>Highlight selection</div>}
+                content={() => <div style={{ width: '100px', zIndex: 16, position: 'sticky' }}>Highlight selection</div>}
                 offset={{ left: 0, top: -8 }}
             />
         </div>
@@ -261,7 +261,7 @@ const FileViewer = (props) => {
                     position: 'absolute',
                     left: `${props.selectionRegion.left}%`,
                     top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
-                    zIndex: 1,
+                    zIndex: 8,
                 }}
                 className="add-note-dialog"
             >
@@ -531,7 +531,7 @@ const FileViewer = (props) => {
         const docRef = doc(db, "file_bookmarks", bookmarkID);
         deleteDoc(docRef)
         .then(() => {
-            setBookmarks([]);
+            setBookmarks(bookmarks.filter(bmark => bmark.docID !== bookmarkID));
             setShouldUpdateBookmarks(!shouldUpdateBookmarks);
         })
         .catch(error => {
