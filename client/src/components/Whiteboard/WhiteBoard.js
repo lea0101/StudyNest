@@ -7,9 +7,11 @@ import { getAuth } from "firebase/auth";
 
 import { db } from "../../config/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
 import NotAuthorizedPage from "../../Pages/NotAuthorizedPage";
 
 import { useLocation } from 'react-router-dom';
+
 
 const WhiteBoard = () => {
     const auth = getAuth();
@@ -30,6 +32,8 @@ const WhiteBoard = () => {
     let [imageURL, setImageURL] = useState('');
     let [newImageURL, setNewImageURL] = useState('');
 
+    const storage = getStorage();
+
     const isValidP5Image = async (url) => {
         try {
             const response = await fetch(url, { method: 'HEAD' });
@@ -48,9 +52,44 @@ const WhiteBoard = () => {
     };
 
     const addImage = async () => {
+        // first check if the input is a file
+        const fileInput = document.getElementById('addImageFileInput');
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            if (!file.type.startsWith('image/')) {
+                setErrorMessage('Invalid file type. Please upload an image file.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async () => {
+                try {
+                    // Initialize Firebase storage
+                    const storageRef = await ref(storage, `whiteboard_images/${roomCode}/${file.name}`); // Change 'images/' to your desired path
+                    
+                    // Upload image as a base64 string
+                    const snapshot = await uploadString(storageRef, reader.result, 'data_url');
+                    console.log("Upload complete!", snapshot);
+    
+                    // Get the download URL
+                    const downloadURL = await getDownloadURL(storageRef);
+                    console.log("File available at:", downloadURL);
+    
+                    // Optionally, handle the URL (e.g., save it to your database or update the UI)
+                    setNewImageURL(downloadURL);
+                    setImageURL('');
+                    setShowImageAdd(false);
+                } catch (error) {
+                    console.error("Error uploading file:", error);
+                    setErrorMessage('Error uploading file. Please try again.');
+                }
+            };
+            reader.readAsDataURL(file);
+            return;
+        }
+
         const url = document.getElementById('addImageURLInput').value;
         if (url === '') {
-            setErrorMessage('Please enter a valid URL');
+            setErrorMessage('Please enter a valid URL or upload a file');
             return;
         }
         const img = new Image();
@@ -214,6 +253,8 @@ const WhiteBoard = () => {
                     >
                         <div className="share-content">
                             <input id="addImageURLInput" type="text" defaultValue={imageURL} placeholder='Image URL'/>
+                            {/* File input */}
+                            <input id="addImageFileInput" type="file" accept="image/*" />
                             <button className='b-button' onClick={addImage}>Insert Image</button>
                             {errorMessage && <p style={{"color": "red"}}>{errorMessage}</p>}
                         </div>
