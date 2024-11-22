@@ -4,12 +4,13 @@ import {
     collection,
     onSnapshot,
     addDoc,
-    setDoc
+    setDoc,
+    updateDoc
 } from "firebase/firestore";
 import { db } from "../../config/firebase";
 import YouTubeAPIKey from "../../config/youtube";
 
-function VideoQueue({ setCurrentVideo }) {
+function VideoQueue({ roomCode, setCurrentVideo }) {
     
     let [queue, setQueue] = useState([]);
     let [errorMessage, setErrorMessage] = useState('');
@@ -42,7 +43,9 @@ function VideoQueue({ setCurrentVideo }) {
 
     useEffect(() => {
         const q = query(
-            collection(db, "video-queue")
+            // collection(db, "video-queue")
+            collection(db, `video-queue-${roomCode}`)
+            // collection(db, 'video-queue', roomCode)
         );
         const unsubscribe = onSnapshot(q, async (QuerySnapshot) => {
             const newQueue = [];
@@ -100,7 +103,8 @@ function VideoQueue({ setCurrentVideo }) {
             return;
         }
         setQueue([...queue, video]);
-        addDoc(collection(db, "video-queue"), video);
+        addDoc(collection(db, `video-queue-${roomCode}`), video);
+        // updateDoc(collection(db, 'video-queue', roomCode), video);
     }
 
     return (

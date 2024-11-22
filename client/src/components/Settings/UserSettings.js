@@ -6,7 +6,7 @@ import { storage, auth } from '../../config/firebase';
 import { updateProfile } from 'firebase/auth';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { getDoc } from "firebase/firestore";
+import { getDoc, getDocs, where, query, collection } from "firebase/firestore";
 import NavBar from "../Home/NavBar";
 
 import defaultIcon1 from '../../img/default_icon_1.png'
@@ -20,7 +20,7 @@ import iconPlaceholder from '../../img/icon_placeholder.png'
 import "./UserSettings.css"
 
 import { db } from "../../config/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 
 const defaultIcons = [
     { value: 'icon1', label: 'Icon 1', image: defaultIcon1},
@@ -131,16 +131,59 @@ function UserSettings() {
 
   const handleDeleteAccount = () => {
     setShowConfirmation(true);
-
-    // other code to delete account (can't log in, not shown in rooms anymore)
   }
 
   const handleCancelConfirm = () => {
     setShowConfirmation(false);
   }
 
-  const handleDeleteConfirm = () => {
-    navigate("/signup");
+  const handleDeleteConfirm = async () => {
+    // mark a user as deleted if they confirm the delete action
+    if (auth.currentUser) {
+      try {
+        // step 1: mark the user as deleted in Firestore
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(userDocRef, { deleted: true });
+
+
+        // step 2: mark the user as deleted in all their rooms
+        const roomsQuery = query(collection(db, "rooms"), where("userList", "!=", null));
+        const roomsSnapshot = await getDocs(roomsQuery);
+
+        const roomUpdatePromises = [];
+
+        roomsSnapshot.forEach((roomDoc) => {
+          const roomData = roomDoc.data();
+
+          const userList = Object.values(roomData.userList || {});
+
+          const updatedUserList = userList.map((currUser) => {
+            if (currUser.uid === auth.currentUser.uid) {
+              return { ...currUser, deleted: true }; // mark user as deleted
+            }
+            return currUser;
+          })
+
+          roomUpdatePromises.push(
+            updateDoc(doc(db, "rooms", roomDoc.id), { userList: updatedUserList })
+          )
+        });
+        
+        // wait for all room updates to complete
+        await Promise.all(roomUpdatePromises);
+
+
+        // step 3: log out the user after marking them as deleted
+        await auth.signOut();
+
+
+        // step 4: redirect to signup page
+        navigate("/signup");
+      } catch (error) {
+        console.error("Error marking user as deleted: ", error);
+        alert("Failed to delete account. Please try again.");
+      }
+    }
   }
 
   return (
@@ -203,6 +246,12 @@ function UserSettings() {
 
           <div className="button-group">
             <button type="submit" class='save-button'>Save Changes</button>
+            {/* <button class='delete-account-button' onClick={handleDeleteAccount}>Delete My Account</button> */}
+          </div>
+          <br/>
+          
+          <div className="button-group">
+            <label style={{display: "flex", justifyContent: "center"}}>Danger Zone: Delete Account</label>
             <button class='delete-account-button' onClick={handleDeleteAccount}>Delete My Account</button>
           </div>
         </form>

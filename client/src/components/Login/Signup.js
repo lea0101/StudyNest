@@ -23,7 +23,8 @@ function Signup() {
             // signed in
             const user = userCredential.user;
             console.log(user);
-            navigate("/login");
+            // navigate("/login");
+            navigate("/home");
         })
         .catch((error) => {
             const errorCode = error.code;

@@ -4,8 +4,19 @@
     justify-content: space-between;
     align-items: center;
     background: linear-gradient(180deg, #c5f2ff, #dfcaff);
-    height: 100vh;
+    height: 97vh;
     width: 100vw;
+    color: black;
+    padding: 20px;
+}
+
+.bc-hangman {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 97vh;
+    background: linear-gradient(180deg, #c5f2ff, #dfcaff);
     color: black;
     padding: 20px;
 }

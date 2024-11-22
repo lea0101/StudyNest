@@ -45,3 +45,20 @@ button.selected {
 canvas {
     border: 1px solid black;
 }
+
+label {
+    margin: 10px;
+    width: max-content;
+}
+
+.resize-param {
+    display: flex;
+}
+
+.context-menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+}

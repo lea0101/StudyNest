@@ -30,6 +30,7 @@ function Hangman() {
         }
     }, [isTimerDone, resetTimerStatus]);
 
+    // comment out during demo for a non-random word
     useEffect(() => {
         // pick a random word from wordList.json
         const randomWord = wordList[Math.floor(Math.random() * wordList.length)];

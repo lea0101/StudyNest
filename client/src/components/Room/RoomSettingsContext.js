@@ -39,9 +39,11 @@ export const RoomSettingsProvider = ({ children, roomCode }) => {
                 console.log("RoomSettingsContext selectedLight: ", selectedLight);
 
                 // find current user's role in userList - can use contextUserRole in other modules to check if they have access
-                const userList = data.userList || [];
+                // const userList = data.userList || [];
+                const userList = Object.values(data.userList || {});
                 const currUserRole = userList.find(user => user.uid === currentUser.uid)?.role || null;
                 setContextUserRole(currUserRole);
+                console.log("RoomSettingsContext contextUserRole: ", contextUserRole);
             } else {
                 console.error("room doc does not exist")
             }
