@@ -10,7 +10,7 @@ import orange from './img/default_icon_3.png'
 import purple from './img/default_icon_4.png'
 import red from './img/default_icon_5.png'
 import yellow from './img/default_icon_6.png'
-import blank from './purple-bubble.png'
+import blank from './splosion.png'
 
 import ScoreBoard from './ScoreBoard'
 
