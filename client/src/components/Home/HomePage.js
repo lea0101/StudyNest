@@ -155,14 +155,18 @@ function HomePage() {
 
   getDoc(roomDocRef).then(snapshot => {
     if (snapshot.exists()) {
-      const priorUserList = snapshot.data().userList || [];
-      const newUserList = priorUserList.filter(userUid => userUid.uid !== user.uid);
+      const priorUserList = snapshot.data().userList || {};
+      const newUserList = Object.keys(priorUserList).reduce((updatedList, key) => {
+          if (priorUserList[key].uid !== user.uid) {
+              updatedList[key] = priorUserList[key];
+          }
+          return updatedList;
+      }, {});
 
       updateDoc(roomDocRef, { userList: newUserList })
         .then(() => {
           const newList = rooms.filter(room => room.code !== roomToDelete.code);
           setRooms(newList); // update rooms list
-          // setRoomName(newList);
           const userDocRef = doc(db, 'users', user.uid);
           updateDoc(userDocRef, { rooms: newList }, {merge: true});
         })
