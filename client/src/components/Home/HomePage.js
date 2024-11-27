@@ -215,13 +215,6 @@ function HomePage() {
     getDoc(roomDocRef).then(doc => {
       if (doc.exists()) {
         const roomData = doc.data();
-
-        // const currUserList = Object.values(roomData.userList || {}).map((userItem) => ({
-        //   role: userItem.role,
-        //   uid: userItem.uid
-        // }));
-        // filter userList to exclude users marked as deleted
-        // const currUserList = Object.values(roomData.userList || {}).filter((userItem) => !userItem.deleted);
         const currUserList = Object.values(roomData.userList || {});
 
         // check if current user is already in the room
@@ -245,22 +238,6 @@ function HomePage() {
         } else {
           alert("You are already in this room!");
         }
-
-        // const updatedUserList = roomData.userList ? [
-        //   ...currUserList,
-        //   { uid: user.uid, role: "editor" }
-        // ] : [{ role: "editor ", uid: user.uid }]; // default to a new array is userList does not exist
-
-        // updateDoc(roomDocRef, { userList: updatedUserList})
-        //   .then(() => {
-        //     setRooms((prevRooms) => [
-        //       ...prevRooms,
-        //       { name: roomData.name, code: roomData.code }
-        //     ]);
-        //   })
-        //   .catch((error) => {
-        //     console.error("Error updating room: ", error);
-        //   })
       } else {
         alert("Room does not exist!");
       }
