@@ -218,7 +218,7 @@ function RoomPage() {
         getDoc(userDocRef)
             .then(snapshot => {
                 if (snapshot.exists()) {
-                    const userRooms = snapshot.data().rooms || [];
+                    const userRooms = snapshot.data().rooms || {};
                     const updatedUserRooms = userRooms.filter(room => room.name !== roomName || room.code !== roomCode);
                     return updateDoc(userDocRef, { rooms: updatedUserRooms });
                 } else {
@@ -231,8 +231,13 @@ function RoomPage() {
             })
             .then((snapshot) => {
                 if (snapshot.exists()) {
-                    const priorUserList = snapshot.data().userList || [];
-                    const newUserList = priorUserList.filter(userObj => userObj.uid !== user.uid);
+                    const priorUserList = snapshot.data().userList || {};
+                    const newUserList = Object.keys(priorUserList).reduce((updatedList, key) => {
+                        if (priorUserList[key].uid !== user.uid) {
+                            updatedList[key] = priorUserList[key];
+                        }
+                        return updatedList;
+                    }, {});
                     return updateDoc(roomDocRef, { userList: newUserList });
                 } else {
                     console.error("Room document not found.")

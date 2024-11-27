@@ -164,6 +164,7 @@ function UserSettings() {
             return currUser;
           })
 
+          // push the update promise for this room
           roomUpdatePromises.push(
             updateDoc(doc(db, "rooms", roomDoc.id), { userList: updatedUserList })
           )
