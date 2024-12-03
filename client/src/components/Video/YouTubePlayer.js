@@ -54,7 +54,9 @@ function YouTubePlayer({ videoId, timestamp, onTimeUpdate, videoState, setVideoS
         const interval = setInterval(() => {
           const currentTime = player.getCurrentTime();
           // console.log(currentTime);
-          onTimeUpdate(currentTime);
+          if (videoState === 1) {
+            onTimeUpdate(currentTime);
+          }
         }, 500);
         return () => clearInterval(interval);
       } else if (event.data === YouTube.PlayerState.PAUSED) {
