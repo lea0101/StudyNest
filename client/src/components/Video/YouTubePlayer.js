@@ -7,6 +7,7 @@ function YouTubePlayer({ videoId, timestamp, onTimeUpdate, videoState, setVideoS
 
     // update timestamp if updated
     useEffect(() => {
+    // useEffectDebugger(() => {
       if (!videoSync) {
         return;
       }
@@ -48,19 +49,18 @@ function YouTubePlayer({ videoId, timestamp, onTimeUpdate, videoState, setVideoS
   
     const onStateChange = (event) => {
       setPlayerReady(true);
+      const interval = setInterval(() => {
+        const currentTime = player.getCurrentTime();
+        onTimeUpdate(currentTime);
+      }, 500);
       if (event.data === YouTube.PlayerState.PLAYING) {
         // update video state to playing
         setVideoState(1);
-        const interval = setInterval(() => {
-          const currentTime = player.getCurrentTime();
-          // console.log(currentTime);
-          onTimeUpdate(currentTime);
-        }, 500);
-        return () => clearInterval(interval);
       } else if (event.data === YouTube.PlayerState.PAUSED) {
         // update video state to paused
         setVideoState(2);
       }
+      return () => clearInterval(interval);
     }
     const opts = {
       height: '500px',

@@ -26,6 +26,7 @@ const Video = () => {
     let [displayName, setDisplayName] = useState('');
     let [photoURL, setPhotoURL] = useState('');
     let [videoState, setVideoState] = useState(0);
+    let [videoFlag, setVideoFlag] = useState(false);
 
     const [isAuthorized, setAuthorized] = useState(2);
 
@@ -33,6 +34,16 @@ const Video = () => {
     const roomCode = state?.roomCode;
 
     let [videoSync, setVideoSync] = useState(false);
+
+    function updateVideoState(state) {
+        setVideoFlag(true);
+        setVideoState(state);
+    }
+
+    function updateVideoID(id) {
+        setVideoFlag(true);
+        setVideoId(id);
+    }
 
     useEffect(() => {
         console.log("useEffect 1");
@@ -128,16 +139,20 @@ const Video = () => {
         const unsubscribe = onSnapshot(q, (QuerySnapshot) => {
             QuerySnapshot.forEach((doc) => {
                 let data = doc.data();
+                // check if doc name is roomCode
+                if (doc.id !== roomCode) {
+                    return;
+                }
                 setTimestamp(data.timestamp);
                 setVideoId(data.videoId);
-                setVideoState(data.videoState || 0);
+                setVideoState(data.videoState);
             });
         });
         return () => unsubscribe;
     }, [videoSync]);
 
     useEffect(() => {
-        if (!videoSync) {
+        if (!videoSync || !videoFlag) {
             return;
         }
         console.log(videoId, timestamp, videoState);
@@ -154,9 +169,9 @@ const Video = () => {
             videoState: videoState,
             lastUpdated: user.uid
         }).then(() => {
-            setVideoState(0);
+            setVideoFlag(false);
         });
-    }, [videoSync, videoId, videoState]);
+    }, [videoSync, videoFlag]);
 
     async function addAnnotation() {
         console.log('add annotation');
@@ -228,7 +243,7 @@ const Video = () => {
                                         )
                         }
                     </ul>
-                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp} videoState={videoState} setVideoState={setVideoState} videoSync={videoSync}/>
+                    <YouTubePlayer videoId={videoId} timestamp={timestamp} onTimeUpdate={updateDBTimestamp} videoState={videoState} setVideoState={updateVideoState} videoSync={videoSync}/>
                 </div>
                 <div style={{ display: 'flex' }}>
                     <label style={{ width: 'max-content'}} htmlFor="enable-sync">Enable Sync: </label>
@@ -239,7 +254,7 @@ const Video = () => {
                     <button className='b-button' onClick={addAnnotation}>Submit</button>
                 </div>
             </div>
-            <VideoQueue roomCode={roomCode} setCurrentVideo={setVideoId}></VideoQueue>
+            <VideoQueue roomCode={roomCode} setCurrentVideo={updateVideoID}></VideoQueue>
         </div>
     );
 }
