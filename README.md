@@ -1,6 +1,13 @@
 # StudyNest
-A super cool web app for studying with friends
+StudyNest is a study app that helps students work together virtually. Most similar services cater to more community-centered features such as working anonymously with other students or joining public study rooms, whereas StudyNest offers a more personalized group study experience. 
+StudyNest includes many features to encourage good study techniques and collaboration among students. These features include:
+- Goal setting for the current study session in the form of a pomodoro timer
+- Messaging feature
+- Uploading, sharing, viewing, and synchronized annotation of PDF files
+- Music/video sharing to view the same content as students work, including the functionality of timestamped annotations
+- Synchronized whiteboard that can be edited by multiple users in real time
 
+-- Developer Stuff below --
 
 # Setup
 Run `npm i` then 
